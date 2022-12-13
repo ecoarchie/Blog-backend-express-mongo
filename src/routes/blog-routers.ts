@@ -15,7 +15,9 @@ blogRouter.post('/', (req: Request, res: Response) => {
 });
 
 blogRouter.get('/:id', (req: Request, res: Response) => {
-  const blogFound = blogsRepository.findBlogById(req.params.id.toString());
+  const blogFound: BlogViewModel | undefined = blogsRepository.findBlogById(
+    req.params.id.toString()
+  );
   if (blogFound) {
     res.send(blogFound);
   } else {
