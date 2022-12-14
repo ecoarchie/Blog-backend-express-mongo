@@ -24,3 +24,12 @@ exports.postRouter.get('/:id', (req, res) => {
         res.sendStatus(404);
     }
 });
+exports.postRouter.put('/:id', basic_auth_middleware_1.basicAuthMiddleware, blog_id_custom_validator_1.isValidBlogId, input_validation_middleware_1.postTitleValidation, input_validation_middleware_1.postDescriptionValidation, input_validation_middleware_1.postContentValidation, input_validation_middleware_1.inputValidatiomMiddleware, (req, res) => {
+    const isPostUpdated = posts_repository_1.postsRepository.updatePostById(req.params.id.toString(), req.body);
+    if (isPostUpdated) {
+        res.sendStatus(204);
+    }
+    else {
+        res.sendStatus(404);
+    }
+});

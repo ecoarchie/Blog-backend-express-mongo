@@ -55,4 +55,16 @@ export const postsRepository = {
     const post: PostViewModel | undefined = postsDB.find((p) => p.id === id);
     return post;
   },
+
+  updatePostById(id: string, newDatajson: PostInputModel): boolean {
+    const postToUpdate: PostViewModel | undefined = postsDB.find((p) => p.id === id);
+    if (!postToUpdate) return false;
+
+    const postIndexToChange: number = postsDB.findIndex((p) => p.id === id);
+    postsDB[postIndexToChange] = {
+      ...postToUpdate,
+      ...newDatajson,
+    };
+    return true;
+  },
 };

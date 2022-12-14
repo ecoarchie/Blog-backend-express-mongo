@@ -41,3 +41,24 @@ postRouter.get('/:id', (req: Request, res: Response) => {
     res.sendStatus(404);
   }
 });
+
+postRouter.put(
+  '/:id',
+  basicAuthMiddleware,
+  isValidBlogId,
+  postTitleValidation,
+  postDescriptionValidation,
+  postContentValidation,
+  inputValidatiomMiddleware,
+  (req: Request, res: Response) => {
+    const isPostUpdated: boolean = postsRepository.updatePostById(
+      req.params.id.toString(),
+      req.body
+    );
+    if (isPostUpdated) {
+      res.sendStatus(204);
+    } else {
+      res.sendStatus(404);
+    }
+  }
+);

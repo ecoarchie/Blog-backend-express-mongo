@@ -52,4 +52,12 @@ exports.postsRepository = {
         const post = postsDB.find((p) => p.id === id);
         return post;
     },
+    updatePostById(id, newDatajson) {
+        const postToUpdate = postsDB.find((p) => p.id === id);
+        if (!postToUpdate)
+            return false;
+        const postIndexToChange = postsDB.findIndex((p) => p.id === id);
+        postsDB[postIndexToChange] = Object.assign(Object.assign({}, postToUpdate), newDatajson);
+        return true;
+    },
 };
