@@ -3,11 +3,13 @@ import { validationResult, ValidationError, body } from 'express-validator';
 
 export const blogNameValidation = body('name')
   .exists()
-  // .withMessage('Name is required')
+  .withMessage('Name is required')
+  .bail()
   .trim()
   .not()
   .isEmpty()
   .withMessage('Name cannot be empty')
+  .bail()
   .isLength({ max: 15 })
   .withMessage('Name should be less than 15 symbols');
 
@@ -28,10 +30,12 @@ export const blogWebsiteUrlValidation = body('websiteUrl')
 export const postTitleValidation = body('title')
   .exists()
   .withMessage('Post title is requires')
+  .bail()
   .trim()
   .not()
   .isEmpty()
   .withMessage('Title cannot be empty')
+  .bail()
   .isLength({ max: 30 })
   .withMessage('Post title length should be less than 30 symbols');
 
