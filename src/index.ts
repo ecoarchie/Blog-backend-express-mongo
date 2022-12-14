@@ -2,12 +2,14 @@ import express, { Response, Request } from 'express';
 import bodyParser from 'body-parser';
 import { blogRouter } from './routes/blog-routers';
 import { blogsRepository } from './repositories/blogs-repository';
+import { postRouter } from './routes/post-routers';
 
 export const app = express();
 const port = 5000;
 
 app.use(bodyParser.json());
 app.use('/blogs', blogRouter);
+app.use('/posts', postRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

@@ -1,10 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { FieldErrorModel } from '../models/fieldErrorModel';
-import { validationResult, Result, ValidationError, body } from 'express-validator';
-
-const customizeErrors = (errors: Result<ValidationError>): FieldErrorModel[] => {
-  return errors.array().map((e) => ({ message: e.msg, field: e.param }));
-};
+import { validationResult, ValidationError, body } from 'express-validator';
 
 export const blogNameValidation = body('name')
   .exists()
@@ -26,11 +21,31 @@ export const blogWebsiteUrlValidation = body('websiteUrl')
   .matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/)
   .withMessage('Not valid URL');
 
+export const postTitleValidation = body('title')
+  .exists()
+  .withMessage('Post title is requires')
+  .isLength({ max: 30 })
+  .withMessage('Post title length should be less than 30 symbols');
+
+export const postDescriptionValidation = body('shortDescription')
+  .exists()
+  .withMessage('Short description is required')
+  .isLength({ max: 100 })
+  .withMessage('Description must be less than 100 symbols');
+
+export const postContentValidation = body('content')
+  .exists()
+  .withMessage('Post content is required')
+  .isLength({ max: 1000 })
+  .withMessage('Content must be less than 1000 symbols');
+
 export const inputValidatiomMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const errors = validationResult(req);
+  const errorFormatter = ({ msg, param }: ValidationError) => {
+    return { message: msg, field: param };
+  };
+  const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    let errArray: Array<FieldErrorModel> = customizeErrors(errors);
-    res.status(400).send({ errorsMessages: errArray });
+    res.status(400).send({ errorsMessages: errors.array() });
   } else {
     next();
   }

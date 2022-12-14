@@ -7,6 +7,7 @@ import {
   blogWebsiteUrlValidation,
   inputValidatiomMiddleware,
 } from '../middlewares/input-validation-middleware';
+import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 
 export const blogRouter = Router();
 
@@ -17,6 +18,7 @@ blogRouter.get('/', (req: Request, res: Response) => {
 
 blogRouter.post(
   '/',
+  basicAuthMiddleware,
   blogNameValidation,
   blogDescriptionValidation,
   blogWebsiteUrlValidation,
@@ -40,6 +42,7 @@ blogRouter.get('/:id', (req: Request, res: Response) => {
 
 blogRouter.put(
   '/:id',
+  basicAuthMiddleware,
   blogNameValidation,
   blogDescriptionValidation,
   blogWebsiteUrlValidation,
@@ -57,7 +60,7 @@ blogRouter.put(
   }
 );
 
-blogRouter.delete('/:id', (req: Request, res: Response) => {
+blogRouter.delete('/:id', basicAuthMiddleware, (req: Request, res: Response) => {
   const isBlogDeleted: boolean = blogsRepository.deleteBlogById(req.params.id.toString());
   if (!isBlogDeleted) {
     res.sendStatus(404);
