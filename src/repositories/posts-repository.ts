@@ -50,4 +50,9 @@ export const postsRepository = {
     postsDB.push(newPost);
     return newPost;
   },
+
+  findPostById(id: string): PostViewModel | undefined {
+    const post: PostViewModel | undefined = postsDB.find((p) => p.id === id);
+    return post;
+  },
 };

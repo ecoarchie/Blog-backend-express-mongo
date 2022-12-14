@@ -7,6 +7,7 @@ import {
   postDescriptionValidation,
   postTitleValidation,
 } from '../middlewares/input-validation-middleware';
+import { PostViewModel } from '../models/postModel';
 import { postsRepository } from '../repositories/posts-repository';
 
 export const postRouter = Router();
@@ -29,3 +30,14 @@ postRouter.post(
     res.status(201).send(newPost);
   }
 );
+
+postRouter.get('/:id', (req: Request, res: Response) => {
+  const postFound: PostViewModel | undefined = postsRepository.findPostById(
+    req.params.id.toString()
+  );
+  if (postFound) {
+    res.send(postFound);
+  } else {
+    res.sendStatus(404);
+  }
+});

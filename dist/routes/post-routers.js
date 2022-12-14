@@ -15,3 +15,12 @@ exports.postRouter.post('/', basic_auth_middleware_1.basicAuthMiddleware, blog_i
     const newPost = posts_repository_1.postsRepository.createPost(req.body);
     res.status(201).send(newPost);
 });
+exports.postRouter.get('/:id', (req, res) => {
+    const postFound = posts_repository_1.postsRepository.findPostById(req.params.id.toString());
+    if (postFound) {
+        res.send(postFound);
+    }
+    else {
+        res.sendStatus(404);
+    }
+});

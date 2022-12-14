@@ -48,4 +48,8 @@ exports.postsRepository = {
         postsDB.push(newPost);
         return newPost;
     },
+    findPostById(id) {
+        const post = postsDB.find((p) => p.id === id);
+        return post;
+    },
 };
