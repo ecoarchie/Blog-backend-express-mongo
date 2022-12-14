@@ -3,7 +3,7 @@ import { validationResult, ValidationError, body } from 'express-validator';
 
 export const blogNameValidation = body('name')
   .exists()
-  .withMessage('Name is required')
+  // .withMessage('Name is required')
   .trim()
   .not()
   .isEmpty()
@@ -38,6 +38,10 @@ export const postTitleValidation = body('title')
 export const postDescriptionValidation = body('shortDescription')
   .exists()
   .withMessage('Short description is required')
+  .trim()
+  .not()
+  .isEmpty()
+  .withMessage('Description cannot be empty')
   .isLength({ max: 100 })
   .withMessage('Description must be less than 100 symbols');
 
