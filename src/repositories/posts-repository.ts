@@ -67,4 +67,14 @@ export const postsRepository = {
     };
     return true;
   },
+
+  deletePostById(id: string) {
+    const postToDelete: PostViewModel | undefined = postsDB.find((p) => p.id === id);
+    if (!postToDelete) {
+      return false;
+    } else {
+      postsDB = postsDB.filter((p) => p.id !== id);
+      return true;
+    }
+  },
 };

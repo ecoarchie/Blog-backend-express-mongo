@@ -33,3 +33,12 @@ exports.postRouter.put('/:id', basic_auth_middleware_1.basicAuthMiddleware, blog
         res.sendStatus(404);
     }
 });
+exports.postRouter.delete('/:id', basic_auth_middleware_1.basicAuthMiddleware, (req, res) => {
+    const isPostDeleted = posts_repository_1.postsRepository.deletePostById(req.params.id.toString());
+    if (!isPostDeleted) {
+        res.sendStatus(404);
+    }
+    else {
+        res.sendStatus(204);
+    }
+});

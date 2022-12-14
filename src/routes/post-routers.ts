@@ -62,3 +62,12 @@ postRouter.put(
     }
   }
 );
+
+postRouter.delete('/:id', basicAuthMiddleware, (req: Request, res: Response) => {
+  const isPostDeleted: boolean = postsRepository.deletePostById(req.params.id.toString());
+  if (!isPostDeleted) {
+    res.sendStatus(404);
+  } else {
+    res.sendStatus(204);
+  }
+});

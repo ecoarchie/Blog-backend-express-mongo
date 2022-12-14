@@ -60,4 +60,14 @@ exports.postsRepository = {
         postsDB[postIndexToChange] = Object.assign(Object.assign({}, postToUpdate), newDatajson);
         return true;
     },
+    deletePostById(id) {
+        const postToDelete = postsDB.find((p) => p.id === id);
+        if (!postToDelete) {
+            return false;
+        }
+        else {
+            postsDB = postsDB.filter((p) => p.id !== id);
+            return true;
+        }
+    },
 };
