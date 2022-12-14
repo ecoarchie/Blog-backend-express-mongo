@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import { blogRouter } from './routes/blog-routers';
 import { blogsRepository } from './repositories/blogs-repository';
 import { postRouter } from './routes/post-routers';
+import { postsRepository } from './repositories/posts-repository';
 
 export const app = express();
 const port = 5000;
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 
 app.delete('/testing/all-data', (req: Request, res: Response) => {
   blogsRepository.deleteAllBlogs();
+  postsRepository.deleteAllPosts();
   res.sendStatus(204);
 });
 

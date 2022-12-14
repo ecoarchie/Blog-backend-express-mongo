@@ -9,6 +9,7 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const blog_routers_1 = require("./routes/blog-routers");
 const blogs_repository_1 = require("./repositories/blogs-repository");
 const post_routers_1 = require("./routes/post-routers");
+const posts_repository_1 = require("./repositories/posts-repository");
 exports.app = (0, express_1.default)();
 const port = 5000;
 exports.app.use(body_parser_1.default.json());
@@ -19,6 +20,7 @@ exports.app.get('/', (req, res) => {
 });
 exports.app.delete('/testing/all-data', (req, res) => {
     blogs_repository_1.blogsRepository.deleteAllBlogs();
+    posts_repository_1.postsRepository.deleteAllPosts();
     res.sendStatus(204);
 });
 exports.app.listen(port, () => {

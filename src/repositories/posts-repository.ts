@@ -34,6 +34,11 @@ export const postsRepository = {
     return postsDB;
   },
 
+  deleteAllPosts() {
+    postsDB = [];
+    return postsDB;
+  },
+
   createPost(data: PostInputModel): PostViewModel {
     const { title, shortDescription, content, blogId } = data;
     const blog = blogsRepository.findBlogById(blogId);

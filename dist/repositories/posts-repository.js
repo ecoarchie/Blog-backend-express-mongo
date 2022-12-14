@@ -32,6 +32,10 @@ exports.postsRepository = {
     findPosts() {
         return postsDB;
     },
+    deleteAllPosts() {
+        postsDB = [];
+        return postsDB;
+    },
     createPost(data) {
         const { title, shortDescription, content, blogId } = data;
         const blog = blogs_repository_1.blogsRepository.findBlogById(blogId);
