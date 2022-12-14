@@ -4,6 +4,10 @@ import { validationResult, ValidationError, body } from 'express-validator';
 export const blogNameValidation = body('name')
   .exists()
   .withMessage('Name is required')
+  .trim()
+  .not()
+  .isEmpty()
+  .withMessage('Name cannot be empty')
   .isLength({ max: 15 })
   .withMessage('Name should be less than 15 symbols');
 
@@ -24,6 +28,10 @@ export const blogWebsiteUrlValidation = body('websiteUrl')
 export const postTitleValidation = body('title')
   .exists()
   .withMessage('Post title is requires')
+  .trim()
+  .not()
+  .isEmpty()
+  .withMessage('Title cannot be empty')
   .isLength({ max: 30 })
   .withMessage('Post title length should be less than 30 symbols');
 
@@ -36,6 +44,10 @@ export const postDescriptionValidation = body('shortDescription')
 export const postContentValidation = body('content')
   .exists()
   .withMessage('Post content is required')
+  .trim()
+  .not()
+  .isEmpty()
+  .withMessage('Content cannot be empty')
   .isLength({ max: 1000 })
   .withMessage('Content must be less than 1000 symbols');
 
