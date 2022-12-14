@@ -14,7 +14,7 @@ const basicAuthMiddleware = (req, res, next) => {
     const encoded = authorization.split(' ')[1];
     const decoded = Buffer.from(encoded, 'base64').toString('ascii');
     const [username, password] = decoded.split(':');
-    if (username !== process.env.USERNAME || password !== process.env.PASSWORD) {
+    if (username !== 'admin' || password !== 'qwerty') {
         return res.sendStatus(401);
     }
     else {
