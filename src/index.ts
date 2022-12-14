@@ -4,6 +4,7 @@ import { blogRouter } from './routes/blog-routers';
 import { blogsRepository } from './repositories/blogs-repository';
 import { postRouter } from './routes/post-routers';
 import { postsRepository } from './repositories/posts-repository';
+import { basicAuthMiddleware } from './middlewares/basic-auth-middleware';
 
 export const app = express();
 const port = 5000;
@@ -16,7 +17,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.delete('/testing/all-data', (req: Request, res: Response) => {
+app.delete('/testing/all-data', basicAuthMiddleware, (req: Request, res: Response) => {
   blogsRepository.deleteAllBlogs();
   postsRepository.deleteAllPosts();
   res.sendStatus(204);
