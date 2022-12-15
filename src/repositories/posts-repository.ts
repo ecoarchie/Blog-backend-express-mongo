@@ -41,8 +41,7 @@ export const postsRepository = {
 
   createPost(data: PostInputModel): PostViewModel {
     const { title, shortDescription, content, blogId } = data;
-    const blog = blogsRepository.findBlogById(blogId);
-    //@ts-ignore: blog id is validated by middleware, so it is not undefined
+    const blog = blogsRepository.findBlogById(blogId) as BlogViewModel;
     const blogName = blog.name;
     const newPost: PostViewModel = {
       id: (+new Date()).toString(),

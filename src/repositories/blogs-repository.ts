@@ -51,7 +51,6 @@ export const blogsRepository = {
   },
 
   updateBlogById(id: string, newDatajson: BlogInputModel): boolean {
-    // const { name, description, websiteUrl } = newDatajson;
     const blogToUpdate: BlogViewModel | undefined = blogsDB.find((b) => b.id === id);
     if (!blogToUpdate) return false;
 
