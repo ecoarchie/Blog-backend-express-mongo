@@ -24,6 +24,7 @@ function runDb() {
             console.log('Connected successfully to Mongo Server');
         }
         catch (_a) {
+            console.log('Cannot connect to db');
             yield client.close();
         }
     });
