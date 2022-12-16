@@ -11,8 +11,8 @@ import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 
 export const blogRouter = Router();
 
-blogRouter.get('/', (req: Request, res: Response) => {
-  const foundBlogs = blogsRepository.findBlogs();
+blogRouter.get('/', async (req: Request, res: Response) => {
+  const foundBlogs = await blogsRepository.findBlogs();
   res.send(foundBlogs);
 });
 
@@ -23,16 +23,14 @@ blogRouter.post(
   blogDescriptionValidation,
   blogWebsiteUrlValidation,
   inputValidatiomMiddleware,
-  (req: Request, res: Response) => {
-    const newBlog = blogsRepository.createBlog(req.body);
+  async (req: Request, res: Response) => {
+    const newBlog = await blogsRepository.createBlog(req.body);
     res.status(201).send(newBlog);
   }
 );
 
-blogRouter.get('/:id', (req: Request, res: Response) => {
-  const blogFound: BlogViewModel | undefined = blogsRepository.findBlogById(
-    req.params.id.toString()
-  );
+blogRouter.get('/:id', async (req: Request, res: Response) => {
+  const blogFound: BlogViewModel | undefined = await blogsRepository.findBlogById(req.params.id.toString());
   if (blogFound) {
     res.send(blogFound);
   } else {
@@ -47,11 +45,8 @@ blogRouter.put(
   blogDescriptionValidation,
   blogWebsiteUrlValidation,
   inputValidatiomMiddleware,
-  (req: Request, res: Response) => {
-    const isBlogUpdated: boolean = blogsRepository.updateBlogById(
-      req.params.id.toString(),
-      req.body
-    );
+  async (req: Request, res: Response) => {
+    const isBlogUpdated: boolean = await blogsRepository.updateBlogById(req.params.id.toString(), req.body);
     if (isBlogUpdated) {
       res.sendStatus(204);
     } else {
@@ -60,8 +55,8 @@ blogRouter.put(
   }
 );
 
-blogRouter.delete('/:id', basicAuthMiddleware, (req: Request, res: Response) => {
-  const isBlogDeleted: boolean = blogsRepository.deleteBlogById(req.params.id.toString());
+blogRouter.delete('/:id', basicAuthMiddleware, async (req: Request, res: Response) => {
+  const isBlogDeleted: boolean = await blogsRepository.deleteBlogById(req.params.id.toString());
   if (!isBlogDeleted) {
     res.sendStatus(404);
   } else {

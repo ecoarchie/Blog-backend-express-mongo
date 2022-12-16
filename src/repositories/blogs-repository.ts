@@ -22,17 +22,17 @@ let blogsDB: Array<BlogViewModel> = [
 ];
 
 export const blogsRepository = {
-  findBlogs() {
+  async findBlogs(): Promise<BlogViewModel[]> {
     const blogs = blogsDB;
     return blogs;
   },
 
-  deleteAllBlogs() {
+  async deleteAllBlogs(): Promise<BlogViewModel[]> {
     blogsDB = [];
     return blogsDB;
   },
 
-  createBlog(bodyJson: BlogInputModel): BlogViewModel {
+  async createBlog(bodyJson: BlogInputModel): Promise<BlogViewModel> {
     const { name, description, websiteUrl } = bodyJson;
     const newBlog: BlogViewModel = {
       id: (+new Date()).toString(),
@@ -44,13 +44,13 @@ export const blogsRepository = {
     return newBlog;
   },
 
-  findBlogById(id: string): BlogViewModel | undefined {
+  async findBlogById(id: string): Promise<BlogViewModel | undefined> {
     const blogById: BlogViewModel | undefined = blogsDB.find((b) => b.id === id);
 
     return blogById;
   },
 
-  updateBlogById(id: string, newDatajson: BlogInputModel): boolean {
+  async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
     const blogToUpdate: BlogViewModel | undefined = blogsDB.find((b) => b.id === id);
     if (!blogToUpdate) return false;
 
@@ -62,7 +62,7 @@ export const blogsRepository = {
     return true;
   },
 
-  deleteBlogById(id: string) {
+  async deleteBlogById(id: string): Promise<boolean> {
     const blogToDelete: BlogViewModel | undefined = blogsDB.find((b) => b.id === id);
     if (!blogToDelete) {
       return false;
