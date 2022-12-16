@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsRepository = void 0;
 const blogs_repository_1 = require("./blogs-repository");
@@ -30,47 +39,59 @@ let postsDB = [
 ];
 exports.postsRepository = {
     findPosts() {
-        return postsDB;
+        return __awaiter(this, void 0, void 0, function* () {
+            return postsDB;
+        });
     },
     deleteAllPosts() {
-        postsDB = [];
-        return postsDB;
+        return __awaiter(this, void 0, void 0, function* () {
+            postsDB = [];
+            return postsDB;
+        });
     },
     createPost(data) {
-        const { title, shortDescription, content, blogId } = data;
-        const blog = blogs_repository_1.blogsRepository.findBlogById(blogId);
-        const blogName = blog.name;
-        const newPost = {
-            id: (+new Date()).toString(),
-            title,
-            shortDescription,
-            content,
-            blogId,
-            blogName,
-        };
-        postsDB.push(newPost);
-        return newPost;
+        return __awaiter(this, void 0, void 0, function* () {
+            const { title, shortDescription, content, blogId } = data;
+            const blog = (yield blogs_repository_1.blogsRepository.findBlogById(blogId));
+            const blogName = blog.name;
+            const newPost = {
+                id: (+new Date()).toString(),
+                title,
+                shortDescription,
+                content,
+                blogId,
+                blogName,
+            };
+            postsDB.push(newPost);
+            return newPost;
+        });
     },
     findPostById(id) {
-        const post = postsDB.find((p) => p.id === id);
-        return post;
+        return __awaiter(this, void 0, void 0, function* () {
+            const post = postsDB.find((p) => p.id === id);
+            return post;
+        });
     },
     updatePostById(id, newDatajson) {
-        const postToUpdate = postsDB.find((p) => p.id === id);
-        if (!postToUpdate)
-            return false;
-        const postIndexToChange = postsDB.findIndex((p) => p.id === id);
-        postsDB[postIndexToChange] = Object.assign(Object.assign({}, postToUpdate), newDatajson);
-        return true;
+        return __awaiter(this, void 0, void 0, function* () {
+            const postToUpdate = postsDB.find((p) => p.id === id);
+            if (!postToUpdate)
+                return false;
+            const postIndexToChange = postsDB.findIndex((p) => p.id === id);
+            postsDB[postIndexToChange] = Object.assign(Object.assign({}, postToUpdate), newDatajson);
+            return true;
+        });
     },
     deletePostById(id) {
-        const postToDelete = postsDB.find((p) => p.id === id);
-        if (!postToDelete) {
-            return false;
-        }
-        else {
-            postsDB = postsDB.filter((p) => p.id !== id);
-            return true;
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            const postToDelete = postsDB.find((p) => p.id === id);
+            if (!postToDelete) {
+                return false;
+            }
+            else {
+                postsDB = postsDB.filter((p) => p.id !== id);
+                return true;
+            }
+        });
     },
 };

@@ -30,18 +30,18 @@ let postsDB: Array<PostViewModel> = [
 ];
 
 export const postsRepository = {
-  findPosts() {
+  async findPosts(): Promise<PostViewModel[]> {
     return postsDB;
   },
 
-  deleteAllPosts() {
+  async deleteAllPosts(): Promise<PostViewModel[]> {
     postsDB = [];
     return postsDB;
   },
 
-  createPost(data: PostInputModel): PostViewModel {
+  async createPost(data: PostInputModel): Promise<PostViewModel> {
     const { title, shortDescription, content, blogId } = data;
-    const blog = blogsRepository.findBlogById(blogId) as BlogViewModel;
+    const blog = (await blogsRepository.findBlogById(blogId)) as BlogViewModel;
     const blogName = blog.name;
     const newPost: PostViewModel = {
       id: (+new Date()).toString(),
@@ -55,12 +55,12 @@ export const postsRepository = {
     return newPost;
   },
 
-  findPostById(id: string): PostViewModel | undefined {
+  async findPostById(id: string): Promise<PostViewModel | undefined> {
     const post: PostViewModel | undefined = postsDB.find((p) => p.id === id);
     return post;
   },
 
-  updatePostById(id: string, newDatajson: PostInputModel): boolean {
+  async updatePostById(id: string, newDatajson: PostInputModel): Promise<boolean> {
     const postToUpdate: PostViewModel | undefined = postsDB.find((p) => p.id === id);
     if (!postToUpdate) return false;
 
@@ -72,7 +72,7 @@ export const postsRepository = {
     return true;
   },
 
-  deletePostById(id: string) {
+  async deletePostById(id: string): Promise<boolean> {
     const postToDelete: PostViewModel | undefined = postsDB.find((p) => p.id === id);
     if (!postToDelete) {
       return false;

@@ -12,8 +12,8 @@ import { postsRepository } from '../repositories/posts-repository';
 
 export const postRouter = Router();
 
-postRouter.get('/', (req: Request, res: Response) => {
-  const foundPosts = postsRepository.findPosts();
+postRouter.get('/', async (req: Request, res: Response) => {
+  const foundPosts = await postsRepository.findPosts();
   res.send(foundPosts);
 });
 
@@ -25,16 +25,14 @@ postRouter.post(
   postDescriptionValidation,
   postContentValidation,
   inputValidatiomMiddleware,
-  (req: Request, res: Response) => {
-    const newPost = postsRepository.createPost(req.body);
+  async (req: Request, res: Response) => {
+    const newPost = await postsRepository.createPost(req.body);
     res.status(201).send(newPost);
   }
 );
 
-postRouter.get('/:id', (req: Request, res: Response) => {
-  const postFound: PostViewModel | undefined = postsRepository.findPostById(
-    req.params.id.toString()
-  );
+postRouter.get('/:id', async (req: Request, res: Response) => {
+  const postFound: PostViewModel | undefined = await postsRepository.findPostById(req.params.id.toString());
   if (postFound) {
     res.send(postFound);
   } else {
@@ -50,11 +48,8 @@ postRouter.put(
   postDescriptionValidation,
   postContentValidation,
   inputValidatiomMiddleware,
-  (req: Request, res: Response) => {
-    const isPostUpdated: boolean = postsRepository.updatePostById(
-      req.params.id.toString(),
-      req.body
-    );
+  async (req: Request, res: Response) => {
+    const isPostUpdated: boolean = await postsRepository.updatePostById(req.params.id.toString(), req.body);
     if (isPostUpdated) {
       res.sendStatus(204);
     } else {
@@ -63,8 +58,8 @@ postRouter.put(
   }
 );
 
-postRouter.delete('/:id', basicAuthMiddleware, (req: Request, res: Response) => {
-  const isPostDeleted: boolean = postsRepository.deletePostById(req.params.id.toString());
+postRouter.delete('/:id', basicAuthMiddleware, async (req: Request, res: Response) => {
+  const isPostDeleted: boolean = await postsRepository.deletePostById(req.params.id.toString());
   if (!isPostDeleted) {
     res.sendStatus(404);
   } else {
