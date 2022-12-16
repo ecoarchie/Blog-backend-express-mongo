@@ -5,7 +5,7 @@ import { PostViewModel } from '../models/postModel';
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017';
 
 const client = new MongoClient(mongoUri);
-const db = client.db();
+const db = client.db('blogposts');
 
 export const blogsCollection = db.collection<BlogViewModel>('blogs');
 export const postsCollection = db.collection<PostViewModel>('posts');

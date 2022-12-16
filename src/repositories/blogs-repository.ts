@@ -1,4 +1,5 @@
 import { BlogViewModel, BlogInputModel } from '../models/blogModel';
+import { blogsCollection } from './db';
 
 let blogsDB: Array<BlogViewModel> = [
   {
@@ -23,8 +24,9 @@ let blogsDB: Array<BlogViewModel> = [
 
 export const blogsRepository = {
   async findBlogs(): Promise<BlogViewModel[]> {
-    const blogs = blogsDB;
-    return blogs;
+    return await blogsCollection.find({}).toArray();
+    // const blogs = blogsDB;
+    // return blogs;
   },
 
   async deleteAllBlogs(): Promise<BlogViewModel[]> {
