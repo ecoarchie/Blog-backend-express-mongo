@@ -41,8 +41,7 @@ exports.blogsRepository = {
     },
     deleteAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
-            blogsDB = [];
-            return blogsDB;
+            return yield db_1.blogsCollection.deleteMany({});
         });
     },
     createBlog(bodyJson) {
@@ -60,7 +59,7 @@ exports.blogsRepository = {
     },
     findBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogById = db_1.blogsCollection.findOne({ id });
+            const blogById = yield db_1.blogsCollection.findOne({ id });
             return blogById;
         });
     },
@@ -72,14 +71,8 @@ exports.blogsRepository = {
     },
     deleteBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogToDelete = blogsDB.find((b) => b.id === id);
-            if (!blogToDelete) {
-                return false;
-            }
-            else {
-                blogsDB = blogsDB.filter((b) => b.id !== id);
-                return true;
-            }
+            const result = yield db_1.blogsCollection.deleteOne({ id });
+            return result.deletedCount === 1;
         });
     },
 };

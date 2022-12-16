@@ -29,9 +29,8 @@ export const blogsRepository = {
     // return blogs;
   },
 
-  async deleteAllBlogs(): Promise<BlogViewModel[]> {
-    blogsDB = [];
-    return blogsDB;
+  async deleteAllBlogs() {
+    return await blogsCollection.deleteMany({});
   },
 
   async createBlog(bodyJson: BlogInputModel): Promise<BlogViewModel> {
@@ -47,7 +46,7 @@ export const blogsRepository = {
   },
 
   async findBlogById(id: string): Promise<BlogViewModel | null> {
-    const blogById = blogsCollection.findOne({ id });
+    const blogById = await blogsCollection.findOne({ id });
 
     return blogById;
   },
@@ -59,12 +58,7 @@ export const blogsRepository = {
   },
 
   async deleteBlogById(id: string): Promise<boolean> {
-    const blogToDelete: BlogViewModel | undefined = blogsDB.find((b) => b.id === id);
-    if (!blogToDelete) {
-      return false;
-    } else {
-      blogsDB = blogsDB.filter((b) => b.id !== id);
-      return true;
-    }
+    const result = await blogsCollection.deleteOne({ id });
+    return result.deletedCount === 1;
   },
 };
