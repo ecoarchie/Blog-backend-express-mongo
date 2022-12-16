@@ -55,24 +55,19 @@ exports.blogsRepository = {
                 websiteUrl,
             };
             const result = yield db_1.blogsCollection.insertOne(newBlog);
-            // blogsDB.push(newBlog);
             return newBlog;
         });
     },
     findBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogById = blogsDB.find((b) => b.id === id);
+            const blogById = db_1.blogsCollection.findOne({ id });
             return blogById;
         });
     },
     updateBlogById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogToUpdate = blogsDB.find((b) => b.id === id);
-            if (!blogToUpdate)
-                return false;
-            const blogIndexToChange = blogsDB.findIndex((b) => b.id === id);
-            blogsDB[blogIndexToChange] = Object.assign(Object.assign({}, blogToUpdate), newDatajson);
-            return true;
+            const result = yield db_1.blogsCollection.updateOne({ id }, { $set: Object.assign({}, newDatajson) });
+            return result.matchedCount === 1;
         });
     },
     deleteBlogById(id) {

@@ -43,26 +43,19 @@ export const blogsRepository = {
       websiteUrl,
     };
     const result = await blogsCollection.insertOne(newBlog);
-    // blogsDB.push(newBlog);
     return newBlog;
   },
 
-  async findBlogById(id: string): Promise<BlogViewModel | undefined> {
-    const blogById: BlogViewModel | undefined = blogsDB.find((b) => b.id === id);
+  async findBlogById(id: string): Promise<BlogViewModel | null> {
+    const blogById = blogsCollection.findOne({ id });
 
     return blogById;
   },
 
   async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
-    const blogToUpdate: BlogViewModel | undefined = blogsDB.find((b) => b.id === id);
-    if (!blogToUpdate) return false;
+    const result = await blogsCollection.updateOne({ id }, { $set: { ...newDatajson } });
 
-    const blogIndexToChange: number = blogsDB.findIndex((b) => b.id === id);
-    blogsDB[blogIndexToChange] = {
-      ...blogToUpdate,
-      ...newDatajson,
-    };
-    return true;
+    return result.matchedCount === 1;
   },
 
   async deleteBlogById(id: string): Promise<boolean> {

@@ -30,7 +30,9 @@ blogRouter.post(
 );
 
 blogRouter.get('/:id', async (req: Request, res: Response) => {
-  const blogFound: BlogViewModel | undefined = await blogsRepository.findBlogById(req.params.id.toString());
+  const blogFound: BlogViewModel | null = await blogsRepository.findBlogById(
+    req.params.id.toString()
+  );
   if (blogFound) {
     res.send(blogFound);
   } else {
@@ -46,7 +48,10 @@ blogRouter.put(
   blogWebsiteUrlValidation,
   inputValidatiomMiddleware,
   async (req: Request, res: Response) => {
-    const isBlogUpdated: boolean = await blogsRepository.updateBlogById(req.params.id.toString(), req.body);
+    const isBlogUpdated: boolean = await blogsRepository.updateBlogById(
+      req.params.id.toString(),
+      req.body
+    );
     if (isBlogUpdated) {
       res.sendStatus(204);
     } else {
