@@ -13,7 +13,7 @@ exports.runDb = exports.postsCollection = exports.blogsCollection = void 0;
 const mongodb_1 = require("mongodb");
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017';
 const client = new mongodb_1.MongoClient(mongoUri);
-const db = client.db('blogposts');
+const db = client.db();
 exports.blogsCollection = db.collection('blogs');
 exports.postsCollection = db.collection('posts');
 function runDb() {
