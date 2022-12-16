@@ -54,7 +54,8 @@ exports.blogsRepository = {
                 description,
                 websiteUrl,
             };
-            blogsDB.push(newBlog);
+            const result = yield db_1.blogsCollection.insertOne(newBlog);
+            // blogsDB.push(newBlog);
             return newBlog;
         });
     },

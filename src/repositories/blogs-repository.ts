@@ -42,7 +42,8 @@ export const blogsRepository = {
       description,
       websiteUrl,
     };
-    blogsDB.push(newBlog);
+    const result = await blogsCollection.insertOne(newBlog);
+    // blogsDB.push(newBlog);
     return newBlog;
   },
 
