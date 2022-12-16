@@ -4,6 +4,9 @@ import { blogRouter } from './routes/blog-routers';
 import { blogsRepository } from './repositories/blogs-repository';
 import { postRouter } from './routes/post-routers';
 import { postsRepository } from './repositories/posts-repository';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export const app = express();
 const port = 5000;
