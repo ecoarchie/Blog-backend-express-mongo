@@ -46,7 +46,6 @@ exports.blogsRepository = {
         return blogById;
     },
     updateBlogById(id, newDatajson) {
-        // const { name, description, websiteUrl } = newDatajson;
         const blogToUpdate = blogsDB.find((b) => b.id === id);
         if (!blogToUpdate)
             return false;

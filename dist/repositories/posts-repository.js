@@ -39,7 +39,6 @@ exports.postsRepository = {
     createPost(data) {
         const { title, shortDescription, content, blogId } = data;
         const blog = blogs_repository_1.blogsRepository.findBlogById(blogId);
-        //@ts-ignore: blog id is validated by middleware, so it is not undefined
         const blogName = blog.name;
         const newPost = {
             id: (+new Date()).toString(),
