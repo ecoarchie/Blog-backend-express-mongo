@@ -19,7 +19,7 @@ export const blogsRepository = {
       websiteUrl,
       createdAt: new Date().toISOString(),
     };
-    const result = await blogsCollection.insertOne(newBlog);
+    const result = await blogsCollection.insertOne({ ...newBlog });
     console.log(newBlog);
 
     return newBlog;
@@ -27,7 +27,7 @@ export const blogsRepository = {
 
   async findBlogById(id: string): Promise<BlogViewModel | null> {
     const blogById = await blogsCollection.findOne({ id }, { projection: { _id: 0 } });
-
+    console.log('blog: ', blogById);
     return blogById;
   },
 
