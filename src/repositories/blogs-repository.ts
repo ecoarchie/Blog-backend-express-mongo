@@ -20,6 +20,8 @@ export const blogsRepository = {
       createdAt: new Date().toISOString(),
     };
     const result = await blogsCollection.insertOne(newBlog);
+    console.log(newBlog);
+
     return newBlog;
   },
 

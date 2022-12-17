@@ -33,6 +33,7 @@ exports.blogsRepository = {
                 createdAt: new Date().toISOString(),
             };
             const result = yield db_1.blogsCollection.insertOne(newBlog);
+            console.log(newBlog);
             return newBlog;
         });
     },
