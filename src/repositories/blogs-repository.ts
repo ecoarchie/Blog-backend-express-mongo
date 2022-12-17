@@ -1,32 +1,9 @@
 import { BlogViewModel, BlogInputModel } from '../models/blogModel';
 import { blogsCollection } from './db';
 
-let blogsDB: Array<BlogViewModel> = [
-  {
-    id: '1',
-    name: 'blog1',
-    description: 'desc1',
-    websiteUrl: 'https://mail.ru',
-  },
-  {
-    id: '2',
-    name: 'blog2',
-    description: 'desc2',
-    websiteUrl: 'https://ya.ru',
-  },
-  {
-    id: '3',
-    name: 'blog3',
-    description: 'desc3',
-    websiteUrl: 'https://yahoo.com',
-  },
-];
-
 export const blogsRepository = {
   async findBlogs(): Promise<BlogViewModel[]> {
     return await blogsCollection.find({}).toArray();
-    // const blogs = blogsDB;
-    // return blogs;
   },
 
   async deleteAllBlogs() {

@@ -11,42 +11,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsRepository = void 0;
 const blogs_repository_1 = require("./blogs-repository");
-let postsDB = [
-    {
-        id: '1',
-        title: 'Post 1',
-        shortDescription: 'Description 1',
-        content: 'Content of post 1',
-        blogId: '1',
-        blogName: 'Blog 1',
-    },
-    {
-        id: '2',
-        title: 'Post 2',
-        shortDescription: 'Description 2',
-        content: 'Content of post 2',
-        blogId: '2',
-        blogName: 'Blog 2',
-    },
-    {
-        id: '3',
-        title: 'Post 3',
-        shortDescription: 'Description 3',
-        content: 'Content of post 3',
-        blogId: '1',
-        blogName: 'Blog 1',
-    },
-];
+const db_1 = require("./db");
 exports.postsRepository = {
     findPosts() {
         return __awaiter(this, void 0, void 0, function* () {
-            return postsDB;
+            return yield db_1.postsCollection.find({}).toArray();
         });
     },
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
-            postsDB = [];
-            return postsDB;
+            return yield db_1.postsCollection.deleteMany({});
         });
     },
     createPost(data) {
@@ -62,36 +36,26 @@ exports.postsRepository = {
                 blogId,
                 blogName,
             };
-            postsDB.push(newPost);
+            const result = yield db_1.postsCollection.insertOne(newPost);
             return newPost;
         });
     },
     findPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = postsDB.find((p) => p.id === id);
+            const post = yield db_1.postsCollection.findOne({ id });
             return post;
         });
     },
     updatePostById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
-            const postToUpdate = postsDB.find((p) => p.id === id);
-            if (!postToUpdate)
-                return false;
-            const postIndexToChange = postsDB.findIndex((p) => p.id === id);
-            postsDB[postIndexToChange] = Object.assign(Object.assign({}, postToUpdate), newDatajson);
-            return true;
+            const result = yield db_1.postsCollection.updateOne({ id }, { $set: Object.assign({}, newDatajson) });
+            return result.matchedCount === 1;
         });
     },
     deletePostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const postToDelete = postsDB.find((p) => p.id === id);
-            if (!postToDelete) {
-                return false;
-            }
-            else {
-                postsDB = postsDB.filter((p) => p.id !== id);
-                return true;
-            }
+            const result = yield db_1.postsCollection.deleteOne({ id });
+            return result.deletedCount === 1;
         });
     },
 };

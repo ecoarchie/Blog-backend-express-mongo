@@ -11,32 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsRepository = void 0;
 const db_1 = require("./db");
-let blogsDB = [
-    {
-        id: '1',
-        name: 'blog1',
-        description: 'desc1',
-        websiteUrl: 'https://mail.ru',
-    },
-    {
-        id: '2',
-        name: 'blog2',
-        description: 'desc2',
-        websiteUrl: 'https://ya.ru',
-    },
-    {
-        id: '3',
-        name: 'blog3',
-        description: 'desc3',
-        websiteUrl: 'https://yahoo.com',
-    },
-];
 exports.blogsRepository = {
     findBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield db_1.blogsCollection.find({}).toArray();
-            // const blogs = blogsDB;
-            // return blogs;
         });
     },
     deleteAllBlogs() {

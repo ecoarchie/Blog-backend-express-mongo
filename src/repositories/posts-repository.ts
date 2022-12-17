@@ -1,42 +1,15 @@
 import { BlogViewModel } from '../models/blogModel';
 import { PostInputModel, PostViewModel } from '../models/postModel';
 import { blogsRepository } from './blogs-repository';
-
-let postsDB: Array<PostViewModel> = [
-  {
-    id: '1',
-    title: 'Post 1',
-    shortDescription: 'Description 1',
-    content: 'Content of post 1',
-    blogId: '1',
-    blogName: 'Blog 1',
-  },
-  {
-    id: '2',
-    title: 'Post 2',
-    shortDescription: 'Description 2',
-    content: 'Content of post 2',
-    blogId: '2',
-    blogName: 'Blog 2',
-  },
-  {
-    id: '3',
-    title: 'Post 3',
-    shortDescription: 'Description 3',
-    content: 'Content of post 3',
-    blogId: '1',
-    blogName: 'Blog 1',
-  },
-];
+import { postsCollection } from './db';
 
 export const postsRepository = {
   async findPosts(): Promise<PostViewModel[]> {
-    return postsDB;
+    return await postsCollection.find({}).toArray();
   },
 
-  async deleteAllPosts(): Promise<PostViewModel[]> {
-    postsDB = [];
-    return postsDB;
+  async deleteAllPosts() {
+    return await postsCollection.deleteMany({});
   },
 
   async createPost(data: PostInputModel): Promise<PostViewModel> {
@@ -51,34 +24,22 @@ export const postsRepository = {
       blogId,
       blogName,
     };
-    postsDB.push(newPost);
+    const result = await postsCollection.insertOne(newPost);
     return newPost;
   },
 
-  async findPostById(id: string): Promise<PostViewModel | undefined> {
-    const post: PostViewModel | undefined = postsDB.find((p) => p.id === id);
+  async findPostById(id: string): Promise<PostViewModel | null> {
+    const post = await postsCollection.findOne({ id });
     return post;
   },
 
   async updatePostById(id: string, newDatajson: PostInputModel): Promise<boolean> {
-    const postToUpdate: PostViewModel | undefined = postsDB.find((p) => p.id === id);
-    if (!postToUpdate) return false;
-
-    const postIndexToChange: number = postsDB.findIndex((p) => p.id === id);
-    postsDB[postIndexToChange] = {
-      ...postToUpdate,
-      ...newDatajson,
-    };
-    return true;
+    const result = await postsCollection.updateOne({ id }, { $set: { ...newDatajson } });
+    return result.matchedCount === 1;
   },
 
   async deletePostById(id: string): Promise<boolean> {
-    const postToDelete: PostViewModel | undefined = postsDB.find((p) => p.id === id);
-    if (!postToDelete) {
-      return false;
-    } else {
-      postsDB = postsDB.filter((p) => p.id !== id);
-      return true;
-    }
+    const result = await postsCollection.deleteOne({ id });
+    return result.deletedCount === 1;
   },
 };

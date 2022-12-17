@@ -32,7 +32,9 @@ postRouter.post(
 );
 
 postRouter.get('/:id', async (req: Request, res: Response) => {
-  const postFound: PostViewModel | undefined = await postsRepository.findPostById(req.params.id.toString());
+  const postFound: PostViewModel | null = await postsRepository.findPostById(
+    req.params.id.toString()
+  );
   if (postFound) {
     res.send(postFound);
   } else {
@@ -49,7 +51,10 @@ postRouter.put(
   postContentValidation,
   inputValidatiomMiddleware,
   async (req: Request, res: Response) => {
-    const isPostUpdated: boolean = await postsRepository.updatePostById(req.params.id.toString(), req.body);
+    const isPostUpdated: boolean = await postsRepository.updatePostById(
+      req.params.id.toString(),
+      req.body
+    );
     if (isPostUpdated) {
       res.sendStatus(204);
     } else {
