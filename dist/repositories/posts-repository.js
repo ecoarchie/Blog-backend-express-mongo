@@ -15,7 +15,7 @@ const db_1 = require("./db");
 exports.postsRepository = {
     findPosts() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.postsCollection.find({}).toArray();
+            return yield db_1.postsCollection.find({}, { projection: { _id: 0 } }).toArray();
         });
     },
     deleteAllPosts() {

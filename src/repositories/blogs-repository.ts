@@ -3,7 +3,7 @@ import { blogsCollection } from './db';
 
 export const blogsRepository = {
   async findBlogs(): Promise<BlogViewModel[]> {
-    return await blogsCollection.find({}).toArray();
+    return await blogsCollection.find({}, { projection: { _id: 0 } }).toArray();
   },
 
   async deleteAllBlogs() {
@@ -20,7 +20,6 @@ export const blogsRepository = {
       createdAt: new Date().toISOString(),
     };
     const result = await blogsCollection.insertOne({ ...newBlog });
-    console.log(newBlog);
 
     return newBlog;
   },

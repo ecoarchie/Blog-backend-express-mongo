@@ -14,7 +14,7 @@ const db_1 = require("./db");
 exports.blogsRepository = {
     findBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.blogsCollection.find({}).toArray();
+            return yield db_1.blogsCollection.find({}, { projection: { _id: 0 } }).toArray();
         });
     },
     deleteAllBlogs() {
@@ -33,7 +33,6 @@ exports.blogsRepository = {
                 createdAt: new Date().toISOString(),
             };
             const result = yield db_1.blogsCollection.insertOne(Object.assign({}, newBlog));
-            console.log(newBlog);
             return newBlog;
         });
     },

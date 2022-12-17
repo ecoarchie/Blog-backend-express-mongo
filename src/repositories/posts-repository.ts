@@ -5,7 +5,7 @@ import { postsCollection } from './db';
 
 export const postsRepository = {
   async findPosts(): Promise<PostViewModel[]> {
-    return await postsCollection.find({}).toArray();
+    return await postsCollection.find({}, { projection: { _id: 0 } }).toArray();
   },
 
   async deleteAllPosts() {
