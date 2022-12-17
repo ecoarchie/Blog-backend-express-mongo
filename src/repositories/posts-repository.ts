@@ -30,7 +30,7 @@ export const postsRepository = {
   },
 
   async findPostById(id: string): Promise<PostViewModel | null> {
-    const post = await postsCollection.findOne({ id });
+    const post = await postsCollection.findOne({ id }, { projection: { _id: 0 } });
     return post;
   },
 

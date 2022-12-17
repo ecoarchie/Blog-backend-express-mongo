@@ -43,7 +43,7 @@ exports.postsRepository = {
     },
     findPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield db_1.postsCollection.findOne({ id });
+            const post = yield db_1.postsCollection.findOne({ id }, { projection: { _id: 0 } });
             return post;
         });
     },

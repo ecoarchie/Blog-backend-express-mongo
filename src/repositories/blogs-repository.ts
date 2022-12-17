@@ -24,7 +24,7 @@ export const blogsRepository = {
   },
 
   async findBlogById(id: string): Promise<BlogViewModel | null> {
-    const blogById = await blogsCollection.findOne({ id });
+    const blogById = await blogsCollection.findOne({ id }, { projection: { _id: 0 } });
 
     return blogById;
   },
