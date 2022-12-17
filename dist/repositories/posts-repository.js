@@ -35,6 +35,7 @@ exports.postsRepository = {
                 content,
                 blogId,
                 blogName,
+                createdAt: new Date().toISOString(),
             };
             const result = yield db_1.postsCollection.insertOne(newPost);
             return newPost;

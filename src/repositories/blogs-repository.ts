@@ -17,6 +17,7 @@ export const blogsRepository = {
       name,
       description,
       websiteUrl,
+      createdAt: new Date().toISOString(),
     };
     const result = await blogsCollection.insertOne(newBlog);
     return newBlog;
