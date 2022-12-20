@@ -26,7 +26,7 @@ exports.blogRouter.post('/', basic_auth_middleware_1.basicAuthMiddleware, input_
 exports.blogRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogFound = yield blogs_repository_1.blogsRepository.findBlogById(req.params.id.toString());
     if (blogFound) {
-        res.send(blogFound);
+        res.status(200).send(blogFound);
     }
     else {
         res.sendStatus(404);

@@ -34,7 +34,7 @@ blogRouter.get('/:id', async (req: Request, res: Response) => {
     req.params.id.toString()
   );
   if (blogFound) {
-    res.send(blogFound);
+    res.status(200).send(blogFound);
   } else {
     res.sendStatus(404);
   }
