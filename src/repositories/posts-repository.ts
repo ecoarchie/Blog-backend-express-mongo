@@ -1,3 +1,4 @@
+import { stringify } from 'querystring';
 import { BlogViewModel } from '../models/blogModel';
 import { PostInputModel, PostViewModel } from '../models/postModel';
 import { blogsRepository } from './blogs-repository';
@@ -42,5 +43,32 @@ export const postsRepository = {
   async deletePostById(id: string): Promise<boolean> {
     const result = await postsCollection.deleteOne({ id });
     return result.deletedCount === 1;
+  },
+
+  async findPostsByBlogId(
+    blogId: string,
+    skip: number,
+    limit: number,
+    sortBy: string,
+    sortDirection: 'asc' | 'desc'
+  ) {
+    const sort: any = {};
+    sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
+    const pipeline = [
+      { $match: { blogId } },
+      { $sort: sort },
+      { $skip: skip },
+      { $limit: limit },
+      { $project: { _id: 0 } },
+    ];
+
+    const posts: Array<BlogViewModel> = (await postsCollection
+      .aggregate(pipeline)
+      .toArray()) as Array<BlogViewModel>;
+    return posts;
+  },
+
+  async countPostsByBlogId(blogId: string): Promise<number> {
+    return postsCollection.count({ blogId });
   },
 };

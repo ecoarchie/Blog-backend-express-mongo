@@ -14,6 +14,7 @@ const express_1 = require("express");
 const blogs_repository_1 = require("../repositories/blogs-repository");
 const input_validation_middleware_1 = require("../middlewares/input-validation-middleware");
 const basic_auth_middleware_1 = require("../middlewares/basic-auth-middleware");
+const posts_repository_1 = require("../repositories/posts-repository");
 exports.blogRouter = (0, express_1.Router)();
 exports.blogRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const foundBlogs = yield blogs_repository_1.blogsRepository.findBlogs();
@@ -48,5 +49,29 @@ exports.blogRouter.delete('/:id', basic_auth_middleware_1.basicAuthMiddleware, (
     }
     else {
         res.sendStatus(204);
+    }
+}));
+exports.blogRouter.get('/:blogId/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const blog = yield blogs_repository_1.blogsRepository.findBlogById(req.params.blogId.toString());
+    if (blog) {
+        const pageNumber = Number(req.query.pageNumber) || 1;
+        const pageSize = Number(req.query.pageSize) || 10;
+        const sortBy = ((_a = req.query.sortBy) === null || _a === void 0 ? void 0 : _a.toString()) || 'createdAt';
+        const sortDirection = req.query.sortDirection || 'desc';
+        const skip = (pageNumber - 1) * pageSize;
+        const posts = yield posts_repository_1.postsRepository.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection);
+        const totalCount = yield posts_repository_1.postsRepository.countPostsByBlogId(blog.id.toString());
+        const pagesCount = Math.ceil(totalCount / pageSize);
+        res.send({
+            pagesCount,
+            page: pageNumber,
+            pageSize,
+            totalCount,
+            items: posts,
+        });
+    }
+    else {
+        res.sendStatus(404);
     }
 }));

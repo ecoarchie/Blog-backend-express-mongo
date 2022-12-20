@@ -8,6 +8,7 @@ import {
   inputValidatiomMiddleware,
 } from '../middlewares/input-validation-middleware';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
+import { postsRepository } from '../repositories/posts-repository';
 
 export const blogRouter = Router();
 
@@ -66,5 +67,40 @@ blogRouter.delete('/:id', basicAuthMiddleware, async (req: Request, res: Respons
     res.sendStatus(404);
   } else {
     res.sendStatus(204);
+  }
+});
+
+blogRouter.get('/:blogId/posts', async (req: Request, res: Response) => {
+  const blog: BlogViewModel | null = await blogsRepository.findBlogById(
+    req.params.blogId.toString()
+  );
+
+  if (blog) {
+    const pageNumber: number = Number(req.query.pageNumber) || 1;
+    const pageSize: number = Number(req.query.pageSize) || 10;
+    const sortBy: string = req.query.sortBy?.toString() || 'createdAt';
+    const sortDirection: 'asc' | 'desc' = (req.query.sortDirection as 'asc' | 'desc') || 'desc';
+    const skip: number = (pageNumber - 1) * pageSize;
+
+    const posts: Array<BlogViewModel> = await postsRepository.findPostsByBlogId(
+      blog.id.toString(),
+      skip,
+      pageSize,
+      sortBy,
+      sortDirection
+    );
+
+    const totalCount: number = await postsRepository.countPostsByBlogId(blog.id.toString());
+    const pagesCount: number = Math.ceil(totalCount / pageSize);
+
+    res.send({
+      pagesCount,
+      page: pageNumber,
+      pageSize,
+      totalCount,
+      items: posts,
+    });
+  } else {
+    res.sendStatus(404);
   }
 });
