@@ -12,9 +12,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsRepository = void 0;
 const db_1 = require("./db");
 exports.blogsRepository = {
-    findBlogs() {
+    findBlogs(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.blogsCollection.find({}, { projection: { _id: 0 } }).toArray();
+            const sort = {};
+            sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
+            const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+            const pipeline = [
+                { $match: searchTerm },
+                { $sort: sort },
+                { $skip: options.skip },
+                { $limit: options.pageSize },
+                { $project: { _id: 0 } },
+            ];
+            const blogs = (yield db_1.blogsCollection
+                .aggregate(pipeline)
+                .toArray());
+            return blogs;
         });
     },
     deleteAllBlogs() {
@@ -52,6 +65,11 @@ exports.blogsRepository = {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.blogsCollection.deleteOne({ id });
             return result.deletedCount === 1;
+        });
+    },
+    countAllBlogs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return db_1.blogsCollection.countDocuments();
         });
     },
 };

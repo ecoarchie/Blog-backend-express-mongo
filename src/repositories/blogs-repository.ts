@@ -1,9 +1,25 @@
 import { BlogViewModel, BlogInputModel } from '../models/blogModel';
+import { ReqQueryModel } from '../models/reqQueryModel';
 import { blogsCollection, postsCollection } from './db';
 
 export const blogsRepository = {
-  async findBlogs(): Promise<BlogViewModel[]> {
-    return await blogsCollection.find({}, { projection: { _id: 0 } }).toArray();
+  async findBlogs(options: ReqQueryModel & { skip: number }): Promise<BlogViewModel[]> {
+    const sort: any = {};
+    sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
+    const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+
+    const pipeline = [
+      { $match: searchTerm },
+      { $sort: sort },
+      { $skip: options.skip },
+      { $limit: options.pageSize },
+      { $project: { _id: 0 } },
+    ];
+
+    const blogs: Array<BlogViewModel> = (await blogsCollection
+      .aggregate(pipeline)
+      .toArray()) as Array<BlogViewModel>;
+    return blogs;
   },
 
   async deleteAllBlogs() {
@@ -38,5 +54,9 @@ export const blogsRepository = {
   async deleteBlogById(id: string): Promise<boolean> {
     const result = await blogsCollection.deleteOne({ id });
     return result.deletedCount === 1;
+  },
+
+  async countAllBlogs(): Promise<number> {
+    return blogsCollection.countDocuments();
   },
 };

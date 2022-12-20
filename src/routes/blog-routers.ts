@@ -9,12 +9,24 @@ import {
 } from '../middlewares/input-validation-middleware';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import { postsRepository } from '../repositories/posts-repository';
+import { setQueryParams } from '../repositories/service';
 
 export const blogRouter = Router();
 
 blogRouter.get('/', async (req: Request, res: Response) => {
-  const foundBlogs = await blogsRepository.findBlogs();
-  res.send(foundBlogs);
+  const options = setQueryParams(req.query);
+
+  const foundBlogs = await blogsRepository.findBlogs(options);
+  const totalCount: number = await blogsRepository.countAllBlogs();
+  const pagesCount: number = Math.ceil(totalCount / options.pageSize);
+
+  res.send({
+    pagesCount,
+    page: options.pageNumber,
+    pageSize: options.pageSize,
+    totalCount,
+    items: foundBlogs,
+  });
 });
 
 blogRouter.post(
@@ -76,11 +88,7 @@ blogRouter.get('/:blogId/posts', async (req: Request, res: Response) => {
   );
 
   if (blog) {
-    const pageNumber: number = Number(req.query.pageNumber) || 1;
-    const pageSize: number = Number(req.query.pageSize) || 10;
-    const sortBy: string = req.query.sortBy?.toString() || 'createdAt';
-    const sortDirection: 'asc' | 'desc' = (req.query.sortDirection as 'asc' | 'desc') || 'desc';
-    const skip: number = (pageNumber - 1) * pageSize;
+    const { pageNumber, pageSize, sortBy, sortDirection, skip } = setQueryParams(req.query);
 
     const posts: Array<BlogViewModel> = await postsRepository.findPostsByBlogId(
       blog.id.toString(),
