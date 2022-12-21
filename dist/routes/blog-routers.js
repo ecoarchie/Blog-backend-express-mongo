@@ -20,8 +20,10 @@ exports.blogRouter = (0, express_1.Router)();
 exports.blogRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const options = (0, service_1.setQueryParams)(req.query);
     const foundBlogs = yield blogs_repository_1.blogsRepository.findBlogs(options);
-    // const totalCount: number = await blogsRepository.countAllBlogs();
-    const totalCount = foundBlogs.length;
+    const totalCount = options.searchNameTerm
+        ? yield blogs_repository_1.blogsRepository.countAllBlogs()
+        : foundBlogs.length;
+    // const totalCount: number = foundBlogs.length;
     const pagesCount = Math.ceil(totalCount / options.pageSize);
     res.send({
         pagesCount,
