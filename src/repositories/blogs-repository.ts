@@ -6,7 +6,9 @@ export const blogsRepository = {
   async findBlogs(options: ReqQueryModel & { skip: number }): Promise<BlogViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
-    const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+    const searchTerm = !options.searchNameTerm
+      ? {}
+      : { name: { $regex: options.searchNameTerm, $options: 'i' } };
 
     const pipeline = [
       { $match: searchTerm },

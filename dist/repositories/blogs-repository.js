@@ -16,7 +16,9 @@ exports.blogsRepository = {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
             sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
-            const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+            const searchTerm = !options.searchNameTerm
+                ? {}
+                : { name: { $regex: options.searchNameTerm, $options: 'i' } };
             const pipeline = [
                 { $match: searchTerm },
                 { $sort: sort },
