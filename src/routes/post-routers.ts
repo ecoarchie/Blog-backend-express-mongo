@@ -15,13 +15,11 @@ export const postRouter = Router();
 
 postRouter.get('/', async (req: Request, res: Response) => {
   const options = setQueryParams(req.query);
-  // console.log(options);
 
   const foundPosts = await postsRepository.findPosts(options);
   const totalCount: number = options.searchNameTerm
     ? foundPosts.length
     : await postsRepository.countAllPosts();
-  // const totalCount: number = foundPosts.length;
   const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
   res.send({
