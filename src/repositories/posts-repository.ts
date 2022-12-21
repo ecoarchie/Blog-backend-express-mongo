@@ -1,13 +1,33 @@
 import { stringify } from 'querystring';
 import { BlogViewModel } from '../models/blogModel';
-import { PostInputModel, PostViewModel } from '../models/postModel';
+import { BlogPostInputModel, PostInputModel, PostViewModel } from '../models/postModel';
+import { ReqQueryModel } from '../models/reqQueryModel';
 import { blogsRepository } from './blogs-repository';
 import { postsCollection } from './db';
 
 export const postsRepository = {
-  async findPosts(): Promise<PostViewModel[]> {
-    return await postsCollection.find({}, { projection: { _id: 0 } }).toArray();
+  async findPosts(options: ReqQueryModel & { skip: number }): Promise<PostViewModel[]> {
+    const sort: any = {};
+    sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
+    const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+
+    const pipeline = [
+      { $match: searchTerm },
+      { $sort: sort },
+      { $skip: options.skip },
+      { $limit: options.pageSize },
+      { $project: { _id: 0 } },
+    ];
+
+    const posts: Array<PostViewModel> = (await postsCollection
+      .aggregate(pipeline)
+      .toArray()) as Array<PostViewModel>;
+    return posts;
   },
+
+  // async findPosts(): Promise<PostViewModel[]> {
+  //   return await postsCollection.find({}, { projection: { _id: 0 } }).toArray();
+  // },
 
   async deleteAllPosts() {
     return await postsCollection.deleteMany({});
@@ -28,6 +48,11 @@ export const postsRepository = {
     };
     const result = await postsCollection.insertOne({ ...newPost });
     return newPost;
+  },
+
+  async createBlogPost(blogId: string, postData: BlogPostInputModel): Promise<PostViewModel> {
+    const blogPost = await this.createPost({ blogId, ...postData });
+    return blogPost;
   },
 
   async findPostById(id: string): Promise<PostViewModel | null> {
@@ -70,5 +95,9 @@ export const postsRepository = {
 
   async countPostsByBlogId(blogId: string): Promise<number> {
     return postsCollection.count({ blogId });
+  },
+
+  async countAllPosts(): Promise<number> {
+    return postsCollection.countDocuments();
   },
 };

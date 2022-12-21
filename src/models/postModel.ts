@@ -14,3 +14,9 @@ export type PostInputModel = {
   content: string;
   blogId: string;
 };
+
+export type BlogPostInputModel = {
+  title: string;
+  shortDescription: string;
+  content: string;
+};

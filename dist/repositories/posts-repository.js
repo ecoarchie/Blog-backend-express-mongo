@@ -13,11 +13,27 @@ exports.postsRepository = void 0;
 const blogs_repository_1 = require("./blogs-repository");
 const db_1 = require("./db");
 exports.postsRepository = {
-    findPosts() {
+    findPosts(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.postsCollection.find({}, { projection: { _id: 0 } }).toArray();
+            const sort = {};
+            sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
+            const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+            const pipeline = [
+                { $match: searchTerm },
+                { $sort: sort },
+                { $skip: options.skip },
+                { $limit: options.pageSize },
+                { $project: { _id: 0 } },
+            ];
+            const posts = (yield db_1.postsCollection
+                .aggregate(pipeline)
+                .toArray());
+            return posts;
         });
     },
+    // async findPosts(): Promise<PostViewModel[]> {
+    //   return await postsCollection.find({}, { projection: { _id: 0 } }).toArray();
+    // },
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield db_1.postsCollection.deleteMany({});
@@ -39,6 +55,12 @@ exports.postsRepository = {
             };
             const result = yield db_1.postsCollection.insertOne(Object.assign({}, newPost));
             return newPost;
+        });
+    },
+    createBlogPost(blogId, postData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blogPost = yield this.createPost(Object.assign({ blogId }, postData));
+            return blogPost;
         });
     },
     findPostById(id) {
@@ -79,6 +101,11 @@ exports.postsRepository = {
     countPostsByBlogId(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             return db_1.postsCollection.count({ blogId });
+        });
+    },
+    countAllPosts() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return db_1.postsCollection.countDocuments();
         });
     },
 };

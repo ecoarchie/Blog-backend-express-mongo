@@ -9,12 +9,25 @@ import {
 } from '../middlewares/input-validation-middleware';
 import { PostViewModel } from '../models/postModel';
 import { postsRepository } from '../repositories/posts-repository';
+import { setQueryParams } from '../repositories/service';
 
 export const postRouter = Router();
 
 postRouter.get('/', async (req: Request, res: Response) => {
-  const foundPosts = await postsRepository.findPosts();
-  res.send(foundPosts);
+  const options = setQueryParams(req.query);
+  // console.log(options);
+
+  const foundPosts = await postsRepository.findPosts(options);
+  const totalCount: number = await postsRepository.countAllPosts();
+  const pagesCount: number = Math.ceil(totalCount / options.pageSize);
+
+  res.send({
+    pagesCount,
+    page: options.pageNumber,
+    pageSize: options.pageSize,
+    totalCount,
+    items: foundPosts,
+  });
 });
 
 postRouter.post(

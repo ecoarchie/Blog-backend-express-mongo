@@ -34,6 +34,16 @@ exports.blogRouter.post('/', basic_auth_middleware_1.basicAuthMiddleware, input_
     const newBlog = yield blogs_repository_1.blogsRepository.createBlog(req.body);
     res.status(201).send(newBlog);
 }));
+exports.blogRouter.post('/:blogId/posts', basic_auth_middleware_1.basicAuthMiddleware, input_validation_middleware_1.postTitleValidation, input_validation_middleware_1.postDescriptionValidation, input_validation_middleware_1.postContentValidation, input_validation_middleware_1.inputValidatiomMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const blog = yield blogs_repository_1.blogsRepository.findBlogById(req.params.blogId.toString());
+    if (!blog) {
+        res.sendStatus(404);
+    }
+    else {
+        const postCreated = yield posts_repository_1.postsRepository.createBlogPost(blog.id, req.body);
+        res.status(201).send(postCreated);
+    }
+}));
 exports.blogRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogFound = yield blogs_repository_1.blogsRepository.findBlogById(req.params.id.toString());
     if (blogFound) {

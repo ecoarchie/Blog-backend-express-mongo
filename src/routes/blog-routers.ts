@@ -6,10 +6,14 @@ import {
   blogNameValidation,
   blogWebsiteUrlValidation,
   inputValidatiomMiddleware,
+  postContentValidation,
+  postDescriptionValidation,
+  postTitleValidation,
 } from '../middlewares/input-validation-middleware';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import { postsRepository } from '../repositories/posts-repository';
 import { setQueryParams } from '../repositories/service';
+import { PostViewModel } from '../models/postModel';
 
 export const blogRouter = Router();
 
@@ -39,6 +43,24 @@ blogRouter.post(
   async (req: Request, res: Response) => {
     const newBlog = await blogsRepository.createBlog(req.body);
     res.status(201).send(newBlog);
+  }
+);
+
+blogRouter.post(
+  '/:blogId/posts',
+  basicAuthMiddleware,
+  postTitleValidation,
+  postDescriptionValidation,
+  postContentValidation,
+  inputValidatiomMiddleware,
+  async (req: Request, res: Response) => {
+    const blog = await blogsRepository.findBlogById(req.params.blogId.toString());
+    if (!blog) {
+      res.sendStatus(404);
+    } else {
+      const postCreated: PostViewModel = await postsRepository.createBlogPost(blog.id, req.body);
+      res.status(201).send(postCreated);
+    }
   }
 );
 

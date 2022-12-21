@@ -15,10 +15,21 @@ const basic_auth_middleware_1 = require("../middlewares/basic-auth-middleware");
 const blog_id_custom_validator_1 = require("../middlewares/blog-id-custom-validator");
 const input_validation_middleware_1 = require("../middlewares/input-validation-middleware");
 const posts_repository_1 = require("../repositories/posts-repository");
+const service_1 = require("../repositories/service");
 exports.postRouter = (0, express_1.Router)();
 exports.postRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const foundPosts = yield posts_repository_1.postsRepository.findPosts();
-    res.send(foundPosts);
+    const options = (0, service_1.setQueryParams)(req.query);
+    // console.log(options);
+    const foundPosts = yield posts_repository_1.postsRepository.findPosts(options);
+    const totalCount = yield posts_repository_1.postsRepository.countAllPosts();
+    const pagesCount = Math.ceil(totalCount / options.pageSize);
+    res.send({
+        pagesCount,
+        page: options.pageNumber,
+        pageSize: options.pageSize,
+        totalCount,
+        items: foundPosts,
+    });
 }));
 exports.postRouter.post('/', basic_auth_middleware_1.basicAuthMiddleware, blog_id_custom_validator_1.isValidBlogId, input_validation_middleware_1.postTitleValidation, input_validation_middleware_1.postDescriptionValidation, input_validation_middleware_1.postContentValidation, input_validation_middleware_1.inputValidatiomMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newPost = yield posts_repository_1.postsRepository.createPost(req.body);
