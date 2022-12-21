@@ -18,7 +18,8 @@ postRouter.get('/', async (req: Request, res: Response) => {
   // console.log(options);
 
   const foundPosts = await postsRepository.findPosts(options);
-  const totalCount: number = await postsRepository.countAllPosts();
+  // const totalCount: number = await postsRepository.countAllPosts();
+  const totalCount: number = foundPosts.length;
   const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
   res.send({

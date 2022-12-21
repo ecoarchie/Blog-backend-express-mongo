@@ -21,7 +21,8 @@ exports.postRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, func
     const options = (0, service_1.setQueryParams)(req.query);
     // console.log(options);
     const foundPosts = yield posts_repository_1.postsRepository.findPosts(options);
-    const totalCount = yield posts_repository_1.postsRepository.countAllPosts();
+    // const totalCount: number = await postsRepository.countAllPosts();
+    const totalCount = foundPosts.length;
     const pagesCount = Math.ceil(totalCount / options.pageSize);
     res.send({
         pagesCount,
