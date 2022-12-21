@@ -21,8 +21,8 @@ exports.blogRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, func
     const options = (0, service_1.setQueryParams)(req.query);
     const foundBlogs = yield blogs_repository_1.blogsRepository.findBlogs(options);
     const totalCount = options.searchNameTerm
-        ? yield blogs_repository_1.blogsRepository.countAllBlogs()
-        : foundBlogs.length;
+        ? foundBlogs.length
+        : yield blogs_repository_1.blogsRepository.countAllBlogs();
     // const totalCount: number = foundBlogs.length;
     const pagesCount = Math.ceil(totalCount / options.pageSize);
     res.send({

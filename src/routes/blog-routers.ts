@@ -22,8 +22,8 @@ blogRouter.get('/', async (req: Request, res: Response) => {
 
   const foundBlogs = await blogsRepository.findBlogs(options);
   const totalCount: number = options.searchNameTerm
-    ? await blogsRepository.countAllBlogs()
-    : foundBlogs.length;
+    ? foundBlogs.length
+    : await blogsRepository.countAllBlogs();
   // const totalCount: number = foundBlogs.length;
   const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
