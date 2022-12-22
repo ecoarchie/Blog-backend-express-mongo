@@ -1,6 +1,12 @@
+import { ObjectId, ObjectID } from 'bson';
 import { stringify } from 'querystring';
 import { BlogViewModel } from '../models/blogModel';
-import { BlogPostInputModel, PostInputModel, PostViewModel } from '../models/postModel';
+import {
+  BlogPostInputModel,
+  PostDBModel,
+  PostInputModel,
+  PostViewModel,
+} from '../models/postModel';
 import { ReqQueryModel } from '../models/reqQueryModel';
 import { blogsRepository } from './blogs-repository';
 import { postsCollection } from './db';
@@ -13,6 +19,7 @@ export const postsRepository = {
 
     const pipeline = [
       { $match: searchTerm },
+      { $addFields: { id: '$_id' } },
       { $sort: sort },
       { $skip: options.skip },
       { $limit: options.pageSize },
@@ -37,16 +44,26 @@ export const postsRepository = {
     const { title, shortDescription, content, blogId } = data;
     const blog = (await blogsRepository.findBlogById(blogId)) as BlogViewModel;
     const blogName = blog.name;
-    const newPost: PostViewModel = {
-      id: (+new Date()).toString(),
+    const postToInsert: PostDBModel = {
+      _id: null,
       title,
       shortDescription,
       content,
-      blogId,
+      blogId: new ObjectID(blogId),
       blogName,
       createdAt: new Date().toISOString(),
     };
-    const result = await postsCollection.insertOne({ ...newPost });
+    const result = await postsCollection.insertOne(postToInsert);
+
+    const newPost: PostViewModel = {
+      id: result.insertedId!.toString(),
+      title: postToInsert.title,
+      shortDescription: postToInsert.shortDescription,
+      content: postToInsert.content,
+      blogId: blogId,
+      blogName: postToInsert.blogName,
+      createdAt: postToInsert.createdAt,
+    };
     return newPost;
   },
 
@@ -56,17 +73,29 @@ export const postsRepository = {
   },
 
   async findPostById(id: string): Promise<PostViewModel | null> {
-    const post = await postsCollection.findOne({ id }, { projection: { _id: 0 } });
-    return post;
+    if (!ObjectId.isValid(id)) return null;
+    const postById = await postsCollection.findOne({ _id: new ObjectId(id) });
+    let postToReturn: PostViewModel | null = null;
+    if (postById) {
+      const { _id, blogId, ...rest } = postById;
+      postToReturn = { id: _id!.toString(), blogId: blogId.toString(), ...rest };
+    }
+    return postToReturn;
   },
 
   async updatePostById(id: string, newDatajson: PostInputModel): Promise<boolean> {
-    const result = await postsCollection.updateOne({ id }, { $set: { ...newDatajson } });
+    if (!ObjectId.isValid(id)) return false;
+    const { blogId, ...rest } = newDatajson;
+    const result = await postsCollection.updateOne(
+      { _id: new ObjectId(id), blogId: new ObjectId(blogId) },
+      { $set: { ...rest } }
+    );
     return result.matchedCount === 1;
   },
 
   async deletePostById(id: string): Promise<boolean> {
-    const result = await postsCollection.deleteOne({ id });
+    if (!ObjectId.isValid(id)) return false;
+    const result = await postsCollection.deleteOne({ _id: new ObjectId(id) });
     return result.deletedCount === 1;
   },
 
@@ -80,21 +109,26 @@ export const postsRepository = {
     const sort: any = {};
     sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
     const pipeline = [
-      { $match: { blogId } },
+      { $match: { blogId: new ObjectId(blogId) } },
+      { $addFields: { id: '$_id' } },
       { $sort: sort },
       { $skip: skip },
       { $limit: limit },
       { $project: { _id: 0 } },
     ];
 
-    const posts: Array<BlogViewModel> = (await postsCollection
-      .aggregate(pipeline)
-      .toArray()) as Array<BlogViewModel>;
+    const posts: Array<BlogViewModel> = (await postsCollection.aggregate(pipeline).toArray()).map(
+      (post) => {
+        post.id = post.id.toString();
+        post.blogId = post.blogId.toString();
+        return post;
+      }
+    ) as Array<BlogViewModel>;
     return posts;
   },
 
   async countPostsByBlogId(blogId: string): Promise<number> {
-    return postsCollection.count({ blogId });
+    return postsCollection.count({ blogId: new ObjectId(blogId) });
   },
 
   async countAllPosts(): Promise<number> {

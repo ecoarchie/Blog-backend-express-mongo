@@ -24,7 +24,6 @@ exports.postRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, func
     const totalCount = options.searchNameTerm
         ? foundPosts.length
         : yield posts_repository_1.postsRepository.countAllPosts();
-    // const totalCount: number = foundPosts.length;
     const pagesCount = Math.ceil(totalCount / options.pageSize);
     res.send({
         pagesCount,

@@ -21,7 +21,6 @@ postRouter.get('/', async (req: Request, res: Response) => {
   const totalCount: number = options.searchNameTerm
     ? foundPosts.length
     : await postsRepository.countAllPosts();
-  // const totalCount: number = foundPosts.length;
   const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
   res.send({

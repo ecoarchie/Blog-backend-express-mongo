@@ -20,9 +20,12 @@ export const blogsRepository = {
       { $project: { _id: 0 } },
     ];
 
-    const blogs: Array<BlogViewModel> = (await blogsCollection
-      .aggregate(pipeline)
-      .toArray()) as Array<BlogViewModel>;
+    const blogs: Array<BlogViewModel> = (await blogsCollection.aggregate(pipeline).toArray()).map(
+      (blog) => {
+        blog.id = blog.id.toString();
+        return blog;
+      }
+    ) as Array<BlogViewModel>;
     return blogs;
   },
 

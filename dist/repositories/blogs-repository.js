@@ -39,9 +39,10 @@ exports.blogsRepository = {
                 { $limit: options.pageSize },
                 { $project: { _id: 0 } },
             ];
-            const blogs = (yield db_1.blogsCollection
-                .aggregate(pipeline)
-                .toArray());
+            const blogs = (yield db_1.blogsCollection.aggregate(pipeline).toArray()).map((blog) => {
+                blog.id = blog.id.toString();
+                return blog;
+            });
             return blogs;
         });
     },
