@@ -1,4 +1,5 @@
-import { BlogViewModel, BlogInputModel } from '../models/blogModel';
+import { ObjectId } from 'mongodb';
+import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
 import { ReqQueryModel } from '../models/reqQueryModel';
 import { blogsCollection, postsCollection } from './db';
 
@@ -12,6 +13,7 @@ export const blogsRepository = {
 
     const pipeline = [
       { $match: searchTerm },
+      { $addFields: { id: '$_id' } },
       { $sort: sort },
       { $skip: options.skip },
       { $limit: options.pageSize },
@@ -30,31 +32,51 @@ export const blogsRepository = {
 
   async createBlog(bodyJson: BlogInputModel): Promise<BlogViewModel> {
     const { name, description, websiteUrl } = bodyJson;
-    const newBlog: BlogViewModel = {
-      id: (+new Date()).toString(),
+    const blogToInsert: BlogDBModel = {
+      _id: null,
       name,
       description,
       websiteUrl,
       createdAt: new Date().toISOString(),
     };
-    const result = await blogsCollection.insertOne({ ...newBlog });
+    const result = await blogsCollection.insertOne(blogToInsert);
+    const newBlog: BlogViewModel = {
+      id: result.insertedId!.toString(),
+      name: blogToInsert.name,
+      description: blogToInsert.description,
+      websiteUrl: blogToInsert.websiteUrl,
+      createdAt: blogToInsert.createdAt,
+    };
 
     return newBlog;
   },
 
   async findBlogById(id: string): Promise<BlogViewModel | null> {
-    const blogById = await blogsCollection.findOne({ id }, { projection: { _id: 0 } });
-    return blogById;
+    if (!ObjectId.isValid(id)) return null;
+    const blogById = await blogsCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    let blogToReturn: BlogViewModel | null = null;
+    if (blogById) {
+      const { _id, ...rest } = blogById;
+      blogToReturn = { id: _id!.toString(), ...rest };
+    }
+    return blogToReturn;
   },
 
   async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
-    const result = await blogsCollection.updateOne({ id }, { $set: { ...newDatajson } });
+    if (!ObjectId.isValid(id)) return false;
+    const result = await blogsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { ...newDatajson } }
+    );
 
     return result.matchedCount === 1;
   },
 
   async deleteBlogById(id: string): Promise<boolean> {
-    const result = await blogsCollection.deleteOne({ id });
+    if (!ObjectId.isValid(id)) return false;
+    const result = await blogsCollection.deleteOne({ _id: new ObjectId(id) });
     return result.deletedCount === 1;
   },
 

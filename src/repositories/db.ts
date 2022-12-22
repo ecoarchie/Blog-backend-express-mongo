@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { BlogViewModel } from '../models/blogModel';
+import { BlogDBModel, BlogViewModel } from '../models/blogModel';
 import { PostViewModel } from '../models/postModel';
 
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017';
@@ -7,7 +7,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017';
 const client = new MongoClient(mongoUri);
 const db = client.db('blogposts');
 
-export const blogsCollection = db.collection<BlogViewModel>('blogs');
+export const blogsCollection = db.collection<BlogDBModel>('blogs');
 export const postsCollection = db.collection<PostViewModel>('posts');
 
 export async function runDb() {

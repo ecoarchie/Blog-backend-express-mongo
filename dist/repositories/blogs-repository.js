@@ -8,8 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsRepository = void 0;
+const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
 exports.blogsRepository = {
     findBlogs(options) {
@@ -21,6 +33,7 @@ exports.blogsRepository = {
                 : { name: { $regex: options.searchNameTerm, $options: 'i' } };
             const pipeline = [
                 { $match: searchTerm },
+                { $addFields: { id: '$_id' } },
                 { $sort: sort },
                 { $skip: options.skip },
                 { $limit: options.pageSize },
@@ -40,32 +53,52 @@ exports.blogsRepository = {
     createBlog(bodyJson) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, description, websiteUrl } = bodyJson;
-            const newBlog = {
-                id: (+new Date()).toString(),
+            const blogToInsert = {
+                _id: null,
                 name,
                 description,
                 websiteUrl,
                 createdAt: new Date().toISOString(),
             };
-            const result = yield db_1.blogsCollection.insertOne(Object.assign({}, newBlog));
+            const result = yield db_1.blogsCollection.insertOne(blogToInsert);
+            const newBlog = {
+                id: result.insertedId.toString(),
+                name: blogToInsert.name,
+                description: blogToInsert.description,
+                websiteUrl: blogToInsert.websiteUrl,
+                createdAt: blogToInsert.createdAt,
+            };
             return newBlog;
         });
     },
     findBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogById = yield db_1.blogsCollection.findOne({ id }, { projection: { _id: 0 } });
-            return blogById;
+            if (!mongodb_1.ObjectId.isValid(id))
+                return null;
+            const blogById = yield db_1.blogsCollection.findOne({
+                _id: new mongodb_1.ObjectId(id),
+            });
+            let blogToReturn = null;
+            if (blogById) {
+                const { _id } = blogById, rest = __rest(blogById, ["_id"]);
+                blogToReturn = Object.assign({ id: _id.toString() }, rest);
+            }
+            return blogToReturn;
         });
     },
     updateBlogById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.updateOne({ id }, { $set: Object.assign({}, newDatajson) });
+            if (!mongodb_1.ObjectId.isValid(id))
+                return false;
+            const result = yield db_1.blogsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: Object.assign({}, newDatajson) });
             return result.matchedCount === 1;
         });
     },
     deleteBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.deleteOne({ id });
+            if (!mongodb_1.ObjectId.isValid(id))
+                return false;
+            const result = yield db_1.blogsCollection.deleteOne({ _id: new mongodb_1.ObjectId(id) });
             return result.deletedCount === 1;
         });
     },

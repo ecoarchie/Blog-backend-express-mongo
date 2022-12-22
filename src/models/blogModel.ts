@@ -15,8 +15,7 @@ export type BlogInputModel = {
 };
 
 export type BlogDBModel = {
-  _id: ObjectId;
-  id: string;
+  _id: ObjectId | null;
   name: string;
   description: string;
   websiteUrl: string;

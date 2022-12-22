@@ -24,7 +24,6 @@ blogRouter.get('/', async (req: Request, res: Response) => {
   const totalCount: number = options.searchNameTerm
     ? foundBlogs.length
     : await blogsRepository.countAllBlogs();
-  // const totalCount: number = foundBlogs.length;
   const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
   res.send({
@@ -71,6 +70,7 @@ blogRouter.get('/:id', async (req: Request, res: Response) => {
   const blogFound: BlogViewModel | null = await blogsRepository.findBlogById(
     req.params.id.toString()
   );
+
   if (blogFound) {
     res.status(200).send(blogFound);
   } else {
