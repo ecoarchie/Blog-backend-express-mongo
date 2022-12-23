@@ -1,19 +1,10 @@
-import { Request, Response, Router } from 'express';
-import { BlogViewModel } from '../models/blogModel';
-import { blogsRepository } from '../repositories/blogs-repository';
+import { Router } from 'express';
 import {
-  blogDescriptionValidation,
-  blogNameValidation,
-  blogWebsiteUrlValidation,
+  blogBodyValidation,
   inputValidatiomMiddleware,
-  postContentValidation,
-  postDescriptionValidation,
-  postTitleValidation,
+  postBodyValidation,
 } from '../middlewares/input-validation-middleware';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
-import { postsRepository } from '../repositories/posts-repository';
-import { setQueryParams } from '../repositories/service';
-import { PostViewModel } from '../models/postModel';
 import {
   createBlogController,
   createBlogPostController,
@@ -31,9 +22,7 @@ blogRouter.get('/', getAllBlogsController);
 blogRouter.post(
   '/',
   basicAuthMiddleware,
-  blogNameValidation,
-  blogDescriptionValidation,
-  blogWebsiteUrlValidation,
+  blogBodyValidation(),
   inputValidatiomMiddleware,
   createBlogController
 );
@@ -41,9 +30,7 @@ blogRouter.post(
 blogRouter.post(
   '/:blogId/posts',
   basicAuthMiddleware,
-  postTitleValidation,
-  postDescriptionValidation,
-  postContentValidation,
+  postBodyValidation(),
   inputValidatiomMiddleware,
   createBlogPostController
 );
@@ -53,9 +40,7 @@ blogRouter.get('/:id', getBlogByIdcontroller);
 blogRouter.put(
   '/:id',
   basicAuthMiddleware,
-  blogNameValidation,
-  blogDescriptionValidation,
-  blogWebsiteUrlValidation,
+  blogBodyValidation(),
   inputValidatiomMiddleware,
   updateBlogByIdController
 );

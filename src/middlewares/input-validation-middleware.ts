@@ -1,67 +1,67 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult, ValidationError, body } from 'express-validator';
 
-export const blogNameValidation = body('name')
-  .exists()
-  .withMessage('Name is required')
-  .bail()
-  .trim()
-  .not()
-  .isEmpty()
-  .withMessage('Name cannot be empty')
-  .bail()
-  .isLength({ max: 15 })
-  .withMessage('Name should be less than 15 symbols');
+export const blogBodyValidation = () => {
+  return [
+    body('name')
+      .exists()
+      .withMessage('Name is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Name cannot be empty')
+      .isLength({ max: 15 })
+      .withMessage('Name should be less than 15 symbols'),
 
-export const blogDescriptionValidation = body('description')
-  .exists()
-  .withMessage('Description is required')
-  .isLength({ max: 500 })
-  .withMessage('Description should be less than 500 symbols');
+    body('description')
+      .exists()
+      .withMessage('Description is required')
+      .isLength({ max: 500 })
+      .withMessage('Description should be less than 500 symbols'),
 
-export const blogWebsiteUrlValidation = body('websiteUrl')
-  .exists()
-  .withMessage('Website URL is required')
-  .isLength({ max: 100 })
-  .withMessage('URL should be less than 100 symbols')
-  .matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/)
-  .withMessage('Not valid URL');
+    body('websiteUrl')
+      .exists()
+      .withMessage('Website URL is required')
+      .isLength({ max: 100 })
+      .withMessage('URL should be less than 100 symbols')
+      .matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/)
+      .withMessage('Not valid URL'),
+  ];
+};
 
-export const postTitleValidation = body('title')
-  .exists()
-  .withMessage('Post title is requires')
-  .bail()
-  .trim()
-  .not()
-  .isEmpty()
-  .withMessage('Title cannot be empty')
-  .bail()
-  .isLength({ max: 30 })
-  .withMessage('Post title length should be less than 30 symbols');
+export const postBodyValidation = () => {
+  return [
+    body('title')
+      .exists()
+      .withMessage('Post title is requires')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Title cannot be empty')
+      .isLength({ max: 30 })
+      .withMessage('Post title length should be less than 30 symbols'),
 
-export const postDescriptionValidation = body('shortDescription')
-  .exists()
-  .withMessage('Short description is required')
-  .bail()
-  .trim()
-  .not()
-  .isEmpty()
-  .withMessage('Description cannot be empty')
-  .bail()
-  .isLength({ max: 100 })
-  .withMessage('Description must be less than 100 symbols');
+    body('shortDescription')
+      .exists()
+      .withMessage('Short description is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Description cannot be empty')
+      .isLength({ max: 100 })
+      .withMessage('Description must be less than 100 symbols'),
 
-export const postContentValidation = body('content')
-  .exists()
-  .withMessage('Post content is required')
-  .bail()
-  .trim()
-  .not()
-  .isEmpty()
-  .withMessage('Content cannot be empty')
-  .bail()
-  .isLength({ max: 1000 })
-  .withMessage('Content must be less than 1000 symbols');
+    body('content')
+      .exists()
+      .withMessage('Post content is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Content cannot be empty')
+      .isLength({ max: 1000 })
+      .withMessage('Content must be less than 1000 symbols'),
+  ];
+};
 
 export const inputValidatiomMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const errorFormatter = ({ msg, param }: ValidationError) => {
@@ -69,7 +69,7 @@ export const inputValidatiomMiddleware = (req: Request, res: Response, next: Nex
   };
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    res.status(400).send({ errorsMessages: errors.array() });
+    res.status(400).send({ errorsMessages: errors.array({ onlyFirstError: true }) });
   } else {
     next();
   }
