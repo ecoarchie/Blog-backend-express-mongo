@@ -33,15 +33,7 @@ export const blogsRepository = {
     return await blogsCollection.deleteMany({});
   },
 
-  async createBlog(bodyJson: BlogInputModel): Promise<BlogViewModel> {
-    const { name, description, websiteUrl } = bodyJson;
-    const blogToInsert: BlogDBModel = {
-      _id: null,
-      name,
-      description,
-      websiteUrl,
-      createdAt: new Date().toISOString(),
-    };
+  async createBlog(blogToInsert: BlogDBModel): Promise<BlogViewModel> {
     const result = await blogsCollection.insertOne(blogToInsert);
     const newBlog: BlogViewModel = {
       id: result.insertedId!.toString(),

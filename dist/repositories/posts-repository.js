@@ -55,7 +55,6 @@ exports.postsRepository = {
             const blog = (yield blogs_repository_1.blogsRepository.findBlogById(blogId));
             const blogName = blog.name;
             const postToInsert = {
-                _id: null,
                 title,
                 shortDescription,
                 content,
@@ -74,12 +73,6 @@ exports.postsRepository = {
                 createdAt: postToInsert.createdAt,
             };
             return newPost;
-        });
-    },
-    createBlogPost(blogId, postData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const blogPost = yield this.createPost(Object.assign({ blogId }, postData));
-            return blogPost;
         });
     },
     findPostById(id) {

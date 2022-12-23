@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export type BlogViewModel = {
-  id: string;
+  id?: string;
   name: string;
   description: string;
   websiteUrl: string;
@@ -15,7 +15,7 @@ export type BlogInputModel = {
 };
 
 export type BlogDBModel = {
-  _id: ObjectId | null;
+  _id?: ObjectId | null;
   name: string;
   description: string;
   websiteUrl: string;

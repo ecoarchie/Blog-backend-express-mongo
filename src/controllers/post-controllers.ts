@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import { PostViewModel } from '../models/postModel';
-import { postsRepository } from '../repositories/posts-repository';
-import { setQueryParams } from '../repositories/service';
+import { postsService } from '../service/post-service';
+import { setQueryParams } from './utils';
 
 export const getAllPostsController = async (req: Request, res: Response) => {
   const options = setQueryParams(req.query);
 
-  const foundPosts = await postsRepository.findPosts(options);
+  const foundPosts = await postsService.findPosts(options);
   const totalCount: number = options.searchNameTerm
     ? foundPosts.length
-    : await postsRepository.countAllPosts();
+    : await postsService.countAllPosts();
   const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
   res.send({
@@ -22,14 +22,12 @@ export const getAllPostsController = async (req: Request, res: Response) => {
 };
 
 export const createPostController = async (req: Request, res: Response) => {
-  const newPost = await postsRepository.createPost(req.body);
+  const newPost = await postsService.createPost(req.body);
   res.status(201).send(newPost);
 };
 
 export const findPostByIdController = async (req: Request, res: Response) => {
-  const postFound: PostViewModel | null = await postsRepository.findPostById(
-    req.params.id.toString()
-  );
+  const postFound: PostViewModel | null = await postsService.findPostById(req.params.id.toString());
   if (postFound) {
     res.send(postFound);
   } else {
@@ -38,7 +36,7 @@ export const findPostByIdController = async (req: Request, res: Response) => {
 };
 
 export const updatePostByIdController = async (req: Request, res: Response) => {
-  const isPostUpdated: boolean = await postsRepository.updatePostById(
+  const isPostUpdated: boolean = await postsService.updatePostById(
     req.params.id.toString(),
     req.body
   );
@@ -50,7 +48,7 @@ export const updatePostByIdController = async (req: Request, res: Response) => {
 };
 
 export const deletePostByIdController = async (req: Request, res: Response) => {
-  const isPostDeleted: boolean = await postsRepository.deletePostById(req.params.id.toString());
+  const isPostDeleted: boolean = await postsService.deletePostById(req.params.id.toString());
   if (!isPostDeleted) {
     res.sendStatus(404);
   } else {

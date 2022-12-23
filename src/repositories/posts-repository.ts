@@ -1,11 +1,6 @@
 import { ObjectId, ObjectID } from 'bson';
 import { BlogViewModel } from '../models/blogModel';
-import {
-  BlogPostInputModel,
-  PostDBModel,
-  PostInputModel,
-  PostViewModel,
-} from '../models/postModel';
+import { PostDBModel, PostInputModel, PostViewModel } from '../models/postModel';
 import { ReqQueryModel } from '../models/reqQueryModel';
 import { blogsRepository } from './blogs-repository';
 import { postsCollection } from './db';
@@ -40,7 +35,6 @@ export const postsRepository = {
     const blog = (await blogsRepository.findBlogById(blogId)) as BlogViewModel;
     const blogName = blog.name;
     const postToInsert: PostDBModel = {
-      _id: null,
       title,
       shortDescription,
       content,
@@ -60,11 +54,6 @@ export const postsRepository = {
       createdAt: postToInsert.createdAt,
     };
     return newPost;
-  },
-
-  async createBlogPost(blogId: string, postData: BlogPostInputModel): Promise<PostViewModel> {
-    const blogPost = await this.createPost({ blogId, ...postData });
-    return blogPost;
   },
 
   async findPostById(id: string): Promise<PostViewModel | null> {

@@ -51,16 +51,8 @@ exports.blogsRepository = {
             return yield db_1.blogsCollection.deleteMany({});
         });
     },
-    createBlog(bodyJson) {
+    createBlog(blogToInsert) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { name, description, websiteUrl } = bodyJson;
-            const blogToInsert = {
-                _id: null,
-                name,
-                description,
-                websiteUrl,
-                createdAt: new Date().toISOString(),
-            };
             const result = yield db_1.blogsCollection.insertOne(blogToInsert);
             const newBlog = {
                 id: result.insertedId.toString(),

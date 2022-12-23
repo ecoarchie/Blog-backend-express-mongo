@@ -10,14 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePostByIdController = exports.updatePostByIdController = exports.findPostByIdController = exports.createPostController = exports.getAllPostsController = void 0;
-const posts_repository_1 = require("../repositories/posts-repository");
-const service_1 = require("../repositories/service");
+const post_service_1 = require("../service/post-service");
+const utils_1 = require("./utils");
 const getAllPostsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const options = (0, service_1.setQueryParams)(req.query);
-    const foundPosts = yield posts_repository_1.postsRepository.findPosts(options);
+    const options = (0, utils_1.setQueryParams)(req.query);
+    const foundPosts = yield post_service_1.postsService.findPosts(options);
     const totalCount = options.searchNameTerm
         ? foundPosts.length
-        : yield posts_repository_1.postsRepository.countAllPosts();
+        : yield post_service_1.postsService.countAllPosts();
     const pagesCount = Math.ceil(totalCount / options.pageSize);
     res.send({
         pagesCount,
@@ -29,12 +29,12 @@ const getAllPostsController = (req, res) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.getAllPostsController = getAllPostsController;
 const createPostController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const newPost = yield posts_repository_1.postsRepository.createPost(req.body);
+    const newPost = yield post_service_1.postsService.createPost(req.body);
     res.status(201).send(newPost);
 });
 exports.createPostController = createPostController;
 const findPostByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const postFound = yield posts_repository_1.postsRepository.findPostById(req.params.id.toString());
+    const postFound = yield post_service_1.postsService.findPostById(req.params.id.toString());
     if (postFound) {
         res.send(postFound);
     }
@@ -44,7 +44,7 @@ const findPostByIdController = (req, res) => __awaiter(void 0, void 0, void 0, f
 });
 exports.findPostByIdController = findPostByIdController;
 const updatePostByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const isPostUpdated = yield posts_repository_1.postsRepository.updatePostById(req.params.id.toString(), req.body);
+    const isPostUpdated = yield post_service_1.postsService.updatePostById(req.params.id.toString(), req.body);
     if (isPostUpdated) {
         res.sendStatus(204);
     }
@@ -54,7 +54,7 @@ const updatePostByIdController = (req, res) => __awaiter(void 0, void 0, void 0,
 });
 exports.updatePostByIdController = updatePostByIdController;
 const deletePostByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const isPostDeleted = yield posts_repository_1.postsRepository.deletePostById(req.params.id.toString());
+    const isPostDeleted = yield post_service_1.postsService.deletePostById(req.params.id.toString());
     if (!isPostDeleted) {
         res.sendStatus(404);
     }

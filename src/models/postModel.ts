@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export type PostViewModel = {
-  id: string;
+  id?: string;
   title: string;
   shortDescription: string;
   content: string;
@@ -11,7 +11,7 @@ export type PostViewModel = {
 };
 
 export type PostDBModel = {
-  _id: ObjectId | null;
+  _id?: ObjectId | null;
   title: string;
   shortDescription: string;
   content: string;
