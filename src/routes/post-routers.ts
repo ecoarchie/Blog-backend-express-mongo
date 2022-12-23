@@ -15,7 +15,6 @@ export const postRouter = Router();
 
 postRouter.get('/', async (req: Request, res: Response) => {
   const options = setQueryParams(req.query);
-  // console.log(options);
 
   const foundPosts = await postsRepository.findPosts(options);
   const totalCount: number = options.searchNameTerm

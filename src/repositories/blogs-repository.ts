@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
 import { ReqQueryModel } from '../models/reqQueryModel';
-import { blogsCollection, postsCollection } from './db';
+import { blogsCollection } from './db';
 
 export const blogsRepository = {
   async findBlogs(options: ReqQueryModel & { skip: number }): Promise<BlogViewModel[]> {

@@ -19,7 +19,6 @@ const service_1 = require("../repositories/service");
 exports.postRouter = (0, express_1.Router)();
 exports.postRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const options = (0, service_1.setQueryParams)(req.query);
-    // console.log(options);
     const foundPosts = yield posts_repository_1.postsRepository.findPosts(options);
     const totalCount = options.searchNameTerm
         ? foundPosts.length

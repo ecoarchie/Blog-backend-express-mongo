@@ -1,5 +1,4 @@
 import { ObjectId, ObjectID } from 'bson';
-import { stringify } from 'querystring';
 import { BlogViewModel } from '../models/blogModel';
 import {
   BlogPostInputModel,
@@ -31,10 +30,6 @@ export const postsRepository = {
       .toArray()) as Array<PostViewModel>;
     return posts;
   },
-
-  // async findPosts(): Promise<PostViewModel[]> {
-  //   return await postsCollection.find({}, { projection: { _id: 0 } }).toArray();
-  // },
 
   async deleteAllPosts() {
     return await postsCollection.deleteMany({});
