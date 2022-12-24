@@ -22,13 +22,15 @@ exports.usersRepository = {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
             sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
+            const emailLoginTerms = [];
+            if (options.searchEmailTerm)
+                emailLoginTerms.push({ email: { $regex: options.searchEmailTerm, $options: 'i' } });
+            if (options.searchLoginTerm)
+                emailLoginTerms.push({ login: { $regex: options.searchLoginTerm, $options: 'i' } });
             const searchTerm = !options.searchLoginTerm && !options.searchEmailTerm
                 ? {}
                 : {
-                    $or: [
-                        { email: { $regex: options.searchEmailTerm, $options: 'i' } },
-                        { login: { $regex: options.searchLoginTerm, $options: 'i' } },
-                    ],
+                    $or: emailLoginTerms,
                 };
             const pipeline = [
                 { $match: searchTerm },
