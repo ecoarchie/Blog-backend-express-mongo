@@ -74,4 +74,20 @@ exports.usersRepository = {
             return result.deletedCount === 1;
         });
     },
+    findUserById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!mongodb_1.ObjectId.isValid(id))
+                return null;
+            const result = yield db_1.usersCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+            return result;
+        });
+    },
+    findUserByLoginOrEmail(loginOrEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield db_1.usersCollection.findOne({
+                $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+            });
+            return result;
+        });
+    },
 };

@@ -8,7 +8,6 @@ import { blogsRepository } from './repositories/blogs-repository';
 import { postsRepository } from './repositories/posts-repository';
 import { usersRepository } from './repositories/users-repository';
 import * as dotenv from 'dotenv';
-import { usersCollection } from './repositories/db';
 
 dotenv.config();
 
@@ -28,11 +27,13 @@ app.post('/auth/login', async (req: Request, res: Response) => {
   const userPassword = req.body.password;
   const userLoginOrEmail = req.body.loginOrEmail;
 
-  const userPasswordInDB = 'qwerty1';
+  const user = await usersRepository.findUserByLoginOrEmail(userLoginOrEmail);
+  if (!user) {
+    return res.sendStatus(401);
+  }
+  const userHashInDB = user.passwordHash;
 
-  const hash = await bcrypt.hash(userPassword, 1);
-
-  const match = await bcrypt.compare(userPasswordInDB, hash);
+  const match = await bcrypt.compare(userPassword, userHashInDB);
   if (match) {
     res.sendStatus(204);
   } else {
