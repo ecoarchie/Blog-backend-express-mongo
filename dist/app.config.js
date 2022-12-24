@@ -68,7 +68,7 @@ exports.app.post('/auth/login', (req, res) => __awaiter(void 0, void 0, void 0, 
     const user = yield users_repository_1.usersRepository.findUserById(createdUser.id);
     const userHashInDB = user.passwordHash;
     const match = yield bcrypt_1.default.compare(userPassword, userHashInDB);
-    if (match && userLoginOrEmail === user.login) {
+    if (!match && userLoginOrEmail === user.login) {
         res.sendStatus(204);
     }
     else {

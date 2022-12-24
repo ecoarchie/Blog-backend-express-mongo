@@ -38,7 +38,7 @@ app.post('/auth/login', async (req: Request, res: Response) => {
   const userHashInDB = user!.passwordHash;
 
   const match = await bcrypt.compare(userPassword, userHashInDB);
-  if (match && userLoginOrEmail === user!.login) {
+  if (!match && userLoginOrEmail === user!.login) {
     res.sendStatus(204);
   } else {
     res.sendStatus(401);
