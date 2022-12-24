@@ -9,6 +9,7 @@ import { postsRepository } from './repositories/posts-repository';
 import { usersRepository } from './repositories/users-repository';
 import * as dotenv from 'dotenv';
 import { usersCollection } from './repositories/db';
+import { usersService } from './service/user-service';
 
 dotenv.config();
 
@@ -28,12 +29,16 @@ app.post('/auth/login', async (req: Request, res: Response) => {
   const userPassword = req.body.password;
   const userLoginOrEmail = req.body.loginOrEmail;
 
-  const userPasswordInDB = 'qwerty1';
+  const createdUser = await usersService.createNewUser({
+    login: req.body.loginOrEmail,
+    password: req.body.password,
+    email: 'user@email.com',
+  });
+  const user = await usersRepository.findUserById(createdUser.id);
+  const userHashInDB = user!.passwordHash;
 
-  const hash = await bcrypt.hash(userPassword, 1);
-
-  const match = await bcrypt.compare(userPasswordInDB, hash);
-  if (match) {
+  const match = await bcrypt.compare(userPassword, userHashInDB);
+  if (match && userLoginOrEmail === user!.login) {
     res.sendStatus(204);
   } else {
     res.sendStatus(401);

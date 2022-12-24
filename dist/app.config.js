@@ -46,6 +46,7 @@ const blogs_repository_1 = require("./repositories/blogs-repository");
 const posts_repository_1 = require("./repositories/posts-repository");
 const users_repository_1 = require("./repositories/users-repository");
 const dotenv = __importStar(require("dotenv"));
+const user_service_1 = require("./service/user-service");
 dotenv.config();
 exports.app = (0, express_1.default)();
 exports.port = process.env.PORT;
@@ -59,10 +60,15 @@ exports.app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.app.post('/auth/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userPassword = req.body.password;
     const userLoginOrEmail = req.body.loginOrEmail;
-    const userPasswordInDB = 'qwerty1';
-    const hash = yield bcrypt_1.default.hash(userPassword, 1);
-    const match = yield bcrypt_1.default.compare(userPasswordInDB, hash);
-    if (match) {
+    const createdUser = yield user_service_1.usersService.createNewUser({
+        login: req.body.loginOrEmail,
+        password: req.body.password,
+        email: 'user@email.com',
+    });
+    const user = yield users_repository_1.usersRepository.findUserById(createdUser.id);
+    const userHashInDB = user.passwordHash;
+    const match = yield bcrypt_1.default.compare(userPassword, userHashInDB);
+    if (match && userLoginOrEmail === user.login) {
         res.sendStatus(204);
     }
     else {
