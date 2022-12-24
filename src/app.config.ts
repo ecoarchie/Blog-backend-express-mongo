@@ -29,16 +29,14 @@ app.post('/auth/login', async (req: Request, res: Response) => {
   const userPassword = req.body.password;
   const userLoginOrEmail = req.body.loginOrEmail;
 
-  const createdUser = await usersService.createNewUser({
-    login: req.body.loginOrEmail,
-    password: req.body.password,
-    email: 'user@email.com',
-  });
-  const user = await usersRepository.findUserById(createdUser.id);
-  const userHashInDB = user!.passwordHash;
+  const user = await usersRepository.findUserByLoginOrEmail(userLoginOrEmail);
+  if (!user) {
+    return res.sendStatus(401);
+  }
+  const userHashInDB = user.passwordHash;
 
   const match = await bcrypt.compare(userPassword, userHashInDB);
-  if (!match && userLoginOrEmail === user!.login) {
+  if (match) {
     res.sendStatus(204);
   } else {
     res.sendStatus(401);
