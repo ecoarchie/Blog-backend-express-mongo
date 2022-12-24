@@ -73,7 +73,7 @@ exports.blogsRepository = {
             });
             let blogToReturn = null;
             if (blogById) {
-                const { _id } = blogById, rest = __rest(blogById, ["_id"]);
+                const { _id } = blogById, rest = __rest(blogById, ["_id"]); //TODO replace destructuring to explicit property assignment, because returned obj from db might have unnecesary properties
                 blogToReturn = Object.assign({ id: _id.toString() }, rest);
             }
             return blogToReturn;

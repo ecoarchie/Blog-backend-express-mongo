@@ -53,7 +53,7 @@ export const blogsRepository = {
     });
     let blogToReturn: BlogViewModel | null = null;
     if (blogById) {
-      const { _id, ...rest } = blogById;
+      const { _id, ...rest } = blogById; //TODO replace destructuring to explicit property assignment, because returned obj from db might have unnecesary properties
       blogToReturn = { id: _id!.toString(), ...rest };
     }
     return blogToReturn;

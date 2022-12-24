@@ -1,23 +1,17 @@
 import { ObjectId } from 'mongodb';
 
-export type BlogViewModel = {
-  id?: string;
-  name: string;
-  description: string;
-  websiteUrl: string;
-  createdAt: string;
-};
-
 export type BlogInputModel = {
   name: string;
   description: string;
   websiteUrl: string;
 };
 
-export type BlogDBModel = {
+export type BlogViewModel = BlogInputModel & {
+  id?: string;
+  createdAt: string;
+};
+
+export type BlogDBModel = BlogInputModel & {
   _id?: ObjectId | null;
-  name: string;
-  description: string;
-  websiteUrl: string;
   createdAt: string;
 };
