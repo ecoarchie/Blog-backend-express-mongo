@@ -60,10 +60,9 @@ exports.app.post('/auth/login', (req, res) => __awaiter(void 0, void 0, void 0, 
     const userPassword = req.body.password;
     const userLoginOrEmail = req.body.loginOrEmail;
     const userPasswordInDB = 'qwerty1';
-    const userLoginInDB = 'lg-465115';
     const hash = yield bcrypt_1.default.hash(userPassword, 1);
     const match = yield bcrypt_1.default.compare(userPasswordInDB, hash);
-    if (match && userLoginOrEmail === userLoginInDB) {
+    if (match) {
         res.sendStatus(204);
     }
     else {

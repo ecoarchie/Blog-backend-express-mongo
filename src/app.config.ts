@@ -29,12 +29,11 @@ app.post('/auth/login', async (req: Request, res: Response) => {
   const userLoginOrEmail = req.body.loginOrEmail;
 
   const userPasswordInDB = 'qwerty1';
-  const userLoginInDB = 'lg-465115';
 
   const hash = await bcrypt.hash(userPassword, 1);
 
   const match = await bcrypt.compare(userPasswordInDB, hash);
-  if (match && userLoginOrEmail === userLoginInDB) {
+  if (match) {
     res.sendStatus(204);
   } else {
     res.sendStatus(401);
