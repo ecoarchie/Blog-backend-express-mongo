@@ -13,7 +13,7 @@ exports.deletePostByIdController = exports.updatePostByIdController = exports.fi
 const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
 const getAllPostsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const options = (0, utils_1.setQueryParams)(req.query);
+    const options = (0, utils_1.setPostQueryParams)(req.query);
     const foundPosts = yield post_service_1.postsService.findPosts(options);
     const totalCount = options.searchNameTerm
         ? foundPosts.length

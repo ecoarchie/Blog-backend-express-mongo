@@ -14,7 +14,7 @@ const blog_service_1 = require("../service/blog-service");
 const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
 const getAllBlogsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const options = (0, utils_1.setQueryParams)(req.query);
+    const options = (0, utils_1.setBlogQueryParams)(req.query);
     const foundBlogs = yield blog_service_1.blogsService.findBlogs(options);
     const totalCount = options.searchNameTerm
         ? foundBlogs.length
@@ -78,7 +78,7 @@ exports.deleteBlogByIdController = deleteBlogByIdController;
 const getPostsByBlogIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blog = yield blog_service_1.blogsService.findBlogById(req.params.blogId.toString());
     if (blog) {
-        const { pageNumber, pageSize, sortBy, sortDirection, skip } = (0, utils_1.setQueryParams)(req.query);
+        const { pageNumber, pageSize, sortBy, sortDirection, skip } = (0, utils_1.setBlogQueryParams)(req.query);
         const posts = yield post_service_1.postsService.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection);
         const totalCount = yield post_service_1.postsService.countPostsByBlogId(blog.id.toString());
         const pagesCount = Math.ceil(totalCount / pageSize);

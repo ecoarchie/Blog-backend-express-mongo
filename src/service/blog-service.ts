@@ -1,9 +1,9 @@
 import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
-import { ReqQueryModel } from '../models/reqQueryModel';
+import { BlogReqQueryModel } from '../models/reqQueryModel';
 import { blogsRepository } from '../repositories/blogs-repository';
 
 export const blogsService = {
-  async findBlogs(options: ReqQueryModel & { skip: number }): Promise<BlogViewModel[]> {
+  async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
     return blogsRepository.findBlogs(options);
   },
 

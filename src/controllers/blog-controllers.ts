@@ -3,10 +3,10 @@ import { BlogViewModel } from '../models/blogModel';
 import { PostViewModel } from '../models/postModel';
 import { blogsService } from '../service/blog-service';
 import { postsService } from '../service/post-service';
-import { setQueryParams } from './utils';
+import { setBlogQueryParams } from './utils';
 
 export const getAllBlogsController = async (req: Request, res: Response) => {
-  const options = setQueryParams(req.query);
+  const options = setBlogQueryParams(req.query);
 
   const foundBlogs = await blogsService.findBlogs(options);
   const totalCount: number = options.searchNameTerm
@@ -73,7 +73,7 @@ export const getPostsByBlogIdController = async (req: Request, res: Response) =>
   const blog: BlogViewModel | null = await blogsService.findBlogById(req.params.blogId.toString());
 
   if (blog) {
-    const { pageNumber, pageSize, sortBy, sortDirection, skip } = setQueryParams(req.query);
+    const { pageNumber, pageSize, sortBy, sortDirection, skip } = setBlogQueryParams(req.query);
 
     const posts: Array<BlogViewModel> = await postsService.findPostsByBlogId(
       blog.id!.toString(),

@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongodb';
 import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
-import { ReqQueryModel } from '../models/reqQueryModel';
+import { BlogReqQueryModel } from '../models/reqQueryModel';
 import { blogsCollection } from './db';
 
 export const blogsRepository = {
-  async findBlogs(options: ReqQueryModel & { skip: number }): Promise<BlogViewModel[]> {
+  async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
     const searchTerm = !options.searchNameTerm

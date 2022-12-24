@@ -63,6 +63,38 @@ export const postBodyValidation = () => {
   ];
 };
 
+export const userBodyValidation = () => {
+  return [
+    body('login')
+      .exists()
+      .withMessage('User login is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Login cannot be empty')
+      .isLength({ max: 10, min: 3 })
+      .withMessage('Login length should be between 3 and 10 characters')
+      .matches(/^[a-zA-Z0-9_-]*$/)
+      .withMessage('Incorrect symbols in login'),
+
+    body('password')
+      .exists()
+      .withMessage('Password is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Password cannot be empty')
+      .isLength({ max: 20, min: 6 })
+      .withMessage('Password should be between 6 and 20 symbols'),
+
+    body('email')
+      .exists()
+      .withMessage('Email is required')
+      .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+      .withMessage('Email contains incorrect symbols'),
+  ];
+};
+
 export const inputValidatiomMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const errorFormatter = ({ msg, param }: ValidationError) => {
     return { message: msg, field: param };

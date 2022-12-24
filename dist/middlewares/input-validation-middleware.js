@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.inputValidatiomMiddleware = exports.postBodyValidation = exports.blogBodyValidation = void 0;
+exports.inputValidatiomMiddleware = exports.userBodyValidation = exports.postBodyValidation = exports.blogBodyValidation = void 0;
 const express_validator_1 = require("express-validator");
 const blogBodyValidation = () => {
     return [
@@ -60,6 +60,36 @@ const postBodyValidation = () => {
     ];
 };
 exports.postBodyValidation = postBodyValidation;
+const userBodyValidation = () => {
+    return [
+        (0, express_validator_1.body)('login')
+            .exists()
+            .withMessage('User login is required')
+            .trim()
+            .not()
+            .isEmpty()
+            .withMessage('Login cannot be empty')
+            .isLength({ max: 10, min: 3 })
+            .withMessage('Login length should be between 3 and 10 characters')
+            .matches(/^[a-zA-Z0-9_-]*$/)
+            .withMessage('Incorrect symbols in login'),
+        (0, express_validator_1.body)('password')
+            .exists()
+            .withMessage('Password is required')
+            .trim()
+            .not()
+            .isEmpty()
+            .withMessage('Password cannot be empty')
+            .isLength({ max: 20, min: 6 })
+            .withMessage('Password should be between 6 and 20 symbols'),
+        (0, express_validator_1.body)('email')
+            .exists()
+            .withMessage('Email is required')
+            .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+            .withMessage('Email contains incorrect symbols'),
+    ];
+};
+exports.userBodyValidation = userBodyValidation;
 const inputValidatiomMiddleware = (req, res, next) => {
     const errorFormatter = ({ msg, param }) => {
         return { message: msg, field: param };

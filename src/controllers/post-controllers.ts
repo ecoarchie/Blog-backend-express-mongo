@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { PostViewModel } from '../models/postModel';
 import { postsService } from '../service/post-service';
-import { setQueryParams } from './utils';
+import { setPostQueryParams } from './utils';
 
 export const getAllPostsController = async (req: Request, res: Response) => {
-  const options = setQueryParams(req.query);
+  const options = setPostQueryParams(req.query);
 
   const foundPosts = await postsService.findPosts(options);
   const totalCount: number = options.searchNameTerm

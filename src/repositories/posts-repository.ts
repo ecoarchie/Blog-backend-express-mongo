@@ -1,12 +1,12 @@
 import { ObjectId, ObjectID } from 'bson';
 import { BlogViewModel } from '../models/blogModel';
 import { PostDBModel, PostInputModel, PostViewModel } from '../models/postModel';
-import { ReqQueryModel } from '../models/reqQueryModel';
+import { PostReqQueryModel } from '../models/reqQueryModel';
 import { blogsRepository } from './blogs-repository';
 import { postsCollection } from './db';
 
 export const postsRepository = {
-  async findPosts(options: ReqQueryModel & { skip: number }): Promise<PostViewModel[]> {
+  async findPosts(options: PostReqQueryModel): Promise<PostViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
     const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };

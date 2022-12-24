@@ -1,9 +1,9 @@
 import { BlogPostInputModel, PostInputModel, PostViewModel } from '../models/postModel';
-import { ReqQueryModel } from '../models/reqQueryModel';
+import { PostReqQueryModel } from '../models/reqQueryModel';
 import { postsRepository } from '../repositories/posts-repository';
 
 export const postsService = {
-  async findPosts(options: ReqQueryModel & { skip: number }): Promise<PostViewModel[]> {
+  async findPosts(options: PostReqQueryModel): Promise<PostViewModel[]> {
     return postsRepository.findPosts(options);
   },
 
