@@ -8,6 +8,7 @@ import { blogsRepository } from './repositories/blogs-repository';
 import { postsRepository } from './repositories/posts-repository';
 import { usersRepository } from './repositories/users-repository';
 import * as dotenv from 'dotenv';
+import { commentRouter } from './routes/commets-routers';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 app.use('/blogs', blogRouter);
 app.use('/posts', postRouter);
 app.use('/users', userRouter);
+app.use('/comments', commentRouter);
 
 app.get('/', async (req, res) => {
   res.send('Hello World!');

@@ -46,6 +46,7 @@ const blogs_repository_1 = require("./repositories/blogs-repository");
 const posts_repository_1 = require("./repositories/posts-repository");
 const users_repository_1 = require("./repositories/users-repository");
 const dotenv = __importStar(require("dotenv"));
+const commets_routers_1 = require("./routes/commets-routers");
 dotenv.config();
 exports.app = (0, express_1.default)();
 exports.port = process.env.PORT;
@@ -53,6 +54,7 @@ exports.app.use(body_parser_1.default.json());
 exports.app.use('/blogs', blog_routers_1.blogRouter);
 exports.app.use('/posts', post_routers_1.postRouter);
 exports.app.use('/users', user_routes_1.userRouter);
+exports.app.use('/comments', commets_routers_1.commentRouter);
 exports.app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.send('Hello World!');
 }));
