@@ -67,9 +67,10 @@ export const getCommentsForPostController = async (req: Request, res: Response) 
     const options = setCommentsQueryParams(req.query);
     const comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
 
-    const totalCount: number = req.query
-      ? comments.length
-      : await commentRepository.countAllCommentsByPostId(req.params.postId);
+    const totalCount: number =
+      Object.keys(req.query).length !== 0
+        ? comments.length
+        : await commentRepository.countAllCommentsByPostId(req.params.postId);
     const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
     res.send({
