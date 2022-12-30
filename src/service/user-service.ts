@@ -40,6 +40,7 @@ export const usersService = {
     const userHashInDB = user.passwordHash;
 
     const match = await bcrypt.compare(password, userHashInDB);
+
     return match ? user._id!.toString() : null;
   },
 };

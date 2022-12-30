@@ -1,6 +1,5 @@
 require('dotenv').config();
 import jwt from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
 
 export const jwtService = {
   async createJwt(userId: string) {
