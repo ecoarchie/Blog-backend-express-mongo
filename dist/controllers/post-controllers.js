@@ -74,7 +74,9 @@ const getCommentsForPostController = (req, res) => __awaiter(void 0, void 0, voi
     else {
         const options = (0, utils_1.setCommentsQueryParams)(req.query);
         const comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
-        const totalCount = comments.length;
+        const totalCount = req.query
+            ? comments.length
+            : yield comments_repository_1.commentRepository.countAllCommentsByPostId(req.params.postId);
         const pagesCount = Math.ceil(totalCount / options.pageSize);
         res.send({
             pagesCount,

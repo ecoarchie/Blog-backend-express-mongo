@@ -60,6 +60,11 @@ export const commentRepository = {
     return comments;
   },
 
+  async countAllCommentsByPostId(postId: string): Promise<number> {
+    const commentsCount = await commentsCollection.countDocuments({ postId: new ObjectId(postId) });
+    return commentsCount;
+  },
+
   async createComment(commentData: CommentViewModel): Promise<CommentViewModel> {
     const comment: CommentDBModel = {
       postId: new ObjectId(commentData.postId),

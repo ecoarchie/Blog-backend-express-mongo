@@ -41,7 +41,14 @@ exports.commentService = {
         return __awaiter(this, void 0, void 0, function* () {
             const deleteResponse = { status: 0 };
             const comment = yield comments_repository_1.commentRepository.getCommentById(commentId);
-            const commentOwner = comment.userId;
+            let commentOwner;
+            if (comment) {
+                commentOwner = comment.userId;
+            }
+            else {
+                deleteResponse.status = 404;
+                return deleteResponse;
+            }
             if (commentOwner !== userId) {
                 deleteResponse.status = 403;
                 return deleteResponse;

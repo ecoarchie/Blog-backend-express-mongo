@@ -33,7 +33,13 @@ export const commentService = {
     const deleteResponse = { status: 0 };
 
     const comment = await commentRepository.getCommentById(commentId);
-    const commentOwner = comment!.userId;
+    let commentOwner;
+    if (comment) {
+      commentOwner = comment.userId;
+    } else {
+      deleteResponse.status = 404;
+      return deleteResponse;
+    }
     if (commentOwner !== userId) {
       deleteResponse.status = 403;
       return deleteResponse;

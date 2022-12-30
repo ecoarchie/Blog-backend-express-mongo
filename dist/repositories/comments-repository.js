@@ -63,6 +63,12 @@ exports.commentRepository = {
             return comments;
         });
     },
+    countAllCommentsByPostId(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const commentsCount = yield db_1.commentsCollection.countDocuments({ postId: new mongodb_1.ObjectId(postId) });
+            return commentsCount;
+        });
+    },
     createComment(commentData) {
         return __awaiter(this, void 0, void 0, function* () {
             const comment = {
