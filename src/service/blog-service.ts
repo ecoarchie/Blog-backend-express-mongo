@@ -19,8 +19,6 @@ export const blogsService = {
       websiteUrl,
       createdAt: new Date().toISOString(),
     };
-    //TODO make blogsRepository.createBlog method return not an object, but only id
-    //so the service method could counstruct blog here
     const createdBlog = await blogsRepository.createBlog(blogToInsert);
     return createdBlog;
   },

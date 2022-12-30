@@ -79,6 +79,14 @@ exports.usersRepository = {
             if (!mongodb_1.ObjectId.isValid(id))
                 return null;
             const result = yield db_1.usersCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+            if (result) {
+                return {
+                    id: result._id.toString(),
+                    login: result.login,
+                    email: result.email,
+                    createdAt: result.createdAt,
+                };
+            }
             return result;
         });
     },

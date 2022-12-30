@@ -84,6 +84,7 @@ exports.blogsRepository = {
             if (!mongodb_1.ObjectId.isValid(id))
                 return false;
             const result = yield db_1.blogsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: Object.assign({}, newDatajson) });
+            //TODO update all posts related to this blog
             return result.matchedCount === 1;
         });
     },

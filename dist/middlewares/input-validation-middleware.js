@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.inputValidatiomMiddleware = exports.userBodyValidation = exports.postBodyValidation = exports.blogBodyValidation = void 0;
+exports.inputValidatiomMiddleware = exports.commentBodyValidation = exports.userBodyValidation = exports.postBodyValidation = exports.blogBodyValidation = void 0;
 const express_validator_1 = require("express-validator");
 const blogBodyValidation = () => {
     return [
@@ -90,6 +90,20 @@ const userBodyValidation = () => {
     ];
 };
 exports.userBodyValidation = userBodyValidation;
+const commentBodyValidation = () => {
+    return [
+        (0, express_validator_1.body)('content')
+            .exists()
+            .withMessage('Content is required')
+            .trim()
+            .not()
+            .isEmpty()
+            .withMessage('Content cannot be empty')
+            .isLength({ max: 300, min: 20 })
+            .withMessage('Content must be between 20 and 300 characters'),
+    ];
+};
+exports.commentBodyValidation = commentBodyValidation;
 const inputValidatiomMiddleware = (req, res, next) => {
     const errorFormatter = ({ msg, param }) => {
         return { message: msg, field: param };

@@ -135,4 +135,11 @@ exports.postsRepository = {
             return db_1.postsCollection.countDocuments();
         });
     },
+    isPostExist(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!bson_1.ObjectId.isValid(postId))
+                return false;
+            return (yield db_1.postsCollection.countDocuments({ _id: new bson_1.ObjectId(postId) })) > 0;
+        });
+    },
 };

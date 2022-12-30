@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
 import { PostViewModel } from '../models/postModel';
+import { commentRepository } from '../repositories/comments-repository';
+import { postsRepository } from '../repositories/posts-repository';
+import { commentService } from '../service/comments-service';
 import { postsService } from '../service/post-service';
-import { setPostQueryParams } from './utils';
+import { setCommentsQueryParams, setPostQueryParams } from './utils';
 
 export const getAllPostsController = async (req: Request, res: Response) => {
   const options = setPostQueryParams(req.query);
@@ -54,4 +57,42 @@ export const deletePostByIdController = async (req: Request, res: Response) => {
   } else {
     res.sendStatus(204);
   }
+};
+
+export const getCommentsForPostController = async (req: Request, res: Response) => {
+  const isValidPost = await postsRepository.isPostExist(req.params.postId);
+  if (!isValidPost) {
+    res.sendStatus(404);
+  } else {
+    const options = setCommentsQueryParams(req.query);
+    const comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
+
+    const totalCount: number = comments.length;
+    const pagesCount: number = Math.ceil(totalCount / options.pageSize);
+
+    res.send({
+      pagesCount,
+      page: options.pageNumber,
+      pageSize: options.pageSize,
+      totalCount,
+      items: comments,
+    });
+  }
+};
+
+export const createCommentForPostController = async (req: Request, res: Response) => {
+  if (!(await postsRepository.isPostExist(req.params.postId.toString()))) {
+    console.log('post not exist');
+    res.sendStatus(404);
+    return;
+  }
+  console.log('here');
+
+  const newComment = await commentService.createCommentService(
+    req.params.postId,
+    req.user!.id,
+    req.user!.login,
+    req.body.content
+  );
+  res.status(201).send(newComment);
 };

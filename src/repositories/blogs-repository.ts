@@ -7,6 +7,7 @@ export const blogsRepository = {
   async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
+
     const searchTerm = !options.searchNameTerm
       ? {}
       : { name: { $regex: options.searchNameTerm, $options: 'i' } };
@@ -65,6 +66,7 @@ export const blogsRepository = {
       { _id: new ObjectId(id) },
       { $set: { ...newDatajson } }
     );
+    //TODO update all posts related to this blog
 
     return result.matchedCount === 1;
   },

@@ -118,4 +118,9 @@ export const postsRepository = {
   async countAllPosts(): Promise<number> {
     return postsCollection.countDocuments();
   },
+
+  async isPostExist(postId: string): Promise<boolean> {
+    if (!ObjectId.isValid(postId)) return false;
+    return (await postsCollection.countDocuments({ _id: new ObjectId(postId) })) > 0;
+  },
 };

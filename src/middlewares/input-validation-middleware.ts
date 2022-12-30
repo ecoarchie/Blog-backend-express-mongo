@@ -95,6 +95,20 @@ export const userBodyValidation = () => {
   ];
 };
 
+export const commentBodyValidation = () => {
+  return [
+    body('content')
+      .exists()
+      .withMessage('Content is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Content cannot be empty')
+      .isLength({ max: 300, min: 20 })
+      .withMessage('Content must be between 20 and 300 characters'),
+  ];
+};
+
 export const inputValidatiomMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const errorFormatter = ({ msg, param }: ValidationError) => {
     return { message: msg, field: param };

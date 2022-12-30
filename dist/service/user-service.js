@@ -21,6 +21,11 @@ exports.usersService = {
             return users_repository_1.usersRepository.findUsers(options);
         });
     },
+    findUserByIdService(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return users_repository_1.usersRepository.findUserById(userId);
+        });
+    },
     countAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             return users_repository_1.usersRepository.countAllUsers();
@@ -38,6 +43,17 @@ exports.usersService = {
             };
             const createdUser = yield users_repository_1.usersRepository.createUser(userToInsert);
             return createdUser;
+        });
+    },
+    checkCredentials(loginOrEmail, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield users_repository_1.usersRepository.findUserByLoginOrEmail(loginOrEmail);
+            if (!user) {
+                return null;
+            }
+            const userHashInDB = user.passwordHash;
+            const match = yield bcrypt_1.default.compare(password, userHashInDB);
+            return match ? user._id.toString() : null;
         });
     },
 };

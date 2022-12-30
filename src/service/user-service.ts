@@ -9,6 +9,10 @@ export const usersService = {
     return usersRepository.findUsers(options);
   },
 
+  async findUserByIdService(userId: string): Promise<UserViewModel | null> {
+    return usersRepository.findUserById(userId);
+  },
+
   async countAllUsers(): Promise<number> {
     return usersRepository.countAllUsers();
   },
@@ -26,5 +30,16 @@ export const usersService = {
 
     const createdUser = await usersRepository.createUser(userToInsert);
     return createdUser;
+  },
+
+  async checkCredentials(loginOrEmail: string, password: string) {
+    const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
+    if (!user) {
+      return null;
+    }
+    const userHashInDB = user.passwordHash;
+
+    const match = await bcrypt.compare(password, userHashInDB);
+    return match ? user._id!.toString() : null;
   },
 };

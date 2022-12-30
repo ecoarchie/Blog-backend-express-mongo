@@ -25,3 +25,11 @@ export type UserReqQueryModel = {
   sortDirection?: 'asc' | 'desc';
   skip?: number;
 };
+
+export type CommentReqQueryModel = {
+  pageNumber?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  skip?: number;
+};

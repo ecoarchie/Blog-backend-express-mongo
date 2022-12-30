@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 
 export type CommentDBModel = {
   _id?: ObjectId | null;
+  postId: ObjectId;
   content: string;
   userId: ObjectId;
   userLogin: string;
@@ -10,6 +11,7 @@ export type CommentDBModel = {
 
 export type CommentViewModel = {
   id?: string;
+  postId?: string;
   content: string;
   userId: string;
   userLogin: string;

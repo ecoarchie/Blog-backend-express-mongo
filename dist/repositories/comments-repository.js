@@ -10,20 +10,82 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentRepository = void 0;
+const mongodb_1 = require("mongodb");
+const db_1 = require("./db");
 exports.commentRepository = {
     getCommentById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return '';
+            if (!mongodb_1.ObjectId.isValid(id))
+                return null;
+            const commentFound = yield db_1.commentsCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+            let commentView = null;
+            if (commentFound) {
+                commentView = {
+                    id: commentFound._id.toString(),
+                    content: commentFound.content,
+                    userId: commentFound.userId.toString(),
+                    userLogin: commentFound.userLogin,
+                    createdAt: commentFound.createdAt,
+                };
+            }
+            return commentView;
         });
     },
-    updateCommentById(id) {
+    updateCommentById(id, content) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
+            const result = yield db_1.commentsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { content } });
+            return result.matchedCount === 1;
         });
     },
     deleteCommentById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
+            const result = yield db_1.commentsCollection.deleteOne({ _id: new mongodb_1.ObjectId(id) });
+            return result.deletedCount === 1;
+        });
+    },
+    getCommentsByPostId(postId, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sort = {};
+            sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
+            const pipeline = [
+                { $match: { postId: new mongodb_1.ObjectId(postId) } },
+                { $addFields: { id: '$_id' } },
+                { $sort: sort },
+                { $skip: options.skip },
+                { $limit: options.pageSize },
+                { $project: { _id: 0 } },
+            ];
+            const comments = (yield db_1.commentsCollection.aggregate(pipeline).toArray()).map((comment) => {
+                comment.id = comment.id.toString();
+                comment.userId = comment.userId.toString();
+                return comment;
+            });
+            return comments;
+        });
+    },
+    createComment(commentData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comment = {
+                postId: new mongodb_1.ObjectId(commentData.postId),
+                content: commentData.content,
+                userId: new mongodb_1.ObjectId(commentData.userId),
+                userLogin: commentData.userLogin,
+                createdAt: commentData.createdAt,
+            };
+            const result = yield db_1.commentsCollection.insertOne(comment);
+            const newComment = {
+                id: result.insertedId.toString(),
+                content: commentData.content,
+                userId: commentData.userId,
+                userLogin: commentData.userLogin,
+                createdAt: commentData.createdAt,
+            };
+            return newComment;
+        });
+    },
+    deleteAllComments() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return db_1.commentsCollection.deleteMany({});
         });
     },
 };

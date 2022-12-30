@@ -4,7 +4,6 @@ import {
   inputValidatiomMiddleware,
   postBodyValidation,
 } from '../middlewares/input-validation-middleware';
-import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import {
   createBlogController,
   createBlogPostController,
@@ -14,6 +13,8 @@ import {
   getPostsByBlogIdController,
   updateBlogByIdController,
 } from '../controllers/blog-controllers';
+import { jwtAuthMware } from '../middlewares/jwt-auth-mware';
+import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 
 export const blogRouter = Router();
 

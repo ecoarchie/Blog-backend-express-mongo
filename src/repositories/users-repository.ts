@@ -67,9 +67,17 @@ export const usersRepository = {
     return result.deletedCount === 1;
   },
 
-  async findUserById(id: string): Promise<UserDBModel | null> {
+  async findUserById(id: string): Promise<UserViewModel | null> {
     if (!ObjectId.isValid(id)) return null;
     const result = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (result) {
+      return {
+        id: result._id.toString(),
+        login: result.login,
+        email: result.email,
+        createdAt: result.createdAt,
+      };
+    }
     return result;
   },
 

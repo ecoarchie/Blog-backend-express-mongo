@@ -10,20 +10,57 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentService = void 0;
+const comments_repository_1 = require("../repositories/comments-repository");
 exports.commentService = {
-    getCommentByIdService() {
+    getCommentByIdService(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
+            return comments_repository_1.commentRepository.getCommentById(id);
         });
     },
-    updateCommentByIdService() {
+    updateCommentByIdService(commentId, userId, content) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
+            const updateResponse = { status: 0 };
+            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId);
+            let commentOwner;
+            if (comment) {
+                commentOwner = comment.userId;
+            }
+            else {
+                updateResponse.status = 404;
+                return updateResponse;
+            }
+            if (commentOwner !== userId) {
+                updateResponse.status = 403;
+                return updateResponse;
+            }
+            const result = yield comments_repository_1.commentRepository.updateCommentById(commentId, content);
+            return result ? { status: 204 } : { status: 404 };
         });
     },
-    deleteCommentByIdService() {
+    deleteCommentByIdService(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
+            const deleteResponse = { status: 0 };
+            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId);
+            const commentOwner = comment.userId;
+            if (commentOwner !== userId) {
+                deleteResponse.status = 403;
+                return deleteResponse;
+            }
+            const result = yield comments_repository_1.commentRepository.deleteCommentById(commentId);
+            return result ? { status: 204 } : { status: 404 };
+        });
+    },
+    createCommentService(postId, userId, userLogin, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const commentToInsert = {
+                postId,
+                content,
+                userId,
+                userLogin,
+                createdAt: new Date().toISOString(),
+            };
+            const createdComment = yield comments_repository_1.commentRepository.createComment(commentToInsert);
+            return createdComment;
         });
     },
 };

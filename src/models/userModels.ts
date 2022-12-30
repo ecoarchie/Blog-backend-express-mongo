@@ -28,3 +28,9 @@ export type PaginatorUserViewModel = {
   totalCount: number;
   items: Array<UserViewModel>;
 };
+
+export type MeViewModel = {
+  email: string;
+  login: string;
+  userId: string;
+};

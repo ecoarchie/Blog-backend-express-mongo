@@ -38,7 +38,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.port = exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const blog_routers_1 = require("./routes/blog-routers");
 const post_routers_1 = require("./routes/post-routers");
 const user_routes_1 = require("./routes/user-routes");
@@ -47,6 +46,8 @@ const posts_repository_1 = require("./repositories/posts-repository");
 const users_repository_1 = require("./repositories/users-repository");
 const dotenv = __importStar(require("dotenv"));
 const commets_routers_1 = require("./routes/commets-routers");
+const auth_routers_1 = require("./routes/auth-routers");
+const comments_repository_1 = require("./repositories/comments-repository");
 dotenv.config();
 exports.app = (0, express_1.default)();
 exports.port = process.env.PORT;
@@ -55,28 +56,14 @@ exports.app.use('/blogs', blog_routers_1.blogRouter);
 exports.app.use('/posts', post_routers_1.postRouter);
 exports.app.use('/users', user_routes_1.userRouter);
 exports.app.use('/comments', commets_routers_1.commentRouter);
+exports.app.use('/auth', auth_routers_1.authRouter);
 exports.app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.send('Hello World!');
-}));
-exports.app.post('/auth/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userPassword = req.body.password;
-    const userLoginOrEmail = req.body.loginOrEmail;
-    const user = yield users_repository_1.usersRepository.findUserByLoginOrEmail(userLoginOrEmail);
-    if (!user) {
-        return res.sendStatus(401);
-    }
-    const userHashInDB = user.passwordHash;
-    const match = yield bcrypt_1.default.compare(userPassword, userHashInDB);
-    if (match) {
-        res.sendStatus(204);
-    }
-    else {
-        res.sendStatus(401);
-    }
 }));
 exports.app.delete('/testing/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     blogs_repository_1.blogsRepository.deleteAllBlogs();
     posts_repository_1.postsRepository.deleteAllPosts();
     users_repository_1.usersRepository.deleteAllUsers();
+    comments_repository_1.commentRepository.deleteAllComments();
     res.sendStatus(204);
 }));

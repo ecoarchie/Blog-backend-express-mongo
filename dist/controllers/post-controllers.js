@@ -9,7 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePostByIdController = exports.updatePostByIdController = exports.findPostByIdController = exports.createPostController = exports.getAllPostsController = void 0;
+exports.createCommentForPostController = exports.getCommentsForPostController = exports.deletePostByIdController = exports.updatePostByIdController = exports.findPostByIdController = exports.createPostController = exports.getAllPostsController = void 0;
+const comments_repository_1 = require("../repositories/comments-repository");
+const posts_repository_1 = require("../repositories/posts-repository");
+const comments_service_1 = require("../service/comments-service");
 const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
 const getAllPostsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -63,3 +66,34 @@ const deletePostByIdController = (req, res) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.deletePostByIdController = deletePostByIdController;
+const getCommentsForPostController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const isValidPost = yield posts_repository_1.postsRepository.isPostExist(req.params.postId);
+    if (!isValidPost) {
+        res.sendStatus(404);
+    }
+    else {
+        const options = (0, utils_1.setCommentsQueryParams)(req.query);
+        const comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
+        const totalCount = comments.length;
+        const pagesCount = Math.ceil(totalCount / options.pageSize);
+        res.send({
+            pagesCount,
+            page: options.pageNumber,
+            pageSize: options.pageSize,
+            totalCount,
+            items: comments,
+        });
+    }
+});
+exports.getCommentsForPostController = getCommentsForPostController;
+const createCommentForPostController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!(yield posts_repository_1.postsRepository.isPostExist(req.params.postId.toString()))) {
+        console.log('post not exist');
+        res.sendStatus(404);
+        return;
+    }
+    console.log('here');
+    const newComment = yield comments_service_1.commentService.createCommentService(req.params.postId, req.user.id, req.user.login, req.body.content);
+    res.status(201).send(newComment);
+});
+exports.createCommentForPostController = createCommentForPostController;
