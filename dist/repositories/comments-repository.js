@@ -53,7 +53,7 @@ exports.commentRepository = {
                 { $sort: sort },
                 { $skip: options.skip },
                 { $limit: options.pageSize },
-                { $project: { _id: 0 } },
+                { $project: { _id: 0, postId: 0 } },
             ];
             const comments = (yield db_1.commentsCollection.aggregate(pipeline).toArray()).map((comment) => {
                 comment.id = comment.id.toString();

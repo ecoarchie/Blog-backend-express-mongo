@@ -47,7 +47,7 @@ export const commentRepository = {
       { $sort: sort },
       { $skip: options.skip },
       { $limit: options.pageSize },
-      { $project: { _id: 0 } },
+      { $project: { _id: 0, postId: 0 } },
     ];
 
     const comments: Array<CommentViewModel> = (
