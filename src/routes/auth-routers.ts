@@ -1,5 +1,16 @@
 import { Router } from 'express';
-import { getCurrentUserInfoController, loginUserController } from '../controllers/auth-controllers';
+import {
+  getCurrentUserInfoController,
+  loginUserController,
+  regConfirmController,
+  registerUserController,
+  resendRegEmailController,
+} from '../controllers/auth-controllers';
+import {
+  emailValidation,
+  inputValidatiomMiddleware,
+  userBodyValidation,
+} from '../middlewares/input-validation-middleware';
 import { jwtAuthMware } from '../middlewares/jwt-auth-mware';
 
 export const authRouter = Router();
@@ -7,3 +18,19 @@ export const authRouter = Router();
 authRouter.post('/login', loginUserController);
 
 authRouter.get('/me', jwtAuthMware, getCurrentUserInfoController);
+
+authRouter.post(
+  '/registration',
+  userBodyValidation(),
+  inputValidatiomMiddleware,
+  registerUserController
+);
+
+authRouter.post('/registration-confirmation', regConfirmController);
+
+authRouter.post(
+  '/registration-email-resending',
+  emailValidation(),
+  inputValidatiomMiddleware,
+  resendRegEmailController
+);

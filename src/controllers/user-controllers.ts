@@ -24,9 +24,12 @@ export const getAllUsersController = async (req: Request, res: Response) => {
 };
 
 export const createNewUserController = async (req: Request, res: Response) => {
-  const newUser: UserViewModel = await usersService.createNewUser(req.body);
-
-  res.status(201).send(newUser);
+  const newUser = await usersService.createNewUser(req.body);
+  if (newUser) {
+    res.status(201).send(newUser);
+  } else {
+    res.sendStatus(400); // email wasn't send
+  }
 };
 
 export const deleteUserByIdController = async (req: Request, res: Response) => {

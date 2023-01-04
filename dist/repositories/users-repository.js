@@ -98,4 +98,17 @@ exports.usersRepository = {
             return result;
         });
     },
+    findUserByConfirmCode(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(code);
+            const result = yield db_1.usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
+            return result;
+        });
+    },
+    updateConfirmation(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield db_1.usersCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { 'emailConfirmation.isConfirmed': true } });
+            return result.modifiedCount === 1;
+        });
+    },
 };

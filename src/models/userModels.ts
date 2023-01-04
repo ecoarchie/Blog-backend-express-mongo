@@ -19,6 +19,11 @@ export type UserDBModel = {
   passwordHash: string;
   email: string;
   createdAt: string;
+  emailConfirmation: {
+    confirmationCode: string;
+    expirationDate: Date;
+    isConfirmed: boolean;
+  };
 };
 
 export type PaginatorUserViewModel = {

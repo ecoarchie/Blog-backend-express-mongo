@@ -14,7 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersService = void 0;
 const users_repository_1 = require("../repositories/users-repository");
+const uuid_1 = require("uuid");
+const add_1 = __importDefault(require("date-fns/add"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const email_manager_1 = require("../managers/email-manager");
 exports.usersService = {
     findUsers(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -24,6 +27,11 @@ exports.usersService = {
     findUserByIdService(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             return users_repository_1.usersRepository.findUserById(userId);
+        });
+    },
+    findUserByEmail(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return users_repository_1.usersRepository.findUserByLoginOrEmail(email);
         });
     },
     countAllUsers() {
@@ -40,15 +48,28 @@ exports.usersService = {
                 passwordHash: hash,
                 email,
                 createdAt: new Date().toISOString(),
+                emailConfirmation: {
+                    confirmationCode: (0, uuid_1.v4)(),
+                    expirationDate: (0, add_1.default)(new Date(), { hours: 1, minutes: 10 }),
+                    isConfirmed: false,
+                },
             };
             const createdUser = yield users_repository_1.usersRepository.createUser(userToInsert);
+            try {
+                const result = yield email_manager_1.emailManager.sendEmailConfirmationMessage(userToInsert);
+            }
+            catch (error) {
+                console.log("Couldn't send email");
+                console.log(error);
+                return null;
+            }
             return createdUser;
         });
     },
     checkCredentials(loginOrEmail, password) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield users_repository_1.usersRepository.findUserByLoginOrEmail(loginOrEmail);
-            if (!user) {
+            if (!user || !user.emailConfirmation.isConfirmed) {
                 return null;
             }
             const userHashInDB = user.passwordHash;

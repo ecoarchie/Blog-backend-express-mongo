@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.inputValidatiomMiddleware = exports.commentBodyValidation = exports.userBodyValidation = exports.postBodyValidation = exports.blogBodyValidation = void 0;
+exports.inputValidatiomMiddleware = exports.emailValidation = exports.commentBodyValidation = exports.userBodyValidation = exports.postBodyValidation = exports.blogBodyValidation = void 0;
 const express_validator_1 = require("express-validator");
 const blogBodyValidation = () => {
     return [
@@ -104,6 +104,20 @@ const commentBodyValidation = () => {
     ];
 };
 exports.commentBodyValidation = commentBodyValidation;
+const emailValidation = () => {
+    return [
+        (0, express_validator_1.body)('email')
+            .exists()
+            .withMessage('Email is required')
+            .trim()
+            .not()
+            .isEmpty()
+            .withMessage('Email cannot be empty')
+            .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+            .withMessage('Email contains incorrect symbols'),
+    ];
+};
+exports.emailValidation = emailValidation;
 const inputValidatiomMiddleware = (req, res, next) => {
     const errorFormatter = ({ msg, param }) => {
         return { message: msg, field: param };

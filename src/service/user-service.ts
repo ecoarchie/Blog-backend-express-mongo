@@ -1,8 +1,11 @@
 import { UserReqQueryModel } from '../models/reqQueryModel';
 import { UserDBModel, UserInputModel, UserViewModel } from '../models/userModels';
 import { usersRepository } from '../repositories/users-repository';
+import { v4 as uuidv4 } from 'uuid';
+import add from 'date-fns/add';
 
 import bcrypt from 'bcrypt';
+import { emailManager } from '../managers/email-manager';
 
 export const usersService = {
   async findUsers(options: UserReqQueryModel): Promise<UserViewModel[]> {
@@ -13,11 +16,15 @@ export const usersService = {
     return usersRepository.findUserById(userId);
   },
 
+  async findUserByEmail(email: string): Promise<UserDBModel | null> {
+    return usersRepository.findUserByLoginOrEmail(email);
+  },
+
   async countAllUsers(): Promise<number> {
     return usersRepository.countAllUsers();
   },
 
-  async createNewUser(userData: UserInputModel): Promise<UserViewModel> {
+  async createNewUser(userData: UserInputModel): Promise<UserViewModel | null> {
     const { login, password, email } = userData;
     const hash = await bcrypt.hash(password, 1);
 
@@ -26,15 +33,27 @@ export const usersService = {
       passwordHash: hash,
       email,
       createdAt: new Date().toISOString(),
+      emailConfirmation: {
+        confirmationCode: uuidv4(),
+        expirationDate: add(new Date(), { hours: 1, minutes: 10 }),
+        isConfirmed: false,
+      },
     };
 
     const createdUser = await usersRepository.createUser(userToInsert);
+    try {
+      const result = await emailManager.sendEmailConfirmationMessage(userToInsert);
+    } catch (error) {
+      console.log("Couldn't send email");
+      console.log(error);
+      return null;
+    }
     return createdUser;
   },
 
   async checkCredentials(loginOrEmail: string, password: string) {
     const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
-    if (!user) {
+    if (!user || !user.emailConfirmation.isConfirmed) {
       return null;
     }
     const userHashInDB = user.passwordHash;

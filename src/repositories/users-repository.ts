@@ -87,4 +87,19 @@ export const usersRepository = {
     });
     return result;
   },
+
+  async findUserByConfirmCode(code: string): Promise<UserDBModel | null> {
+    console.log(code);
+
+    const result = await usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
+    return result;
+  },
+
+  async updateConfirmation(id: string) {
+    const result = await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { 'emailConfirmation.isConfirmed': true } }
+    );
+    return result.modifiedCount === 1;
+  },
 };

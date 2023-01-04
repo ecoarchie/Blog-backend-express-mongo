@@ -31,7 +31,12 @@ const getAllUsersController = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.getAllUsersController = getAllUsersController;
 const createNewUserController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newUser = yield user_service_1.usersService.createNewUser(req.body);
-    res.status(201).send(newUser);
+    if (newUser) {
+        res.status(201).send(newUser);
+    }
+    else {
+        res.sendStatus(400); // email wasn't send
+    }
 });
 exports.createNewUserController = createNewUserController;
 const deleteUserByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -109,6 +109,20 @@ export const commentBodyValidation = () => {
   ];
 };
 
+export const emailValidation = () => {
+  return [
+    body('email')
+      .exists()
+      .withMessage('Email is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Email cannot be empty')
+      .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+      .withMessage('Email contains incorrect symbols'),
+  ];
+};
+
 export const inputValidatiomMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const errorFormatter = ({ msg, param }: ValidationError) => {
     return { message: msg, field: param };
