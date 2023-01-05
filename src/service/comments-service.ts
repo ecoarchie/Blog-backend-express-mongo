@@ -16,12 +16,11 @@ export const commentService = {
     let commentOwner;
     if (comment) {
       commentOwner = comment.userId;
+    } else if (commentOwner !== userId) {
+      updateResponse.status = 403;
+      return updateResponse;
     } else {
       updateResponse.status = 404;
-      return updateResponse;
-    }
-    if (commentOwner !== userId) {
-      updateResponse.status = 403;
       return updateResponse;
     }
 
@@ -36,12 +35,11 @@ export const commentService = {
     let commentOwner;
     if (comment) {
       commentOwner = comment.userId;
+    } else if (commentOwner !== userId) {
+      deleteResponse.status = 403;
+      return deleteResponse;
     } else {
       deleteResponse.status = 404;
-      return deleteResponse;
-    }
-    if (commentOwner !== userId) {
-      deleteResponse.status = 403;
       return deleteResponse;
     }
 

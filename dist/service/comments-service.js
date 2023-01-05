@@ -25,12 +25,12 @@ exports.commentService = {
             if (comment) {
                 commentOwner = comment.userId;
             }
-            else {
-                updateResponse.status = 404;
+            else if (commentOwner !== userId) {
+                updateResponse.status = 403;
                 return updateResponse;
             }
-            if (commentOwner !== userId) {
-                updateResponse.status = 403;
+            else {
+                updateResponse.status = 404;
                 return updateResponse;
             }
             const result = yield comments_repository_1.commentRepository.updateCommentById(commentId, content);
@@ -45,12 +45,12 @@ exports.commentService = {
             if (comment) {
                 commentOwner = comment.userId;
             }
-            else {
-                deleteResponse.status = 404;
+            else if (commentOwner !== userId) {
+                deleteResponse.status = 403;
                 return deleteResponse;
             }
-            if (commentOwner !== userId) {
-                deleteResponse.status = 403;
+            else {
+                deleteResponse.status = 404;
                 return deleteResponse;
             }
             const result = yield comments_repository_1.commentRepository.deleteCommentById(commentId);
