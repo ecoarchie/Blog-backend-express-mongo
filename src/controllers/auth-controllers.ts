@@ -69,7 +69,7 @@ export const regConfirmController = async (req: Request, res: Response) => {
 export const resendRegEmailController = async (req: Request, res: Response) => {
   const userByEmail: UserDBModel | null = await usersService.findUserByEmail(req.body.email);
   let updateResult: boolean;
-  if (userByEmail && !userByEmail.emailConfirmation.isConfirmed) {
+  if (userByEmail && userByEmail.emailConfirmation.isConfirmed !== true) {
     const newConfirmationCode = uuidv4();
     updateResult = await usersRepository.updateConfirmationCode(
       userByEmail._id!.toString(),
