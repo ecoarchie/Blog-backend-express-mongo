@@ -92,11 +92,15 @@ exports.usersRepository = {
     },
     findUserByLoginOrEmail(loginOrEmail) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(loginOrEmail);
             const login = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
             const email = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
             const result = yield db_1.usersCollection.findOne({
                 $or: [{ login: login }, { email: email }],
             });
+            console.log('login = ', login);
+            console.log('email = ', email);
+            console.log(result);
             return result;
         });
     },

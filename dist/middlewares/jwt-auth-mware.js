@@ -24,7 +24,7 @@ const jwtAuthMware = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
     const token = authorization.split(' ')[1];
     const userId = yield jwt_service_1.jwtService.getUserIdByToken(token);
-    console.log(userId);
+    // console.log(userId);
     if (userId) {
         req.user = yield user_service_1.usersService.findUserByIdService(userId);
         return next();
