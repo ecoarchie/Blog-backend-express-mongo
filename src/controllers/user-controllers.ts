@@ -33,7 +33,7 @@ export const createNewUserController = async (req: Request, res: Response) => {
 };
 
 export const createNewAdminController = async (req: Request, res: Response) => {
-  const newUser = await usersService.createNewUser(req.body);
+  const newUser = await usersService.createNewAdmin(req.body);
   if (newUser) {
     res.status(201).send(newUser);
   } else {

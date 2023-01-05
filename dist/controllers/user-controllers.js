@@ -40,7 +40,7 @@ const createNewUserController = (req, res) => __awaiter(void 0, void 0, void 0, 
 });
 exports.createNewUserController = createNewUserController;
 const createNewAdminController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const newUser = yield user_service_1.usersService.createNewUser(req.body);
+    const newUser = yield user_service_1.usersService.createNewAdmin(req.body);
     if (newUser) {
         res.status(201).send(newUser);
     }
