@@ -77,7 +77,7 @@ exports.regConfirmController = regConfirmController;
 const resendRegEmailController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userByEmail = yield user_service_1.usersService.findUserByEmail(req.body.email);
     let updateResult;
-    if (userByEmail && userByEmail.emailConfirmation.isConfirmed) {
+    if (userByEmail && !userByEmail.emailConfirmation.isConfirmed) {
         const newConfirmationCode = (0, uuid_1.v4)();
         updateResult = yield users_repository_1.usersRepository.updateConfirmationCode(userByEmail._id.toString(), newConfirmationCode);
     }
