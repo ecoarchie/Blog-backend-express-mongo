@@ -81,9 +81,13 @@ export const usersRepository = {
     return result;
   },
 
-  async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBModel | null> {
+  async findUserByLoginOrEmail(
+    loginOrEmail: string | { login: string; email: string }
+  ): Promise<UserDBModel | null> {
+    const login = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
+    const email = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
     const result = await usersCollection.findOne({
-      $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+      $or: [{ login: login }, { email: email }],
     });
     return result;
   },
@@ -99,6 +103,14 @@ export const usersRepository = {
     const result = await usersCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { 'emailConfirmation.isConfirmed': true } }
+    );
+    return result.modifiedCount === 1;
+  },
+
+  async updateConfirmationCode(id: string, newCode: string) {
+    const result = await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { 'emailConfirmation.confirmationCode': newCode } }
     );
     return result.modifiedCount === 1;
   },

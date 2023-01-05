@@ -1,10 +1,10 @@
-import { UserReqQueryModel } from '../models/reqQueryModel';
-import { UserDBModel, UserInputModel, UserViewModel } from '../models/userModels';
-import { usersRepository } from '../repositories/users-repository';
+import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 
-import bcrypt from 'bcrypt';
+import { UserReqQueryModel } from '../models/reqQueryModel';
+import { UserDBModel, UserInputModel, UserViewModel } from '../models/userModels';
+import { usersRepository } from '../repositories/users-repository';
 import { emailManager } from '../managers/email-manager';
 
 export const usersService = {
@@ -48,6 +48,26 @@ export const usersService = {
       console.log(error);
       return null;
     }
+    return createdUser;
+  },
+
+  async createNewAdmin(userData: UserInputModel): Promise<UserViewModel | null> {
+    const { login, password, email } = userData;
+    const hash = await bcrypt.hash(password, 1);
+
+    const userToInsert: UserDBModel = {
+      login,
+      passwordHash: hash,
+      email,
+      createdAt: new Date().toISOString(),
+      emailConfirmation: {
+        confirmationCode: uuidv4(),
+        expirationDate: add(new Date(), { hours: 1, minutes: 10 }),
+        isConfirmed: true,
+      },
+    };
+
+    const createdUser = await usersRepository.createUser(userToInsert);
     return createdUser;
   },
 

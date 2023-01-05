@@ -13,10 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersService = void 0;
-const users_repository_1 = require("../repositories/users-repository");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const uuid_1 = require("uuid");
 const add_1 = __importDefault(require("date-fns/add"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const users_repository_1 = require("../repositories/users-repository");
 const email_manager_1 = require("../managers/email-manager");
 exports.usersService = {
     findUsers(options) {
@@ -63,6 +63,25 @@ exports.usersService = {
                 console.log(error);
                 return null;
             }
+            return createdUser;
+        });
+    },
+    createNewAdmin(userData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { login, password, email } = userData;
+            const hash = yield bcrypt_1.default.hash(password, 1);
+            const userToInsert = {
+                login,
+                passwordHash: hash,
+                email,
+                createdAt: new Date().toISOString(),
+                emailConfirmation: {
+                    confirmationCode: (0, uuid_1.v4)(),
+                    expirationDate: (0, add_1.default)(new Date(), { hours: 1, minutes: 10 }),
+                    isConfirmed: true,
+                },
+            };
+            const createdUser = yield users_repository_1.usersRepository.createUser(userToInsert);
             return createdUser;
         });
     },

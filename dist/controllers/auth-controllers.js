@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resendRegEmailController = exports.regConfirmController = exports.registerUserController = exports.getCurrentUserInfoController = exports.loginUserController = void 0;
+const uuid_1 = require("uuid");
 const user_service_1 = require("../service/user-service");
 const jwt_service_1 = require("../application/jwt-service");
 const users_repository_1 = require("../repositories/users-repository");
@@ -38,13 +39,14 @@ const getCurrentUserInfoController = (req, res) => __awaiter(void 0, void 0, voi
 exports.getCurrentUserInfoController = getCurrentUserInfoController;
 const registerUserController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { login, password, email } = req.body;
-    const userExists = yield users_repository_1.usersRepository.findUserByLoginOrEmail(email);
+    const userExists = yield users_repository_1.usersRepository.findUserByLoginOrEmail({ login, email });
     if (userExists) {
+        const errorField = userExists.login === login ? 'login' : 'email';
         return res.status(400).send({
             errorsMessages: [
                 {
-                    message: 'User with this email is already registered',
-                    field: 'email',
+                    message: `User with this ${errorField} is already registered`,
+                    field: `${errorField}`,
                 },
             ],
         });
@@ -74,7 +76,22 @@ const regConfirmController = (req, res) => __awaiter(void 0, void 0, void 0, fun
 exports.regConfirmController = regConfirmController;
 const resendRegEmailController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userByEmail = yield user_service_1.usersService.findUserByEmail(req.body.email);
-    if (userByEmail) {
+    let updateResult;
+    if (userByEmail && userByEmail.emailConfirmation.isConfirmed) {
+        const newConfirmationCode = (0, uuid_1.v4)();
+        updateResult = yield users_repository_1.usersRepository.updateConfirmationCode(userByEmail._id.toString(), newConfirmationCode);
+    }
+    else {
+        return res.status(400).send({
+            errorsMessages: [
+                {
+                    message: "Email is already confirmed or doesn't exist",
+                    field: 'email',
+                },
+            ],
+        });
+    }
+    if (updateResult) {
         try {
             const result = yield email_manager_1.emailManager.sendEmailConfirmationMessage(userByEmail);
             res.sendStatus(204);

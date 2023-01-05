@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUserByIdController = exports.createNewUserController = exports.getAllUsersController = void 0;
+exports.deleteUserByIdController = exports.createNewAdminController = exports.createNewUserController = exports.getAllUsersController = void 0;
 const users_repository_1 = require("../repositories/users-repository");
 const user_service_1 = require("../service/user-service");
 const utils_1 = require("./utils");
@@ -39,6 +39,16 @@ const createNewUserController = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.createNewUserController = createNewUserController;
+const createNewAdminController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const newUser = yield user_service_1.usersService.createNewUser(req.body);
+    if (newUser) {
+        res.status(201).send(newUser);
+    }
+    else {
+        res.sendStatus(400); // user creation in db error
+    }
+});
+exports.createNewAdminController = createNewAdminController;
 const deleteUserByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const isUserDeleted = yield users_repository_1.usersRepository.deleteUserById(req.params.id.toString());
     if (!isUserDeleted) {

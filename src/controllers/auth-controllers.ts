@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+
 import { usersService } from '../service/user-service';
 import { jwtService } from '../application/jwt-service';
-import { UserDBModel, UserViewModel } from '../models/userModels';
+import { UserDBModel } from '../models/userModels';
 import { usersRepository } from '../repositories/users-repository';
 import { authService } from '../service/auth-service';
 import { emailManager } from '../managers/email-manager';
@@ -30,13 +32,14 @@ export const getCurrentUserInfoController = async (req: Request, res: Response) 
 export const registerUserController = async (req: Request, res: Response) => {
   const { login, password, email } = req.body;
 
-  const userExists = await usersRepository.findUserByLoginOrEmail(email);
+  const userExists = await usersRepository.findUserByLoginOrEmail({ login, email });
   if (userExists) {
+    const errorField = userExists.login === login ? 'login' : 'email';
     return res.status(400).send({
       errorsMessages: [
         {
-          message: 'User with this email is already registered',
-          field: 'email',
+          message: `User with this ${errorField} is already registered`,
+          field: `${errorField}`,
         },
       ],
     });
@@ -65,8 +68,25 @@ export const regConfirmController = async (req: Request, res: Response) => {
 
 export const resendRegEmailController = async (req: Request, res: Response) => {
   const userByEmail: UserDBModel | null = await usersService.findUserByEmail(req.body.email);
+  let updateResult: boolean;
+  if (userByEmail && userByEmail.emailConfirmation.isConfirmed) {
+    const newConfirmationCode = uuidv4();
+    updateResult = await usersRepository.updateConfirmationCode(
+      userByEmail._id!.toString(),
+      newConfirmationCode
+    );
+  } else {
+    return res.status(400).send({
+      errorsMessages: [
+        {
+          message: "Email is already confirmed or doesn't exist",
+          field: 'email',
+        },
+      ],
+    });
+  }
 
-  if (userByEmail) {
+  if (updateResult) {
     try {
       const result = await emailManager.sendEmailConfirmationMessage(userByEmail);
       res.sendStatus(204);

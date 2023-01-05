@@ -32,6 +32,15 @@ export const createNewUserController = async (req: Request, res: Response) => {
   }
 };
 
+export const createNewAdminController = async (req: Request, res: Response) => {
+  const newUser = await usersService.createNewUser(req.body);
+  if (newUser) {
+    res.status(201).send(newUser);
+  } else {
+    res.sendStatus(400); // user creation in db error
+  }
+};
+
 export const deleteUserByIdController = async (req: Request, res: Response) => {
   const isUserDeleted: boolean = await usersRepository.deleteUserById(req.params.id.toString());
   if (!isUserDeleted) {

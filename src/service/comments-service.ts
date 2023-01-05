@@ -1,4 +1,4 @@
-import { CommentDBModel, CommentViewModel } from '../models/commentModel';
+import { CommentViewModel } from '../models/commentModel';
 import { commentRepository } from '../repositories/comments-repository';
 
 export const commentService = {

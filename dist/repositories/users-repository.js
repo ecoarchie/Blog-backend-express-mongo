@@ -92,8 +92,10 @@ exports.usersRepository = {
     },
     findUserByLoginOrEmail(loginOrEmail) {
         return __awaiter(this, void 0, void 0, function* () {
+            const login = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
+            const email = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
             const result = yield db_1.usersCollection.findOne({
-                $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+                $or: [{ login: login }, { email: email }],
             });
             return result;
         });
@@ -108,6 +110,12 @@ exports.usersRepository = {
     updateConfirmation(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.usersCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { 'emailConfirmation.isConfirmed': true } });
+            return result.modifiedCount === 1;
+        });
+    },
+    updateConfirmationCode(id, newCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield db_1.usersCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { 'emailConfirmation.confirmationCode': newCode } });
             return result.modifiedCount === 1;
         });
     },
