@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   createNewAdminController,
+  createNewUserController,
   deleteUserByIdController,
   getAllUsersController,
 } from '../controllers/user-controllers';
@@ -19,7 +20,7 @@ userRouter.post(
   basicAuthMiddleware,
   userBodyValidation(),
   inputValidatiomMiddleware,
-  createNewAdminController
+  createNewUserController
 );
 
 userRouter.delete('/:id', basicAuthMiddleware, inputValidatiomMiddleware, deleteUserByIdController);
