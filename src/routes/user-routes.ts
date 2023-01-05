@@ -20,7 +20,7 @@ userRouter.post(
   basicAuthMiddleware,
   userBodyValidation(),
   inputValidatiomMiddleware,
-  createNewAdminController
+  createNewUserController
 );
 
 userRouter.delete('/:id', basicAuthMiddleware, inputValidatiomMiddleware, deleteUserByIdController);
