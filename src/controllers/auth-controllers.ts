@@ -67,9 +67,10 @@ export const regConfirmController = async (req: Request, res: Response) => {
 };
 
 export const resendRegEmailController = async (req: Request, res: Response) => {
-  const userByEmail: UserDBModel | null = await usersService.findUserByEmail(req.body.email);
-  let updateResult: boolean;
-  if (userByEmail && userByEmail.emailConfirmation.isConfirmed) {
+  let userByEmail: UserDBModel | null = await usersService.findUserByEmail(req.body.email);
+
+  let updateResult: boolean = false;
+  if (userByEmail && !userByEmail.emailConfirmation.isConfirmed) {
     const newConfirmationCode = uuidv4();
     updateResult = await usersRepository.updateConfirmationCode(
       userByEmail._id!.toString(),
@@ -87,6 +88,8 @@ export const resendRegEmailController = async (req: Request, res: Response) => {
   }
 
   if (updateResult) {
+    userByEmail = (await usersService.findUserByEmail(req.body.email)) as UserDBModel;
+    console.log(userByEmail);
     try {
       const result = await emailManager.sendEmailConfirmationMessage(userByEmail);
       res.sendStatus(204);

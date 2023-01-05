@@ -75,9 +75,9 @@ const regConfirmController = (req, res) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.regConfirmController = regConfirmController;
 const resendRegEmailController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userByEmail = yield user_service_1.usersService.findUserByEmail(req.body.email);
-    let updateResult;
-    if (userByEmail && userByEmail.emailConfirmation.isConfirmed) {
+    let userByEmail = yield user_service_1.usersService.findUserByEmail(req.body.email);
+    let updateResult = false;
+    if (userByEmail && !userByEmail.emailConfirmation.isConfirmed) {
         const newConfirmationCode = (0, uuid_1.v4)();
         updateResult = yield users_repository_1.usersRepository.updateConfirmationCode(userByEmail._id.toString(), newConfirmationCode);
     }
@@ -92,6 +92,8 @@ const resendRegEmailController = (req, res) => __awaiter(void 0, void 0, void 0,
         });
     }
     if (updateResult) {
+        userByEmail = (yield user_service_1.usersService.findUserByEmail(req.body.email));
+        console.log(userByEmail);
         try {
             const result = yield email_manager_1.emailManager.sendEmailConfirmationMessage(userByEmail);
             res.sendStatus(204);
