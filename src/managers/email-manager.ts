@@ -7,7 +7,7 @@ export const emailManager = {
       service: 'gmail',
       auth: {
         user: 'app.cronosport@gmail.com',
-        pass: 'wcqjxgnjjarlvirm',
+        pass: process.env.GMAIL_PASSWORD,
       },
     });
 
