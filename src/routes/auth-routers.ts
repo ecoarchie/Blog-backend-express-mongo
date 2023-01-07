@@ -2,6 +2,8 @@ import { Router } from 'express';
 import {
   getCurrentUserInfoController,
   loginUserController,
+  logoutController,
+  refreshTokenController,
   regConfirmController,
   registerUserController,
   resendRegEmailController,
@@ -34,3 +36,7 @@ authRouter.post(
   inputValidatiomMiddleware,
   resendRegEmailController
 );
+
+authRouter.post('/refresh-token', refreshTokenController);
+
+authRouter.post('/logout', logoutController);

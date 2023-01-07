@@ -1,5 +1,6 @@
 import express, { Response, Request } from 'express';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import { blogRouter } from './routes/blog-routers';
 import { postRouter } from './routes/post-routers';
 import { userRouter } from './routes/user-routes';
@@ -17,6 +18,7 @@ export const app = express();
 export const port = process.env.PORT;
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use('/blogs', blogRouter);
 app.use('/posts', postRouter);
 app.use('/users', userRouter);

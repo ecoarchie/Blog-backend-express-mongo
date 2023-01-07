@@ -7,6 +7,7 @@ import { UserDBModel } from '../models/userModels';
 import { usersRepository } from '../repositories/users-repository';
 import { authService } from '../service/auth-service';
 import { emailManager } from '../managers/email-manager';
+import { tokensCollection } from '../repositories/db';
 
 export const loginUserController = async (req: Request, res: Response) => {
   const userPassword = req.body.password;
@@ -15,6 +16,13 @@ export const loginUserController = async (req: Request, res: Response) => {
   const userId = await usersService.checkCredentials(userLoginOrEmail, userPassword);
   if (userId) {
     const token = await jwtService.createJwt(userId);
+    const refreshToken = await jwtService.createJwtRefresh(userId);
+    await jwtService.addRefreshTokenToDB(refreshToken);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
     res.status(200).send({ accessToken: token });
   } else {
     res.sendStatus(401);
@@ -98,4 +106,39 @@ export const resendRegEmailController = async (req: Request, res: Response) => {
       res.sendStatus(400);
     }
   }
+};
+
+export const refreshTokenController = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) {
+    return res.sendStatus(401);
+  }
+  const userIdWithValidToken = await jwtService.verifyToken(refreshToken);
+  if (!userIdWithValidToken) {
+    return res.sendStatus(401);
+  } else {
+    const newAccessToken = jwtService.createJwt(userIdWithValidToken);
+    const newRefreshToken = jwtService.createJwtRefresh(userIdWithValidToken);
+    await jwtService.revokeRefreshToken(refreshToken);
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    res.status(200).send({ accessToken: newAccessToken });
+  }
+};
+
+export const logoutController = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) {
+    return res.sendStatus(401);
+  }
+  const userIdWithValidToken = await jwtService.verifyToken(refreshToken);
+  if (!userIdWithValidToken) {
+    return res.sendStatus(401);
+  }
+
+  await jwtService.revokeRefreshToken(refreshToken);
+  res.sendStatus(204);
 };

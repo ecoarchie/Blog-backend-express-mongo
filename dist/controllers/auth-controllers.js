@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resendRegEmailController = exports.regConfirmController = exports.registerUserController = exports.getCurrentUserInfoController = exports.loginUserController = void 0;
+exports.logoutController = exports.refreshTokenController = exports.resendRegEmailController = exports.regConfirmController = exports.registerUserController = exports.getCurrentUserInfoController = exports.loginUserController = void 0;
 const uuid_1 = require("uuid");
 const user_service_1 = require("../service/user-service");
 const jwt_service_1 = require("../application/jwt-service");
@@ -22,6 +22,12 @@ const loginUserController = (req, res) => __awaiter(void 0, void 0, void 0, func
     const userId = yield user_service_1.usersService.checkCredentials(userLoginOrEmail, userPassword);
     if (userId) {
         const token = yield jwt_service_1.jwtService.createJwt(userId);
+        const refreshToken = yield jwt_service_1.jwtService.createJwtRefresh(userId);
+        yield jwt_service_1.jwtService.addRefreshTokenToDB(refreshToken);
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+        });
         res.status(200).send({ accessToken: token });
     }
     else {
@@ -105,3 +111,39 @@ const resendRegEmailController = (req, res) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.resendRegEmailController = resendRegEmailController;
+const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
+    if (!refreshToken) {
+        return res.sendStatus(401);
+    }
+    const userIdWithValidToken = yield jwt_service_1.jwtService.verifyToken(refreshToken);
+    if (!userIdWithValidToken) {
+        return res.sendStatus(401);
+    }
+    else {
+        const newAccessToken = jwt_service_1.jwtService.createJwt(userIdWithValidToken);
+        const newRefreshToken = jwt_service_1.jwtService.createJwtRefresh(userIdWithValidToken);
+        yield jwt_service_1.jwtService.revokeRefreshToken(refreshToken);
+        res.cookie('refreshToken', newRefreshToken, {
+            httpOnly: true,
+            secure: true,
+        });
+        res.status(200).send({ accessToken: newAccessToken });
+    }
+});
+exports.refreshTokenController = refreshTokenController;
+const logoutController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    const refreshToken = (_b = req.cookies) === null || _b === void 0 ? void 0 : _b.refreshToken;
+    if (!refreshToken) {
+        return res.sendStatus(401);
+    }
+    const userIdWithValidToken = yield jwt_service_1.jwtService.verifyToken(refreshToken);
+    if (!userIdWithValidToken) {
+        return res.sendStatus(401);
+    }
+    yield jwt_service_1.jwtService.revokeRefreshToken(refreshToken);
+    res.sendStatus(204);
+});
+exports.logoutController = logoutController;
