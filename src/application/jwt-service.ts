@@ -42,6 +42,7 @@ export const jwtService = {
   async verifyToken(token: string): Promise<string | null> {
     try {
       const result: any = jwt.verify(token, process.env.SECRET!);
+      console.log(result);
       if (result.exp < new Date()) return null;
 
       const checkToken = await tokensCollection.findOne({ refreshToken: token });
