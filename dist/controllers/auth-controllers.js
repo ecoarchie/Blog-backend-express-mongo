@@ -115,10 +115,12 @@ const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, f
     var _a;
     const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
     if (!refreshToken) {
+        console.log('refresh token is no in cookie');
         return res.sendStatus(401);
     }
     const userIdWithValidToken = yield jwt_service_1.jwtService.verifyToken(refreshToken);
     if (!userIdWithValidToken) {
+        console.log('refresh token not verified');
         return res.sendStatus(401);
     }
     else {

@@ -111,10 +111,12 @@ export const resendRegEmailController = async (req: Request, res: Response) => {
 export const refreshTokenController = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
+    console.log('refresh token is no in cookie');
     return res.sendStatus(401);
   }
   const userIdWithValidToken = await jwtService.verifyToken(refreshToken);
   if (!userIdWithValidToken) {
+    console.log('refresh token not verified');
     return res.sendStatus(401);
   } else {
     const newAccessToken = jwtService.createJwt(userIdWithValidToken);
