@@ -119,8 +119,8 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     console.log('refresh token not verified');
     return res.sendStatus(401);
   } else {
-    const newAccessToken = jwtService.createJwt(userIdWithValidToken);
-    const newRefreshToken = jwtService.createJwtRefresh(userIdWithValidToken);
+    const newAccessToken = await jwtService.createJwt(userIdWithValidToken);
+    const newRefreshToken = await jwtService.createJwtRefresh(userIdWithValidToken);
     await jwtService.revokeRefreshToken(refreshToken);
 
     console.log('userWithValidToken = ', userIdWithValidToken);

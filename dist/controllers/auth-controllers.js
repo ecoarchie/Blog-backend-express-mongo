@@ -124,8 +124,8 @@ const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, f
         return res.sendStatus(401);
     }
     else {
-        const newAccessToken = jwt_service_1.jwtService.createJwt(userIdWithValidToken);
-        const newRefreshToken = jwt_service_1.jwtService.createJwtRefresh(userIdWithValidToken);
+        const newAccessToken = yield jwt_service_1.jwtService.createJwt(userIdWithValidToken);
+        const newRefreshToken = yield jwt_service_1.jwtService.createJwtRefresh(userIdWithValidToken);
         yield jwt_service_1.jwtService.revokeRefreshToken(refreshToken);
         console.log('userWithValidToken = ', userIdWithValidToken);
         console.log('new access token = ', newAccessToken);
