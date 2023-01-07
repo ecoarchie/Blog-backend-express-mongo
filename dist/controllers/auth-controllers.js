@@ -99,7 +99,6 @@ const resendRegEmailController = (req, res) => __awaiter(void 0, void 0, void 0,
     }
     if (updateResult) {
         userByEmail = (yield user_service_1.usersService.findUserByEmail(req.body.email));
-        console.log(userByEmail);
         try {
             const result = yield email_manager_1.emailManager.sendEmailConfirmationMessage(userByEmail);
             res.sendStatus(204);
@@ -115,21 +114,16 @@ const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, f
     var _a;
     const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
     if (!refreshToken) {
-        console.log('refresh token is no in cookie');
         return res.sendStatus(401);
     }
     const userIdWithValidToken = yield jwt_service_1.jwtService.verifyToken(refreshToken);
     if (!userIdWithValidToken) {
-        console.log('refresh token not verified');
         return res.sendStatus(401);
     }
     else {
         const newAccessToken = yield jwt_service_1.jwtService.createJwt(userIdWithValidToken);
         const newRefreshToken = yield jwt_service_1.jwtService.createJwtRefresh(userIdWithValidToken);
         yield jwt_service_1.jwtService.revokeRefreshToken(refreshToken);
-        console.log('userWithValidToken = ', userIdWithValidToken);
-        console.log('new access token = ', newAccessToken);
-        console.log('new refresh token = ', newRefreshToken);
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             secure: true,

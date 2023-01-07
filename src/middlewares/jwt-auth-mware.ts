@@ -13,13 +13,11 @@ export const jwtAuthMware = async (req: Request, res: Response, next: NextFuncti
   const token = authorization.split(' ')[1];
 
   const userId = await jwtService.getUserIdByToken(token);
-  // console.log(userId);
 
   if (userId) {
     req.user = await usersService.findUserByIdService(userId);
     return next();
   }
-  console.log('NOT HERE');
 
   res.sendStatus(401);
 };

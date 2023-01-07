@@ -33,7 +33,6 @@ exports.jwtService = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = jsonwebtoken_1.default.verify(token, process.env.SECRET);
-                console.log('result = ', result);
                 return result.userId;
             }
             catch (error) {
@@ -59,21 +58,16 @@ exports.jwtService = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = jsonwebtoken_1.default.verify(token, process.env.SECRET);
-                console.log(result);
                 if (result.exp < Date.now() / 1000) {
-                    console.log('not correct exp date');
                     return null;
                 }
                 const checkToken = yield db_1.tokensCollection.findOne({ refreshToken: token });
                 if (checkToken && checkToken.isValid) {
-                    console.log('isValid field not correct');
-                    console.log('CheckToken = ', checkToken);
                     return result.userId;
                 }
                 return null;
             }
             catch (error) {
-                console.log('refresh token verification error');
                 return null;
             }
         });

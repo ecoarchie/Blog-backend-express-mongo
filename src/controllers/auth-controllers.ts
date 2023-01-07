@@ -7,7 +7,6 @@ import { UserDBModel } from '../models/userModels';
 import { usersRepository } from '../repositories/users-repository';
 import { authService } from '../service/auth-service';
 import { emailManager } from '../managers/email-manager';
-import { tokensCollection } from '../repositories/db';
 
 export const loginUserController = async (req: Request, res: Response) => {
   const userPassword = req.body.password;
@@ -97,7 +96,6 @@ export const resendRegEmailController = async (req: Request, res: Response) => {
 
   if (updateResult) {
     userByEmail = (await usersService.findUserByEmail(req.body.email)) as UserDBModel;
-    console.log(userByEmail);
     try {
       const result = await emailManager.sendEmailConfirmationMessage(userByEmail);
       res.sendStatus(204);
@@ -111,21 +109,15 @@ export const resendRegEmailController = async (req: Request, res: Response) => {
 export const refreshTokenController = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
-    console.log('refresh token is no in cookie');
     return res.sendStatus(401);
   }
   const userIdWithValidToken = await jwtService.verifyToken(refreshToken);
   if (!userIdWithValidToken) {
-    console.log('refresh token not verified');
     return res.sendStatus(401);
   } else {
     const newAccessToken = await jwtService.createJwt(userIdWithValidToken);
     const newRefreshToken = await jwtService.createJwtRefresh(userIdWithValidToken);
     await jwtService.revokeRefreshToken(refreshToken);
-
-    console.log('userWithValidToken = ', userIdWithValidToken);
-    console.log('new access token = ', newAccessToken);
-    console.log('new refresh token = ', newRefreshToken);
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,

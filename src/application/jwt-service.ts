@@ -16,7 +16,6 @@ export const jwtService = {
   async getUserIdByToken(token: string): Promise<string | null> {
     try {
       const result: any = jwt.verify(token, process.env.SECRET!);
-      console.log('result = ', result);
       return result.userId;
     } catch (error) {
       return null;
@@ -42,22 +41,16 @@ export const jwtService = {
   async verifyToken(token: string): Promise<string | null> {
     try {
       const result: any = jwt.verify(token, process.env.SECRET!);
-      console.log(result);
       if (result.exp < Date.now() / 1000) {
-        console.log('not correct exp date');
         return null;
       }
 
       const checkToken = await tokensCollection.findOne({ refreshToken: token });
       if (checkToken && checkToken.isValid) {
-        console.log('isValid field not correct');
-        console.log('CheckToken = ', checkToken);
         return result.userId;
       }
-
       return null;
     } catch (error) {
-      console.log('refresh token verification error');
       return null;
     }
   },
