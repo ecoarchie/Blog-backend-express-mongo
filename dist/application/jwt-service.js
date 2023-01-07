@@ -60,10 +60,14 @@ exports.jwtService = {
             try {
                 const result = jsonwebtoken_1.default.verify(token, process.env.SECRET);
                 console.log(result);
-                if (result.exp < Date.now() / 1000)
+                if (result.exp < Date.now() / 1000) {
+                    console.log('not correct exp date');
                     return null;
+                }
                 const checkToken = yield db_1.tokensCollection.findOne({ refreshToken: token });
                 if (checkToken && checkToken.isValid) {
+                    console.log('isValid field not correct');
+                    console.log('CheckToken = ', checkToken);
                     return result.userId;
                 }
                 return null;
