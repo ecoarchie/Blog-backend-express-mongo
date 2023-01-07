@@ -127,6 +127,9 @@ const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, f
         const newAccessToken = jwt_service_1.jwtService.createJwt(userIdWithValidToken);
         const newRefreshToken = jwt_service_1.jwtService.createJwtRefresh(userIdWithValidToken);
         yield jwt_service_1.jwtService.revokeRefreshToken(refreshToken);
+        console.log('userWithValidToken = ', userIdWithValidToken);
+        console.log('new access token = ', newAccessToken);
+        console.log('new refresh token = ', newRefreshToken);
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             secure: true,

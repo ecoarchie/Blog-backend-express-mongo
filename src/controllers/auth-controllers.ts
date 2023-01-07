@@ -123,6 +123,10 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     const newRefreshToken = jwtService.createJwtRefresh(userIdWithValidToken);
     await jwtService.revokeRefreshToken(refreshToken);
 
+    console.log('userWithValidToken = ', userIdWithValidToken);
+    console.log('new access token = ', newAccessToken);
+    console.log('new refresh token = ', newRefreshToken);
+
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: true,
