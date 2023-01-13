@@ -23,6 +23,7 @@ export const port = process.env.PORT;
 app.use(bodyParser.json());
 app.use(useragent.express());
 app.use(cookieParser());
+app.set('trust proxy', true);
 app.use('/blogs', blogRouter);
 app.use('/posts', postRouter);
 app.use('/users', userRouter);

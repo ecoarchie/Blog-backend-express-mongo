@@ -34,7 +34,7 @@ const loginUserController = (req, res) => __awaiter(void 0, void 0, void 0, func
         const deviceId = (0, uuid_1.v4)();
         const refreshToken = yield jwt_service_1.jwtService.createJwtRefresh(userId, lastActiveDate, deviceId);
         const title = (_a = req.useragent) === null || _a === void 0 ? void 0 : _a.source;
-        const ip = req.header('x-forwarded-for') || req.socket.remoteAddress;
+        const ip = req.ip;
         const tokenRes = jsonwebtoken_1.default.verify(refreshToken, process.env.SECRET);
         const tokenExpireDate = tokenRes.exp;
         yield session_service_1.sessionService.addSession(deviceId, lastActiveDate, tokenExpireDate, ip, title, userId);

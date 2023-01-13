@@ -29,14 +29,14 @@ export const loginUserController = async (req: Request, res: Response) => {
     );
 
     const title = req.useragent?.source;
-    const ip = req.header('x-forwarded-for') || req.socket.remoteAddress;
+    const ip = req.ip;
     const tokenRes: any = jwt.verify(refreshToken, process.env.SECRET!);
     const tokenExpireDate = tokenRes.exp;
     await sessionService.addSession(
       deviceId,
       lastActiveDate,
       tokenExpireDate,
-      ip!,
+      ip,
       title!,
       userId
     );

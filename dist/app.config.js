@@ -58,6 +58,7 @@ exports.port = process.env.PORT;
 exports.app.use(body_parser_1.default.json());
 exports.app.use(express_useragent_1.default.express());
 exports.app.use((0, cookie_parser_1.default)());
+exports.app.set('trust proxy', true);
 exports.app.use('/blogs', blog_routers_1.blogRouter);
 exports.app.use('/posts', post_routers_1.postRouter);
 exports.app.use('/users', user_routes_1.userRouter);
