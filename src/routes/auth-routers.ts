@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { loginLimiter } from '../application/rate-limits';
+import {
+  loginLimiter,
+  regConfirmLimiter,
+  registerUserLimiter,
+  resendRegEmailLimiter,
+} from '../application/rate-limits';
 import {
   getCurrentUserInfoController,
   loginUserController,
@@ -24,15 +29,21 @@ authRouter.get('/me', jwtAuthMware, getCurrentUserInfoController);
 
 authRouter.post(
   '/registration',
+  registerUserLimiter,
   userBodyValidation(),
   inputValidatiomMiddleware,
   registerUserController
 );
 
-authRouter.post('/registration-confirmation', regConfirmController);
+authRouter.post(
+  '/registration-confirmation',
+  regConfirmLimiter,
+  regConfirmController
+);
 
 authRouter.post(
   '/registration-email-resending',
+  resendRegEmailLimiter,
   emailValidation(),
   inputValidatiomMiddleware,
   resendRegEmailController
