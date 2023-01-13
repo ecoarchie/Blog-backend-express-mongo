@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import jwt from 'jsonwebtoken';
 
 import { usersService } from '../service/user-service';
 import { jwtService } from '../application/jwt-service';
@@ -7,20 +8,42 @@ import { UserDBModel } from '../models/userModels';
 import { usersRepository } from '../repositories/users-repository';
 import { authService } from '../service/auth-service';
 import { emailManager } from '../managers/email-manager';
+import { sessionService } from '../application/session-service';
+import { UserSessionModel } from '../models/UserSessionModel';
+import { sessionRepository } from '../repositories/session-repository';
 
 export const loginUserController = async (req: Request, res: Response) => {
   const userPassword = req.body.password;
   const userLoginOrEmail = req.body.loginOrEmail;
 
   const userId = await usersService.checkCredentials(userLoginOrEmail, userPassword);
+  // console.log('user id when login', userId);
   if (userId) {
     const token = await jwtService.createJwt(userId);
-    const refreshToken = await jwtService.createJwtRefresh(userId);
-    await jwtService.addRefreshTokenToDB(refreshToken);
+    const lastActiveDate = new Date().toISOString();
+    const deviceId = uuidv4();
+    const refreshToken = await jwtService.createJwtRefresh(
+      userId,
+      lastActiveDate,
+      deviceId
+    );
+
+    const title = req.useragent?.source;
+    const ip = req.header('x-forwarded-for') || req.socket.remoteAddress;
+    const tokenRes: any = jwt.verify(refreshToken, process.env.SECRET!);
+    const tokenExpireDate = tokenRes.exp;
+    await sessionService.addSession(
+      deviceId,
+      lastActiveDate,
+      tokenExpireDate,
+      ip!,
+      title!,
+      userId
+    );
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false, //TODO why not working with true option
     });
     res.status(200).send({ accessToken: token });
   } else {
@@ -74,7 +97,9 @@ export const regConfirmController = async (req: Request, res: Response) => {
 };
 
 export const resendRegEmailController = async (req: Request, res: Response) => {
-  let userByEmail: UserDBModel | null = await usersService.findUserByEmail(req.body.email);
+  let userByEmail: UserDBModel | null = await usersService.findUserByEmail(
+    req.body.email
+  );
 
   let updateResult: boolean = false;
   if (userByEmail && !userByEmail.emailConfirmation.isConfirmed) {
@@ -95,7 +120,9 @@ export const resendRegEmailController = async (req: Request, res: Response) => {
   }
 
   if (updateResult) {
-    userByEmail = (await usersService.findUserByEmail(req.body.email)) as UserDBModel;
+    userByEmail = (await usersService.findUserByEmail(
+      req.body.email
+    )) as UserDBModel;
     try {
       const result = await emailManager.sendEmailConfirmationMessage(userByEmail);
       res.sendStatus(204);
@@ -111,14 +138,29 @@ export const refreshTokenController = async (req: Request, res: Response) => {
   if (!refreshToken) {
     return res.sendStatus(401);
   }
-  const userIdWithValidToken = await jwtService.verifyToken(refreshToken);
-  if (!userIdWithValidToken) {
+  const validUserSession = await jwtService.verifyToken(refreshToken);
+  if (!validUserSession) {
     return res.sendStatus(401);
   } else {
-    const newAccessToken = await jwtService.createJwt(userIdWithValidToken);
-    const newRefreshToken = await jwtService.createJwtRefresh(userIdWithValidToken);
-    await jwtService.revokeRefreshToken(refreshToken);
-
+    const newAccessToken = await jwtService.createJwt(
+      validUserSession.userId.toString()
+    );
+    const newActiveDate = new Date().toISOString();
+    const newRefreshToken = await jwtService.createJwtRefresh(
+      validUserSession.userId.toString(),
+      newActiveDate,
+      validUserSession.deviceId
+    );
+    const tokenExpireDate: any = jwt.verify(newRefreshToken, process.env.SECRET!);
+    // console.log('token nn ', tokenExpireDate);
+    const newSession: UserSessionModel = {
+      ...validUserSession,
+      ip: req.header('x-forwarded-for') || (req.socket.remoteAddress as string),
+      title: req.useragent?.source as string,
+      lastActiveDate: newActiveDate,
+      tokenExpireDate: tokenExpireDate.exp,
+    };
+    await sessionService.updateSession(newSession);
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: true,
@@ -132,11 +174,11 @@ export const logoutController = async (req: Request, res: Response) => {
   if (!refreshToken) {
     return res.sendStatus(401);
   }
-  const userIdWithValidToken = await jwtService.verifyToken(refreshToken);
-  if (!userIdWithValidToken) {
+  const validUserSession = await jwtService.verifyToken(refreshToken);
+  if (!validUserSession) {
     return res.sendStatus(401);
   }
 
-  await jwtService.revokeRefreshToken(refreshToken);
+  await sessionRepository.deleteSessionWhenLogout(validUserSession._id);
   res.sendStatus(204);
 };

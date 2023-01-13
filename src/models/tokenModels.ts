@@ -5,3 +5,11 @@ export type TokenDBModel = {
   refreshToken: string;
   isValid: boolean;
 };
+
+export type RefreshTokenModel = {
+  userId: string;
+  lastActiveDate: string;
+  deviceId: string;
+  iat: Date;
+  exp: Date;
+};

@@ -84,22 +84,16 @@ export const usersRepository = {
   async findUserByLoginOrEmail(
     loginOrEmail: string | { login: string; email: string }
   ): Promise<UserDBModel | null> {
-    console.log(loginOrEmail);
     const login = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
     const email = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
     const result = await usersCollection.findOne({
       $or: [{ login: login }, { email: email }],
     });
 
-    console.log('login = ', login);
-    console.log('email = ', email);
-    console.log(result);
     return result;
   },
 
   async findUserByConfirmCode(code: string): Promise<UserDBModel | null> {
-    console.log(code);
-
     const result = await usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
     return result;
   },

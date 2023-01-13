@@ -49,16 +49,21 @@ const dotenv = __importStar(require("dotenv"));
 const commets_routers_1 = require("./routes/commets-routers");
 const auth_routers_1 = require("./routes/auth-routers");
 const comments_repository_1 = require("./repositories/comments-repository");
+const session_routers_1 = require("./routes/session-routers");
+const express_useragent_1 = __importDefault(require("express-useragent"));
+const session_service_1 = require("./application/session-service");
 dotenv.config();
 exports.app = (0, express_1.default)();
 exports.port = process.env.PORT;
 exports.app.use(body_parser_1.default.json());
+exports.app.use(express_useragent_1.default.express());
 exports.app.use((0, cookie_parser_1.default)());
 exports.app.use('/blogs', blog_routers_1.blogRouter);
 exports.app.use('/posts', post_routers_1.postRouter);
 exports.app.use('/users', user_routes_1.userRouter);
 exports.app.use('/comments', commets_routers_1.commentRouter);
 exports.app.use('/auth', auth_routers_1.authRouter);
+exports.app.use('/security/devices', session_routers_1.sessionRouter);
 exports.app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.send('Hello World!');
 }));
@@ -67,5 +72,6 @@ exports.app.delete('/testing/all-data', (req, res) => __awaiter(void 0, void 0, 
     posts_repository_1.postsRepository.deleteAllPosts();
     users_repository_1.usersRepository.deleteAllUsers();
     comments_repository_1.commentRepository.deleteAllComments();
+    session_service_1.sessionService.deleteAllSessions();
     res.sendStatus(204);
 }));

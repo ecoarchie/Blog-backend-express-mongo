@@ -8,25 +8,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logoutController = exports.refreshTokenController = exports.resendRegEmailController = exports.regConfirmController = exports.registerUserController = exports.getCurrentUserInfoController = exports.loginUserController = void 0;
 const uuid_1 = require("uuid");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_service_1 = require("../service/user-service");
 const jwt_service_1 = require("../application/jwt-service");
 const users_repository_1 = require("../repositories/users-repository");
 const auth_service_1 = require("../service/auth-service");
 const email_manager_1 = require("../managers/email-manager");
+const session_service_1 = require("../application/session-service");
+const session_repository_1 = require("../repositories/session-repository");
 const loginUserController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const userPassword = req.body.password;
     const userLoginOrEmail = req.body.loginOrEmail;
     const userId = yield user_service_1.usersService.checkCredentials(userLoginOrEmail, userPassword);
+    // console.log('user id when login', userId);
     if (userId) {
         const token = yield jwt_service_1.jwtService.createJwt(userId);
-        const refreshToken = yield jwt_service_1.jwtService.createJwtRefresh(userId);
-        yield jwt_service_1.jwtService.addRefreshTokenToDB(refreshToken);
+        const lastActiveDate = new Date().toISOString();
+        const deviceId = (0, uuid_1.v4)();
+        const refreshToken = yield jwt_service_1.jwtService.createJwtRefresh(userId, lastActiveDate, deviceId);
+        const title = (_a = req.useragent) === null || _a === void 0 ? void 0 : _a.source;
+        const ip = req.header('x-forwarded-for') || req.socket.remoteAddress;
+        const tokenRes = jsonwebtoken_1.default.verify(refreshToken, process.env.SECRET);
+        const tokenExpireDate = tokenRes.exp;
+        yield session_service_1.sessionService.addSession(deviceId, lastActiveDate, tokenExpireDate, ip, title, userId);
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: true,
+            secure: false, //TODO why not working with true option
         });
         res.status(200).send({ accessToken: token });
     }
@@ -111,19 +125,23 @@ const resendRegEmailController = (req, res) => __awaiter(void 0, void 0, void 0,
 });
 exports.resendRegEmailController = resendRegEmailController;
 const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
+    var _b, _c;
+    const refreshToken = (_b = req.cookies) === null || _b === void 0 ? void 0 : _b.refreshToken;
     if (!refreshToken) {
         return res.sendStatus(401);
     }
-    const userIdWithValidToken = yield jwt_service_1.jwtService.verifyToken(refreshToken);
-    if (!userIdWithValidToken) {
+    const validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
+    if (!validUserSession) {
         return res.sendStatus(401);
     }
     else {
-        const newAccessToken = yield jwt_service_1.jwtService.createJwt(userIdWithValidToken);
-        const newRefreshToken = yield jwt_service_1.jwtService.createJwtRefresh(userIdWithValidToken);
-        yield jwt_service_1.jwtService.revokeRefreshToken(refreshToken);
+        const newAccessToken = yield jwt_service_1.jwtService.createJwt(validUserSession.userId.toString());
+        const newActiveDate = new Date().toISOString();
+        const newRefreshToken = yield jwt_service_1.jwtService.createJwtRefresh(validUserSession.userId.toString(), newActiveDate, validUserSession.deviceId);
+        const tokenExpireDate = jsonwebtoken_1.default.verify(newRefreshToken, process.env.SECRET);
+        // console.log('token nn ', tokenExpireDate);
+        const newSession = Object.assign(Object.assign({}, validUserSession), { ip: req.header('x-forwarded-for') || req.socket.remoteAddress, title: (_c = req.useragent) === null || _c === void 0 ? void 0 : _c.source, lastActiveDate: newActiveDate, tokenExpireDate: tokenExpireDate.exp });
+        yield session_service_1.sessionService.updateSession(newSession);
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             secure: true,
@@ -133,16 +151,16 @@ const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, f
 });
 exports.refreshTokenController = refreshTokenController;
 const logoutController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
-    const refreshToken = (_b = req.cookies) === null || _b === void 0 ? void 0 : _b.refreshToken;
+    var _d;
+    const refreshToken = (_d = req.cookies) === null || _d === void 0 ? void 0 : _d.refreshToken;
     if (!refreshToken) {
         return res.sendStatus(401);
     }
-    const userIdWithValidToken = yield jwt_service_1.jwtService.verifyToken(refreshToken);
-    if (!userIdWithValidToken) {
+    const validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
+    if (!validUserSession) {
         return res.sendStatus(401);
     }
-    yield jwt_service_1.jwtService.revokeRefreshToken(refreshToken);
+    yield session_repository_1.sessionRepository.deleteSessionWhenLogout(validUserSession._id);
     res.sendStatus(204);
 });
 exports.logoutController = logoutController;

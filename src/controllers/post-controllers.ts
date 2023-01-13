@@ -30,7 +30,9 @@ export const createPostController = async (req: Request, res: Response) => {
 };
 
 export const findPostByIdController = async (req: Request, res: Response) => {
-  const postFound: PostViewModel | null = await postsService.findPostById(req.params.id.toString());
+  const postFound: PostViewModel | null = await postsService.findPostById(
+    req.params.id.toString()
+  );
   if (postFound) {
     res.send(postFound);
   } else {
@@ -51,7 +53,9 @@ export const updatePostByIdController = async (req: Request, res: Response) => {
 };
 
 export const deletePostByIdController = async (req: Request, res: Response) => {
-  const isPostDeleted: boolean = await postsService.deletePostById(req.params.id.toString());
+  const isPostDeleted: boolean = await postsService.deletePostById(
+    req.params.id.toString()
+  );
   if (!isPostDeleted) {
     res.sendStatus(404);
   } else {
@@ -65,9 +69,14 @@ export const getCommentsForPostController = async (req: Request, res: Response) 
     res.sendStatus(404);
   } else {
     const options = setCommentsQueryParams(req.query);
-    const comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
+    const comments = await commentRepository.getCommentsByPostId(
+      req.params.postId,
+      options
+    );
 
-    const totalCount: number = await commentRepository.countAllCommentsByPostId(req.params.postId);
+    const totalCount: number = await commentRepository.countAllCommentsByPostId(
+      req.params.postId
+    );
     // Object.keys(req.query).length !== 0
     //   ? comments.length
     //   : await commentRepository.countAllCommentsByPostId(req.params.postId);
@@ -83,13 +92,14 @@ export const getCommentsForPostController = async (req: Request, res: Response) 
   }
 };
 
-export const createCommentForPostController = async (req: Request, res: Response) => {
+export const createCommentForPostController = async (
+  req: Request,
+  res: Response
+) => {
   if (!(await postsRepository.isPostExist(req.params.postId.toString()))) {
-    console.log('post not exist');
     res.sendStatus(404);
     return;
   }
-  console.log('here');
 
   const newComment = await commentService.createCommentService(
     req.params.postId,

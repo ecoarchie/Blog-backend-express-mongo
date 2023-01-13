@@ -91,11 +91,9 @@ const getCommentsForPostController = (req, res) => __awaiter(void 0, void 0, voi
 exports.getCommentsForPostController = getCommentsForPostController;
 const createCommentForPostController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!(yield posts_repository_1.postsRepository.isPostExist(req.params.postId.toString()))) {
-        console.log('post not exist');
         res.sendStatus(404);
         return;
     }
-    console.log('here');
     const newComment = yield comments_service_1.commentService.createCommentService(req.params.postId, req.user.id, req.user.login, req.body.content);
     res.status(201).send(newComment);
 });

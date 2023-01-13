@@ -4,6 +4,7 @@ import { CommentDBModel } from '../models/commentModel';
 import { PostDBModel } from '../models/postModel';
 import { TokenDBModel } from '../models/tokenModels';
 import { UserDBModel } from '../models/userModels';
+import { UserSessionModel } from '../models/UserSessionModel';
 
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017';
 
@@ -15,6 +16,7 @@ export const postsCollection = db.collection<PostDBModel>('posts');
 export const usersCollection = db.collection<UserDBModel>('users');
 export const commentsCollection = db.collection<CommentDBModel>('comments');
 export const tokensCollection = db.collection<TokenDBModel>('tokens');
+export const userSessionCollection = db.collection<UserSessionModel>('sessions');
 
 export async function runDb() {
   try {
