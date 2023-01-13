@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authRouter = void 0;
 const express_1 = require("express");
+const rate_limits_1 = require("../application/rate-limits");
 const auth_controllers_1 = require("../controllers/auth-controllers");
 const input_validation_middleware_1 = require("../middlewares/input-validation-middleware");
 const jwt_auth_mware_1 = require("../middlewares/jwt-auth-mware");
 exports.authRouter = (0, express_1.Router)();
-exports.authRouter.post('/login', auth_controllers_1.loginUserController);
+exports.authRouter.post('/login', rate_limits_1.loginLimiter, auth_controllers_1.loginUserController);
 exports.authRouter.get('/me', jwt_auth_mware_1.jwtAuthMware, auth_controllers_1.getCurrentUserInfoController);
 exports.authRouter.post('/registration', (0, input_validation_middleware_1.userBodyValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, auth_controllers_1.registerUserController);
 exports.authRouter.post('/registration-confirmation', auth_controllers_1.regConfirmController);

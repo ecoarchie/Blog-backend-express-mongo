@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { loginLimiter } from '../application/rate-limits';
 import {
   getCurrentUserInfoController,
   loginUserController,
@@ -17,7 +18,7 @@ import { jwtAuthMware } from '../middlewares/jwt-auth-mware';
 
 export const authRouter = Router();
 
-authRouter.post('/login', loginUserController);
+authRouter.post('/login', loginLimiter, loginUserController);
 
 authRouter.get('/me', jwtAuthMware, getCurrentUserInfoController);
 
