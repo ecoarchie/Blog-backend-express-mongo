@@ -32,6 +32,6 @@ exports.resendRegEmailLimiter = (0, express_rate_limit_1.default)({
 exports.passwordRecoveryLimiter = (0, express_rate_limit_1.default)({
     windowMs: 10 * 1000,
     max: 5,
-    standardHeaders: true,
+    standardHeaders: false,
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
