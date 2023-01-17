@@ -38,6 +38,11 @@ export const usersService = {
         expirationDate: add(new Date(), { hours: 1, minutes: 10 }),
         isConfirmed: false,
       },
+      passwordRecovery: {
+        recoveryCode: null,
+        expirationDate: null,
+        isUsed: null,
+      },
     };
 
     const createdUser = await usersRepository.createUser(userToInsert);
@@ -65,6 +70,11 @@ export const usersService = {
         expirationDate: add(new Date(), { hours: 1, minutes: 10 }),
         isConfirmed: true,
       },
+      passwordRecovery: {
+        recoveryCode: null,
+        expirationDate: null,
+        isUsed: null,
+      },
     };
 
     const createdUser = await usersRepository.createUser(userToInsert);
@@ -81,5 +91,18 @@ export const usersService = {
     const match = await bcrypt.compare(password, userHashInDB);
 
     return match ? user._id!.toString() : null;
+  },
+
+  async updateRecoveryCodeAndPassword(
+    recoveryCode: string,
+    newPassword: string
+  ): Promise<boolean> {
+    const hash = await bcrypt.hash(newPassword, 1);
+
+    const result = await usersRepository.updateRecoveryCodeAndPassword(
+      recoveryCode,
+      hash
+    );
+    return result;
   },
 };

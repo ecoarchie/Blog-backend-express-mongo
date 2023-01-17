@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
+import add from 'date-fns/add';
 
 import { usersService } from '../service/user-service';
 import { jwtService } from '../application/jwt-service';
-import { UserDBModel } from '../models/userModels';
+import { passwordRecoveryCodeModel, UserDBModel } from '../models/userModels';
 import { usersRepository } from '../repositories/users-repository';
 import { authService } from '../service/auth-service';
 import { emailManager } from '../managers/email-manager';
@@ -180,5 +181,53 @@ export const logoutController = async (req: Request, res: Response) => {
   }
 
   await sessionRepository.deleteSessionWhenLogout(validUserSession._id);
+  res.sendStatus(204);
+};
+
+export const passwordRecoveryController = async (req: Request, res: Response) => {
+  const email = req.body.email;
+  const registeredUser = await usersService.findUserByEmail(email);
+
+  if (!registeredUser) {
+    res.sendStatus(204);
+    return;
+  }
+  const passwordRecoveryObj: passwordRecoveryCodeModel = {
+    recoveryCode: uuidv4(),
+    expirationDate: add(new Date(), {
+      hours: 1,
+      minutes: 30,
+    }),
+    isUsed: false,
+  };
+  registeredUser.passwordRecovery = passwordRecoveryObj;
+  const updatedUserRecCode = await usersRepository.setRecoveryCode(
+    registeredUser._id!,
+    passwordRecoveryObj
+  );
+  try {
+    const result = await emailManager.sendPasswordRecoveryMessage(registeredUser);
+    res.sendStatus(204);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+};
+
+export const confirmPasswordController = async (req: Request, res: Response) => {
+  const recoveryCode = req.body.recoveryCode.toString();
+  const newPassword = req.body.newPassword;
+  if (!recoveryCode) {
+    res.sendStatus(400);
+    return;
+  }
+  const isRecoveryCodeValid = await usersRepository.checkRecoveryCode(recoveryCode);
+  if (!isRecoveryCodeValid) {
+    console.log('Rec code is invalid');
+
+    res.sendStatus(400);
+  }
+  const updateRecoveryCodeAndPasswordResult =
+    await usersService.updateRecoveryCodeAndPassword(recoveryCode, newPassword);
   res.sendStatus(204);
 };

@@ -15,20 +15,47 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.emailManager = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 exports.emailManager = {
+    transporter: nodemailer_1.default.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'app.cronosport@gmail.com',
+            pass: process.env.GMAIL_PASSWORD,
+        },
+    }),
     sendEmailConfirmationMessage(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            let transporter = nodemailer_1.default.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'app.cronosport@gmail.com',
-                    pass: process.env.GMAIL_PASSWORD,
-                },
-            });
-            let info = yield transporter.sendMail({
+            // let transporter = nodemailer.createTransport({
+            //   service: 'gmail',
+            //   auth: {
+            //     user: 'app.cronosport@gmail.com',
+            //     pass: process.env.GMAIL_PASSWORD,
+            //   },
+            // });
+            let info = yield this.transporter.sendMail({
                 from: 'BlogPost <app.cronosport.gmail.com>',
                 to: user.email,
                 subject: 'Email confirmation',
                 html: `<h1>Thank for your registration</h1><p>To finish registration please follow the link below: <a href='https://somesite.com/confirm-email?code=${user.emailConfirmation.confirmationCode}'>complete registration</a> </p>`,
+            });
+        });
+    },
+    sendPasswordRecoveryMessage(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // let transporter = nodemailer.createTransport({
+            //   service: 'gmail',
+            //   auth: {
+            //     user: 'app.cronosport@gmail.com',
+            //     pass: process.env.GMAIL_PASSWORD,
+            //   },
+            // });
+            let info = yield this.transporter.sendMail({
+                from: 'BlogPost <app.cronosport.gmail.com>',
+                to: user.email,
+                subject: 'Password Recovery',
+                html: `<h1>Password recovery</h1>
+       <p>To finish password recovery please follow the link below:
+          <a href='https://somesite.com/password-recovery?recoveryCode=${user.passwordRecovery.recoveryCode}'>recovery password</a>
+      </p>`,
             });
         });
     },

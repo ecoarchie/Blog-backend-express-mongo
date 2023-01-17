@@ -1,6 +1,10 @@
 import { ObjectId } from 'mongodb';
 import { UserReqQueryModel } from '../models/reqQueryModel';
-import { UserDBModel, UserViewModel } from '../models/userModels';
+import {
+  passwordRecoveryCodeModel,
+  UserDBModel,
+  UserViewModel,
+} from '../models/userModels';
 import { usersCollection } from './db';
 
 export const usersRepository = {
@@ -14,9 +18,13 @@ export const usersRepository = {
 
     const emailLoginTerms = [];
     if (options.searchEmailTerm)
-      emailLoginTerms.push({ email: { $regex: options.searchEmailTerm, $options: 'i' } });
+      emailLoginTerms.push({
+        email: { $regex: options.searchEmailTerm, $options: 'i' },
+      });
     if (options.searchLoginTerm)
-      emailLoginTerms.push({ login: { $regex: options.searchLoginTerm, $options: 'i' } });
+      emailLoginTerms.push({
+        login: { $regex: options.searchLoginTerm, $options: 'i' },
+      });
     const searchTerm =
       !options.searchLoginTerm && !options.searchEmailTerm
         ? {}
@@ -33,14 +41,14 @@ export const usersRepository = {
       { $project: { _id: 0 } },
     ];
 
-    const users: Array<UserViewModel> = (await usersCollection.aggregate(pipeline).toArray()).map(
-      (user) => ({
-        id: user.id.toString(),
-        login: user.login,
-        email: user.email,
-        createdAt: user.createdAt,
-      })
-    );
+    const users: Array<UserViewModel> = (
+      await usersCollection.aggregate(pipeline).toArray()
+    ).map((user) => ({
+      id: user.id.toString(),
+      login: user.login,
+      email: user.email,
+      createdAt: user.createdAt,
+    }));
 
     return users;
   },
@@ -84,8 +92,10 @@ export const usersRepository = {
   async findUserByLoginOrEmail(
     loginOrEmail: string | { login: string; email: string }
   ): Promise<UserDBModel | null> {
-    const login = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
-    const email = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
+    const login =
+      typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
+    const email =
+      typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
     const result = await usersCollection.findOne({
       $or: [{ login: login }, { email: email }],
     });
@@ -94,7 +104,9 @@ export const usersRepository = {
   },
 
   async findUserByConfirmCode(code: string): Promise<UserDBModel | null> {
-    const result = await usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
+    const result = await usersCollection.findOne({
+      'emailConfirmation.confirmationCode': code,
+    });
     return result;
   },
 
@@ -112,5 +124,51 @@ export const usersRepository = {
       { $set: { 'emailConfirmation.confirmationCode': newCode } }
     );
     return result.modifiedCount === 1;
+  },
+
+  async checkRecoveryCode(recoveryCode: string): Promise<boolean> {
+    const user = await usersCollection.findOne({
+      'passwordRecovery.recoveryCode': recoveryCode,
+    });
+    if (!user) {
+      console.log('User not found');
+
+      return false;
+    }
+    if (
+      user.passwordRecovery.expirationDate! < new Date() ||
+      user.passwordRecovery.isUsed !== false
+    ) {
+      return false;
+    }
+    return true;
+  },
+
+  async setRecoveryCode(
+    userId: ObjectId,
+    passwordRecoveryObject: passwordRecoveryCodeModel
+  ): Promise<void> {
+    await usersCollection.updateOne(
+      { _id: userId },
+      { $set: { passwordRecovery: passwordRecoveryObject } }
+    );
+  },
+
+  async updateRecoveryCodeAndPassword(
+    recoveryCode: string,
+    hash: string
+  ): Promise<boolean> {
+    const result = await usersCollection.updateOne(
+      { 'passwordRecovery.recoveryCode': recoveryCode },
+      {
+        $set: {
+          'passwordRecovery.recoveryCode': null,
+          'passwordRecovery.expirationDate': null,
+          'passwordRecovery.isUsed': null,
+          passwordHash: hash,
+        },
+      }
+    );
+    return result.matchedCount === 1;
   },
 };

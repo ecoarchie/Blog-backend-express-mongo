@@ -24,9 +24,13 @@ exports.usersRepository = {
             sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
             const emailLoginTerms = [];
             if (options.searchEmailTerm)
-                emailLoginTerms.push({ email: { $regex: options.searchEmailTerm, $options: 'i' } });
+                emailLoginTerms.push({
+                    email: { $regex: options.searchEmailTerm, $options: 'i' },
+                });
             if (options.searchLoginTerm)
-                emailLoginTerms.push({ login: { $regex: options.searchLoginTerm, $options: 'i' } });
+                emailLoginTerms.push({
+                    login: { $regex: options.searchLoginTerm, $options: 'i' },
+                });
             const searchTerm = !options.searchLoginTerm && !options.searchEmailTerm
                 ? {}
                 : {
@@ -102,7 +106,9 @@ exports.usersRepository = {
     },
     findUserByConfirmCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
+            const result = yield db_1.usersCollection.findOne({
+                'emailConfirmation.confirmationCode': code,
+            });
             return result;
         });
     },
@@ -116,6 +122,40 @@ exports.usersRepository = {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.usersCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { 'emailConfirmation.confirmationCode': newCode } });
             return result.modifiedCount === 1;
+        });
+    },
+    checkRecoveryCode(recoveryCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield db_1.usersCollection.findOne({
+                'passwordRecovery.recoveryCode': recoveryCode,
+            });
+            if (!user) {
+                console.log('User not found');
+                return false;
+            }
+            if (user.passwordRecovery.expirationDate < new Date() ||
+                user.passwordRecovery.isUsed !== false) {
+                return false;
+            }
+            return true;
+        });
+    },
+    setRecoveryCode(userId, passwordRecoveryObject) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.usersCollection.updateOne({ _id: userId }, { $set: { passwordRecovery: passwordRecoveryObject } });
+        });
+    },
+    updateRecoveryCodeAndPassword(recoveryCode, hash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield db_1.usersCollection.updateOne({ 'passwordRecovery.recoveryCode': recoveryCode }, {
+                $set: {
+                    'passwordRecovery.recoveryCode': null,
+                    'passwordRecovery.expirationDate': null,
+                    'passwordRecovery.isUsed': null,
+                    passwordHash: hash,
+                },
+            });
+            return result.matchedCount === 1;
         });
     },
 };

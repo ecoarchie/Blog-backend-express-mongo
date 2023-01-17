@@ -53,6 +53,11 @@ exports.usersService = {
                     expirationDate: (0, add_1.default)(new Date(), { hours: 1, minutes: 10 }),
                     isConfirmed: false,
                 },
+                passwordRecovery: {
+                    recoveryCode: null,
+                    expirationDate: null,
+                    isUsed: null,
+                },
             };
             const createdUser = yield users_repository_1.usersRepository.createUser(userToInsert);
             try {
@@ -80,6 +85,11 @@ exports.usersService = {
                     expirationDate: (0, add_1.default)(new Date(), { hours: 1, minutes: 10 }),
                     isConfirmed: true,
                 },
+                passwordRecovery: {
+                    recoveryCode: null,
+                    expirationDate: null,
+                    isUsed: null,
+                },
             };
             const createdUser = yield users_repository_1.usersRepository.createUser(userToInsert);
             return createdUser;
@@ -94,6 +104,13 @@ exports.usersService = {
             const userHashInDB = user.passwordHash;
             const match = yield bcrypt_1.default.compare(password, userHashInDB);
             return match ? user._id.toString() : null;
+        });
+    },
+    updateRecoveryCodeAndPassword(recoveryCode, newPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const hash = yield bcrypt_1.default.hash(newPassword, 1);
+            const result = yield users_repository_1.usersRepository.updateRecoveryCodeAndPassword(recoveryCode, hash);
+            return result;
         });
     },
 };

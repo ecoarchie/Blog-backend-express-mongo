@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 
 export type UserInputModel = {
   login: string;
@@ -24,6 +24,7 @@ export type UserDBModel = {
     expirationDate: Date;
     isConfirmed: boolean;
   };
+  passwordRecovery: passwordRecoveryCodeModel;
 };
 
 export type PaginatorUserViewModel = {
@@ -38,4 +39,10 @@ export type MeViewModel = {
   email: string;
   login: string;
   userId: string;
+};
+
+export type passwordRecoveryCodeModel = {
+  recoveryCode: string | null;
+  expirationDate: Date | null;
+  isUsed: boolean | null;
 };

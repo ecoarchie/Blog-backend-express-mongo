@@ -1,14 +1,17 @@
 import { Router } from 'express';
 import {
   loginLimiter,
+  passwordRecoveryLimiter,
   regConfirmLimiter,
   registerUserLimiter,
   resendRegEmailLimiter,
 } from '../application/rate-limits';
 import {
+  confirmPasswordController,
   getCurrentUserInfoController,
   loginUserController,
   logoutController,
+  passwordRecoveryController,
   refreshTokenController,
   regConfirmController,
   registerUserController,
@@ -17,6 +20,7 @@ import {
 import {
   emailValidation,
   inputValidatiomMiddleware,
+  newPasswordValidation,
   userBodyValidation,
 } from '../middlewares/input-validation-middleware';
 import { jwtAuthMware } from '../middlewares/jwt-auth-mware';
@@ -52,3 +56,19 @@ authRouter.post(
 authRouter.post('/refresh-token', refreshTokenController);
 
 authRouter.post('/logout', logoutController);
+
+authRouter.post(
+  '/password-recovery',
+  passwordRecoveryLimiter,
+  emailValidation(),
+  inputValidatiomMiddleware,
+  passwordRecoveryController
+);
+
+authRouter.post(
+  '/new-password',
+  passwordRecoveryLimiter,
+  newPasswordValidation(),
+  inputValidatiomMiddleware,
+  confirmPasswordController
+);

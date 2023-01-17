@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logoutController = exports.refreshTokenController = exports.resendRegEmailController = exports.regConfirmController = exports.registerUserController = exports.getCurrentUserInfoController = exports.loginUserController = void 0;
+exports.confirmPasswordController = exports.passwordRecoveryController = exports.logoutController = exports.refreshTokenController = exports.resendRegEmailController = exports.regConfirmController = exports.registerUserController = exports.getCurrentUserInfoController = exports.loginUserController = void 0;
 const uuid_1 = require("uuid");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const add_1 = __importDefault(require("date-fns/add"));
 const user_service_1 = require("../service/user-service");
 const jwt_service_1 = require("../application/jwt-service");
 const users_repository_1 = require("../repositories/users-repository");
@@ -164,3 +165,46 @@ const logoutController = (req, res) => __awaiter(void 0, void 0, void 0, functio
     res.sendStatus(204);
 });
 exports.logoutController = logoutController;
+const passwordRecoveryController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.body.email;
+    const registeredUser = yield user_service_1.usersService.findUserByEmail(email);
+    if (!registeredUser) {
+        res.sendStatus(204);
+        return;
+    }
+    const passwordRecoveryObj = {
+        recoveryCode: (0, uuid_1.v4)(),
+        expirationDate: (0, add_1.default)(new Date(), {
+            hours: 1,
+            minutes: 30,
+        }),
+        isUsed: false,
+    };
+    registeredUser.passwordRecovery = passwordRecoveryObj;
+    const updatedUserRecCode = yield users_repository_1.usersRepository.setRecoveryCode(registeredUser._id, passwordRecoveryObj);
+    try {
+        const result = yield email_manager_1.emailManager.sendPasswordRecoveryMessage(registeredUser);
+        res.sendStatus(204);
+    }
+    catch (error) {
+        console.error(error);
+        res.sendStatus(400);
+    }
+});
+exports.passwordRecoveryController = passwordRecoveryController;
+const confirmPasswordController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const recoveryCode = req.body.recoveryCode.toString();
+    const newPassword = req.body.newPassword;
+    if (!recoveryCode) {
+        res.sendStatus(400);
+        return;
+    }
+    const isRecoveryCodeValid = yield users_repository_1.usersRepository.checkRecoveryCode(recoveryCode);
+    if (!isRecoveryCodeValid) {
+        console.log('Rec code is invalid');
+        res.sendStatus(400);
+    }
+    const updateRecoveryCodeAndPasswordResult = yield user_service_1.usersService.updateRecoveryCodeAndPassword(recoveryCode, newPassword);
+    res.sendStatus(204);
+});
+exports.confirmPasswordController = confirmPasswordController;

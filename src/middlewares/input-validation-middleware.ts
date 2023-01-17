@@ -123,7 +123,25 @@ export const emailValidation = () => {
   ];
 };
 
-export const inputValidatiomMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const newPasswordValidation = () => {
+  return [
+    body('newPassword')
+      .exists()
+      .withMessage('Password is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Password cannot be empty')
+      .isLength({ max: 20, min: 6 })
+      .withMessage('Password should be between 6 and 20 symbols'),
+  ];
+};
+
+export const inputValidatiomMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const errorFormatter = ({ msg, param }: ValidationError) => {
     return { message: msg, field: param };
   };
