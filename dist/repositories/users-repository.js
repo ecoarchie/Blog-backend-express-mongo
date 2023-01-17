@@ -130,7 +130,6 @@ exports.usersRepository = {
                 'passwordRecovery.recoveryCode': recoveryCode,
             });
             if (!user) {
-                console.log('User not found');
                 return false;
             }
             if (user.passwordRecovery.expirationDate < new Date() ||

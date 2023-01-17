@@ -201,8 +201,14 @@ const confirmPasswordController = (req, res) => __awaiter(void 0, void 0, void 0
     }
     const isRecoveryCodeValid = yield users_repository_1.usersRepository.checkRecoveryCode(recoveryCode);
     if (!isRecoveryCodeValid) {
-        console.log('Rec code is invalid');
-        res.sendStatus(400);
+        return res.status(400).send({
+            errorsMessages: [
+                {
+                    message: 'RecoveryCode is NOT valid',
+                    field: 'recoveryCode',
+                },
+            ],
+        });
     }
     const updateRecoveryCodeAndPasswordResult = yield user_service_1.usersService.updateRecoveryCodeAndPassword(recoveryCode, newPassword);
     res.sendStatus(204);

@@ -131,8 +131,6 @@ export const usersRepository = {
       'passwordRecovery.recoveryCode': recoveryCode,
     });
     if (!user) {
-      console.log('User not found');
-
       return false;
     }
     if (
