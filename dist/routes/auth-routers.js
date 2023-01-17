@@ -15,4 +15,4 @@ exports.authRouter.post('/registration-email-resending', rate_limits_1.resendReg
 exports.authRouter.post('/refresh-token', auth_controllers_1.refreshTokenController);
 exports.authRouter.post('/logout', auth_controllers_1.logoutController);
 exports.authRouter.post('/password-recovery', rate_limits_1.passwordRecoveryLimiter, (0, input_validation_middleware_1.emailValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, auth_controllers_1.passwordRecoveryController);
-exports.authRouter.post('/new-password', rate_limits_1.passwordRecoveryLimiter, (0, input_validation_middleware_1.newPasswordValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, auth_controllers_1.confirmPasswordController);
+exports.authRouter.post('/new-password', rate_limits_1.newPasswordLimiter, (0, input_validation_middleware_1.newPasswordValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, auth_controllers_1.confirmPasswordController);

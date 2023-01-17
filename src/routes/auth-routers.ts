@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   loginLimiter,
+  newPasswordLimiter,
   passwordRecoveryLimiter,
   regConfirmLimiter,
   registerUserLimiter,
@@ -67,7 +68,7 @@ authRouter.post(
 
 authRouter.post(
   '/new-password',
-  passwordRecoveryLimiter,
+  newPasswordLimiter,
   newPasswordValidation(),
   inputValidatiomMiddleware,
   confirmPasswordController
