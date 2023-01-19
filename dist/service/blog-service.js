@@ -9,17 +9,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsService = void 0;
+exports.BlogsService = void 0;
 const blogs_repository_1 = require("../repositories/blogs-repository");
-class BlogService {
+class BlogsService {
+    constructor() {
+        this.blogsRepository = new blogs_repository_1.BlogsRepository();
+    }
     findBlogs(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return blogs_repository_1.blogsRepository.findBlogs(options);
+            return this.blogsRepository.findBlogs(options);
         });
     }
     deleteAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
-            return blogs_repository_1.blogsRepository.deleteAllBlogs();
+            return this.blogsRepository.deleteAllBlogs();
         });
     }
     createBlog(bodyJson) {
@@ -31,29 +34,30 @@ class BlogService {
                 websiteUrl,
                 createdAt: new Date().toISOString(),
             };
-            const createdBlog = yield blogs_repository_1.blogsRepository.createBlog(blogToInsert);
+            const createdBlog = yield this.blogsRepository.createBlog(blogToInsert);
             return createdBlog;
         });
     }
     findBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return blogs_repository_1.blogsRepository.findBlogById(id);
+            return this.blogsRepository.findBlogById(id);
         });
     }
     updateBlogById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
-            return blogs_repository_1.blogsRepository.updateBlogById(id, newDatajson);
+            return this.blogsRepository.updateBlogById(id, newDatajson);
         });
     }
     deleteBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return blogs_repository_1.blogsRepository.deleteBlogById(id);
+            return this.blogsRepository.deleteBlogById(id);
         });
     }
     countAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
-            return blogs_repository_1.blogsRepository.countAllBlogs();
+            return this.blogsRepository.countAllBlogs();
         });
     }
 }
-exports.blogsService = new BlogService();
+exports.BlogsService = BlogsService;
+// export const blogsService = new BlogsService();

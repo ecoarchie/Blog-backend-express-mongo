@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsRepository = void 0;
+exports.blogsRepository = exports.BlogsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
 class BlogsRepository {
@@ -102,4 +102,5 @@ class BlogsRepository {
         });
     }
 }
+exports.BlogsRepository = BlogsRepository;
 exports.blogsRepository = new BlogsRepository();

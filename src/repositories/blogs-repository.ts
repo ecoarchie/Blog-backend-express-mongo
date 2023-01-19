@@ -3,7 +3,7 @@ import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel'
 import { BlogReqQueryModel } from '../models/reqQueryModel';
 import { blogsCollection } from './db';
 
-class BlogsRepository {
+export class BlogsRepository {
   async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
