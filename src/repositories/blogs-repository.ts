@@ -3,7 +3,7 @@ import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel'
 import { BlogReqQueryModel } from '../models/reqQueryModel';
 import { blogsCollection } from './db';
 
-export const blogsRepository = {
+class BlogsRepository {
   async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
@@ -21,18 +21,18 @@ export const blogsRepository = {
       { $project: { _id: 0 } },
     ];
 
-    const blogs: Array<BlogViewModel> = (await blogsCollection.aggregate(pipeline).toArray()).map(
-      (blog) => {
-        blog.id = blog.id.toString();
-        return blog;
-      }
-    ) as Array<BlogViewModel>;
+    const blogs: Array<BlogViewModel> = (
+      await blogsCollection.aggregate(pipeline).toArray()
+    ).map((blog) => {
+      blog.id = blog.id.toString();
+      return blog;
+    }) as Array<BlogViewModel>;
     return blogs;
-  },
+  }
 
   async deleteAllBlogs() {
     return await blogsCollection.deleteMany({});
-  },
+  }
 
   async createBlog(blogToInsert: BlogDBModel): Promise<BlogViewModel> {
     const result = await blogsCollection.insertOne(blogToInsert);
@@ -45,7 +45,7 @@ export const blogsRepository = {
     };
 
     return newBlog;
-  },
+  }
 
   async findBlogById(id: string): Promise<BlogViewModel | null> {
     if (!ObjectId.isValid(id)) return null;
@@ -58,7 +58,7 @@ export const blogsRepository = {
       blogToReturn = { id: _id!.toString(), ...rest };
     }
     return blogToReturn;
-  },
+  }
 
   async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
     if (!ObjectId.isValid(id)) return false;
@@ -69,15 +69,17 @@ export const blogsRepository = {
     //TODO update all posts related to this blog
 
     return result.matchedCount === 1;
-  },
+  }
 
   async deleteBlogById(id: string): Promise<boolean> {
     if (!ObjectId.isValid(id)) return false;
     const result = await blogsCollection.deleteOne({ _id: new ObjectId(id) });
     return result.deletedCount === 1;
-  },
+  }
 
   async countAllBlogs(): Promise<number> {
     return blogsCollection.countDocuments();
-  },
-};
+  }
+}
+
+export const blogsRepository = new BlogsRepository();

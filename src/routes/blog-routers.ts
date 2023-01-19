@@ -4,27 +4,19 @@ import {
   inputValidatiomMiddleware,
   postBodyValidation,
 } from '../middlewares/input-validation-middleware';
-import {
-  createBlogController,
-  createBlogPostController,
-  deleteBlogByIdController,
-  getAllBlogsController,
-  getBlogByIdcontroller,
-  getPostsByBlogIdController,
-  updateBlogByIdController,
-} from '../controllers/blog-controllers';
+import { blogsController } from '../controllers/blog-controllers';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 
 export const blogRouter = Router();
 
-blogRouter.get('/', getAllBlogsController);
+blogRouter.get('/', blogsController.getAllBlogs);
 
 blogRouter.post(
   '/',
   basicAuthMiddleware,
   blogBodyValidation(),
   inputValidatiomMiddleware,
-  createBlogController
+  blogsController.createBlog
 );
 
 blogRouter.post(
@@ -32,19 +24,19 @@ blogRouter.post(
   basicAuthMiddleware,
   postBodyValidation(),
   inputValidatiomMiddleware,
-  createBlogPostController
+  blogsController.createBlogPost
 );
 
-blogRouter.get('/:id', getBlogByIdcontroller);
+blogRouter.get('/:id', blogsController.getBlogById);
 
 blogRouter.put(
   '/:id',
   basicAuthMiddleware,
   blogBodyValidation(),
   inputValidatiomMiddleware,
-  updateBlogByIdController
+  blogsController.updateBlogById
 );
 
-blogRouter.delete('/:id', basicAuthMiddleware, deleteBlogByIdController);
+blogRouter.delete('/:id', basicAuthMiddleware, blogsController.deleteBlogById);
 
-blogRouter.get('/:blogId/posts', getPostsByBlogIdController);
+blogRouter.get('/:blogId/posts', blogsController.getPostsByBlogId);

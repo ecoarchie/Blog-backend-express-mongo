@@ -23,7 +23,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
-exports.blogsRepository = {
+class BlogsRepository {
     findBlogs(options) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
@@ -45,12 +45,12 @@ exports.blogsRepository = {
             });
             return blogs;
         });
-    },
+    }
     deleteAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield db_1.blogsCollection.deleteMany({});
         });
-    },
+    }
     createBlog(blogToInsert) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.blogsCollection.insertOne(blogToInsert);
@@ -63,7 +63,7 @@ exports.blogsRepository = {
             };
             return newBlog;
         });
-    },
+    }
     findBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mongodb_1.ObjectId.isValid(id))
@@ -78,7 +78,7 @@ exports.blogsRepository = {
             }
             return blogToReturn;
         });
-    },
+    }
     updateBlogById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mongodb_1.ObjectId.isValid(id))
@@ -87,7 +87,7 @@ exports.blogsRepository = {
             //TODO update all posts related to this blog
             return result.matchedCount === 1;
         });
-    },
+    }
     deleteBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mongodb_1.ObjectId.isValid(id))
@@ -95,10 +95,11 @@ exports.blogsRepository = {
             const result = yield db_1.blogsCollection.deleteOne({ _id: new mongodb_1.ObjectId(id) });
             return result.deletedCount === 1;
         });
-    },
+    }
     countAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
             return db_1.blogsCollection.countDocuments();
         });
-    },
-};
+    }
+}
+exports.blogsRepository = new BlogsRepository();
