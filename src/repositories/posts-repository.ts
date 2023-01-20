@@ -5,11 +5,13 @@ import { PostReqQueryModel } from '../models/reqQueryModel';
 import { blogsRepository } from './blogs-repository';
 import { postsCollection } from './db';
 
-export const postsRepository = {
+export class PostsRepository {
   async findPosts(options: PostReqQueryModel): Promise<PostViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
-    const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+    const searchTerm = !options.searchNameTerm
+      ? {}
+      : { name: { $regex: options.searchNameTerm } };
 
     const pipeline = [
       { $match: searchTerm },
@@ -24,11 +26,11 @@ export const postsRepository = {
       .aggregate(pipeline)
       .toArray()) as Array<PostViewModel>;
     return posts;
-  },
+  }
 
   async deleteAllPosts() {
     return await postsCollection.deleteMany({});
-  },
+  }
 
   async createPost(data: PostInputModel): Promise<PostViewModel> {
     const { title, shortDescription, content, blogId } = data;
@@ -54,7 +56,7 @@ export const postsRepository = {
       createdAt: postToInsert.createdAt,
     };
     return newPost;
-  },
+  }
 
   async findPostById(id: string): Promise<PostViewModel | null> {
     if (!ObjectId.isValid(id)) return null;
@@ -65,7 +67,7 @@ export const postsRepository = {
       postToReturn = { id: _id!.toString(), blogId: blogId.toString(), ...rest };
     }
     return postToReturn;
-  },
+  }
 
   async updatePostById(id: string, newDatajson: PostInputModel): Promise<boolean> {
     if (!ObjectId.isValid(id)) return false;
@@ -75,13 +77,13 @@ export const postsRepository = {
       { $set: { ...rest } }
     );
     return result.matchedCount === 1;
-  },
+  }
 
   async deletePostById(id: string): Promise<boolean> {
     if (!ObjectId.isValid(id)) return false;
     const result = await postsCollection.deleteOne({ _id: new ObjectId(id) });
     return result.deletedCount === 1;
-  },
+  }
 
   async findPostsByBlogId(
     blogId: string,
@@ -101,26 +103,27 @@ export const postsRepository = {
       { $project: { _id: 0 } },
     ];
 
-    const posts: Array<BlogViewModel> = (await postsCollection.aggregate(pipeline).toArray()).map(
-      (post) => {
-        post.id = post.id.toString();
-        post.blogId = post.blogId.toString();
-        return post;
-      }
-    ) as Array<BlogViewModel>;
+    const posts: Array<BlogViewModel> = (
+      await postsCollection.aggregate(pipeline).toArray()
+    ).map((post) => {
+      post.id = post.id.toString();
+      post.blogId = post.blogId.toString();
+      return post;
+    }) as Array<BlogViewModel>;
     return posts;
-  },
+  }
 
   async countPostsByBlogId(blogId: string): Promise<number> {
     return postsCollection.count({ blogId: new ObjectId(blogId) });
-  },
+  }
 
   async countAllPosts(): Promise<number> {
     return postsCollection.countDocuments();
-  },
+  }
 
   async isPostExist(postId: string): Promise<boolean> {
     if (!ObjectId.isValid(postId)) return false;
     return (await postsCollection.countDocuments({ _id: new ObjectId(postId) })) > 0;
-  },
-};
+  }
+}
+export const postsRepository = new PostsRepository();

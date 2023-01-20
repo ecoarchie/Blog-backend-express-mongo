@@ -5,7 +5,7 @@ import { userSessionCollection } from '../repositories/db';
 
 export const jwtService = {
   async createJwt(userId: string) {
-    const token = jwt.sign({ userId }, process.env.SECRET!, { expiresIn: '10s' });
+    const token = jwt.sign({ userId }, process.env.SECRET!, { expiresIn: '2h' });
     return token;
   },
 
@@ -14,10 +14,9 @@ export const jwtService = {
       { userId, lastActiveDate, deviceId },
       process.env.SECRET!,
       {
-        expiresIn: '20s',
+        expiresIn: '20h',
       }
     );
-    // console.log('token = ', token);
     return token;
   },
 

@@ -1,13 +1,5 @@
 import { Router } from 'express';
-import {
-  createCommentForPostController,
-  createPostController,
-  deletePostByIdController,
-  findPostByIdController,
-  getAllPostsController,
-  getCommentsForPostController,
-  updatePostByIdController,
-} from '../controllers/post-controllers';
+import { postsController } from '../controllers/post-controllers';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import { isValidBlogId } from '../middlewares/blog-id-custom-validator';
 import {
@@ -19,7 +11,7 @@ import { jwtAuthMware } from '../middlewares/jwt-auth-mware';
 
 export const postRouter = Router();
 
-postRouter.get('/', getAllPostsController);
+postRouter.get('/', postsController.getAllPostsController);
 
 postRouter.post(
   '/',
@@ -27,10 +19,10 @@ postRouter.post(
   isValidBlogId,
   postBodyValidation(),
   inputValidatiomMiddleware,
-  createPostController
+  postsController.createPostController
 );
 
-postRouter.get('/:id', findPostByIdController);
+postRouter.get('/:id', postsController.findPostByIdController);
 
 postRouter.put(
   '/:id',
@@ -38,17 +30,21 @@ postRouter.put(
   isValidBlogId,
   postBodyValidation(),
   inputValidatiomMiddleware,
-  updatePostByIdController
+  postsController.updatePostByIdController
 );
 
-postRouter.delete('/:id', basicAuthMiddleware, deletePostByIdController);
+postRouter.delete(
+  '/:id',
+  basicAuthMiddleware,
+  postsController.deletePostByIdController
+);
 
-postRouter.get('/:postId/comments', getCommentsForPostController);
+postRouter.get('/:postId/comments', postsController.getCommentsForPostController);
 
 postRouter.post(
   '/:postId/comments',
   jwtAuthMware,
   commentBodyValidation(),
   inputValidatiomMiddleware,
-  createCommentForPostController
+  postsController.createCommentForPostController
 );

@@ -20,16 +20,18 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsRepository = void 0;
+exports.postsRepository = exports.PostsRepository = void 0;
 const bson_1 = require("bson");
 const blogs_repository_1 = require("./blogs-repository");
 const db_1 = require("./db");
-exports.postsRepository = {
+class PostsRepository {
     findPosts(options) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
             sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
-            const searchTerm = !options.searchNameTerm ? {} : { name: { $regex: options.searchNameTerm } };
+            const searchTerm = !options.searchNameTerm
+                ? {}
+                : { name: { $regex: options.searchNameTerm } };
             const pipeline = [
                 { $match: searchTerm },
                 { $addFields: { id: '$_id' } },
@@ -43,12 +45,12 @@ exports.postsRepository = {
                 .toArray());
             return posts;
         });
-    },
+    }
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield db_1.postsCollection.deleteMany({});
         });
-    },
+    }
     createPost(data) {
         return __awaiter(this, void 0, void 0, function* () {
             const { title, shortDescription, content, blogId } = data;
@@ -74,7 +76,7 @@ exports.postsRepository = {
             };
             return newPost;
         });
-    },
+    }
     findPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bson_1.ObjectId.isValid(id))
@@ -87,7 +89,7 @@ exports.postsRepository = {
             }
             return postToReturn;
         });
-    },
+    }
     updatePostById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bson_1.ObjectId.isValid(id))
@@ -96,7 +98,7 @@ exports.postsRepository = {
             const result = yield db_1.postsCollection.updateOne({ _id: new bson_1.ObjectId(id), blogId: new bson_1.ObjectId(blogId) }, { $set: Object.assign({}, rest) });
             return result.matchedCount === 1;
         });
-    },
+    }
     deletePostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bson_1.ObjectId.isValid(id))
@@ -104,7 +106,7 @@ exports.postsRepository = {
             const result = yield db_1.postsCollection.deleteOne({ _id: new bson_1.ObjectId(id) });
             return result.deletedCount === 1;
         });
-    },
+    }
     findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
@@ -124,22 +126,24 @@ exports.postsRepository = {
             });
             return posts;
         });
-    },
+    }
     countPostsByBlogId(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             return db_1.postsCollection.count({ blogId: new bson_1.ObjectId(blogId) });
         });
-    },
+    }
     countAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return db_1.postsCollection.countDocuments();
         });
-    },
+    }
     isPostExist(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bson_1.ObjectId.isValid(postId))
                 return false;
             return (yield db_1.postsCollection.countDocuments({ _id: new bson_1.ObjectId(postId) })) > 0;
         });
-    },
-};
+    }
+}
+exports.PostsRepository = PostsRepository;
+exports.postsRepository = new PostsRepository();
