@@ -24,9 +24,15 @@ exports.commentRepository = {
                 const likesInfo = yield db_1.commentLikesCollection.findOne({
                     commentId: new mongodb_1.ObjectId(commentId),
                 });
-                const userLikesDislikes = yield db_1.userLikesCollection.findOne({
-                    userId: new mongodb_1.ObjectId(userId),
-                });
+                let userLikesDislikes;
+                if (!userId) {
+                    userLikesDislikes = null;
+                }
+                else {
+                    userLikesDislikes = yield db_1.userLikesCollection.findOne({
+                        userId: new mongodb_1.ObjectId(userId),
+                    });
+                }
                 let myStatus;
                 if (!userLikesDislikes) {
                     myStatus = 'None';

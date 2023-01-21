@@ -14,9 +14,14 @@ export const commentRepository = {
       const likesInfo = await commentLikesCollection.findOne({
         commentId: new ObjectId(commentId),
       });
-      const userLikesDislikes = await userLikesCollection.findOne({
-        userId: new ObjectId(userId),
-      });
+      let userLikesDislikes;
+      if (!userId) {
+        userLikesDislikes = null;
+      } else {
+        userLikesDislikes = await userLikesCollection.findOne({
+          userId: new ObjectId(userId),
+        });
+      }
       let myStatus;
       if (!userLikesDislikes) {
         myStatus = 'None';
