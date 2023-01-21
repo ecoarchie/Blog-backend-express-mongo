@@ -40,7 +40,7 @@ export const loginUserController = async (req: Request, res: Response) => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true, //TODO why not working with true option
+      secure: false, //TODO why not working with true option
     });
     res.status(200).send({ accessToken: token });
   } else {

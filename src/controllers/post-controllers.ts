@@ -80,6 +80,11 @@ export class PostsController {
       let comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
 
       const refreshToken = req.cookies?.refreshToken;
+      const cookie = req.cookies;
+      console.log(
+        '🚀 ~ file: post-controllers.ts:83 ~ PostsController ~ getCommentsForPostController= ~ cookie',
+        cookie
+      );
       let validUserSession;
       let currentUserId;
       let userLikesDislikes: WithId<UsersLikesDBModel> | null;

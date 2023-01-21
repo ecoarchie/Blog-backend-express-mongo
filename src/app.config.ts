@@ -20,9 +20,9 @@ dotenv.config();
 export const app = express();
 export const port = process.env.PORT;
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(useragent.express());
-app.use(cookieParser());
 app.set('trust proxy', true);
 app.use('/blogs', blogRouter);
 app.use('/posts', postRouter);

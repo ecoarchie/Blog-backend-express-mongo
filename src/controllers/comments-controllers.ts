@@ -5,6 +5,10 @@ import { jwtService } from '../application/jwt-service';
 
 export const getCommentByIdController = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
+  console.log(
+    '🚀 ~ file: comments-controllers.ts:8 ~ getCommentByIdController ~ refreshToken',
+    refreshToken
+  );
   let validUserSession;
   let currentUserId;
   if (refreshToken) {

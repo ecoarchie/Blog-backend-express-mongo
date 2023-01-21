@@ -74,6 +74,8 @@ class PostsController {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
                 let comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
                 const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
+                const cookie = req.cookies;
+                console.log('🚀 ~ file: post-controllers.ts:83 ~ PostsController ~ getCommentsForPostController= ~ cookie', cookie);
                 let validUserSession;
                 let currentUserId;
                 let userLikesDislikes;

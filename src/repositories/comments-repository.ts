@@ -16,11 +16,16 @@ export const commentRepository = {
       });
       let userLikesDislikes;
       if (!userId) {
+        console.log('🚀 ~ file: comments-repository.ts:19 ~ getCommentById ~ userId', userId);
         userLikesDislikes = null;
       } else {
         userLikesDislikes = await userLikesCollection.findOne({
           userId: new ObjectId(userId),
         });
+        console.log(
+          '🚀 ~ file: comments-repository.ts:24 ~ getCommentById ~ userLikesDislikes',
+          userLikesDislikes
+        );
       }
       let myStatus;
       if (!userLikesDislikes) {

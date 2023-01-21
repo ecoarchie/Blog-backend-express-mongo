@@ -15,6 +15,7 @@ const jwt_service_1 = require("../application/jwt-service");
 const getCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
+    console.log('🚀 ~ file: comments-controllers.ts:8 ~ getCommentByIdController ~ refreshToken', refreshToken);
     let validUserSession;
     let currentUserId;
     if (refreshToken) {
