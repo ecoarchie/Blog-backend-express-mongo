@@ -11,14 +11,6 @@ export const emailManager = {
   }),
 
   async sendEmailConfirmationMessage(user: UserDBModel) {
-    // let transporter = nodemailer.createTransport({
-    //   service: 'gmail',
-    //   auth: {
-    //     user: 'app.cronosport@gmail.com',
-    //     pass: process.env.GMAIL_PASSWORD,
-    //   },
-    // });
-
     let info = await this.transporter.sendMail({
       from: 'BlogPost <app.cronosport.gmail.com>',
       to: user.email,
@@ -28,14 +20,6 @@ export const emailManager = {
   },
 
   async sendPasswordRecoveryMessage(user: UserDBModel) {
-    // let transporter = nodemailer.createTransport({
-    //   service: 'gmail',
-    //   auth: {
-    //     user: 'app.cronosport@gmail.com',
-    //     pass: process.env.GMAIL_PASSWORD,
-    //   },
-    // });
-
     let info = await this.transporter.sendMail({
       from: 'BlogPost <app.cronosport.gmail.com>',
       to: user.email,

@@ -62,6 +62,13 @@ export const usersRepository = {
       email: user.email,
       createdAt: user.createdAt,
     };
+    await userLikesCollection.insertOne({
+      userId: result.insertedId,
+      likedComments: [],
+      dislikedComments: [],
+      likedPosts: [],
+      dislikedPosts: [],
+    });
 
     return newUser;
   },
@@ -166,21 +173,21 @@ export const usersRepository = {
     const foundUser = await userLikesCollection.findOne({
       userId: new ObjectId(userId),
     });
-    if (!foundUser) {
-      await userLikesCollection.insertOne({
-        userId: new ObjectId(userId),
-        likedComments: [],
-        dislikedComments: [],
-        likedPosts: [],
-        dislikedPosts: [],
-      });
-    }
+    // if (!foundUser) {
+    //   await userLikesCollection.insertOne({
+    //     userId: new ObjectId(userId),
+    //     likedComments: [],
+    //     dislikedComments: [],
+    //     likedPosts: [],
+    //     dislikedPosts: [],
+    //   });
+    // }
     const resLiked = await userLikesCollection.findOne({
-      $and: [{ userId: new ObjectId(userId) }, { likedComments: new ObjectId(commentId) }],
+      $and: [{ userId: new ObjectId(userId) }, { likedComments: commentId }],
     });
     if (resLiked) return 'Like';
     const resDisliked = await userLikesCollection.findOne({
-      $and: [{ userId: new ObjectId(userId) }, { dislikedComments: new ObjectId(commentId) }],
+      $and: [{ userId: new ObjectId(userId) }, { dislikedComments: commentId }],
     });
     if (resDisliked) return 'Dislike';
     return 'None';

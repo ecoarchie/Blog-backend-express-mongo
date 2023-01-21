@@ -67,6 +67,13 @@ exports.usersRepository = {
                 email: user.email,
                 createdAt: user.createdAt,
             };
+            yield db_1.userLikesCollection.insertOne({
+                userId: result.insertedId,
+                likedComments: [],
+                dislikedComments: [],
+                likedPosts: [],
+                dislikedPosts: [],
+            });
             return newUser;
         });
     },
@@ -162,22 +169,22 @@ exports.usersRepository = {
             const foundUser = yield db_1.userLikesCollection.findOne({
                 userId: new mongodb_1.ObjectId(userId),
             });
-            if (!foundUser) {
-                yield db_1.userLikesCollection.insertOne({
-                    userId: new mongodb_1.ObjectId(userId),
-                    likedComments: [],
-                    dislikedComments: [],
-                    likedPosts: [],
-                    dislikedPosts: [],
-                });
-            }
+            // if (!foundUser) {
+            //   await userLikesCollection.insertOne({
+            //     userId: new ObjectId(userId),
+            //     likedComments: [],
+            //     dislikedComments: [],
+            //     likedPosts: [],
+            //     dislikedPosts: [],
+            //   });
+            // }
             const resLiked = yield db_1.userLikesCollection.findOne({
-                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { likedComments: new mongodb_1.ObjectId(commentId) }],
+                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { likedComments: commentId }],
             });
             if (resLiked)
                 return 'Like';
             const resDisliked = yield db_1.userLikesCollection.findOne({
-                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { dislikedComments: new mongodb_1.ObjectId(commentId) }],
+                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { dislikedComments: commentId }],
             });
             if (resDisliked)
                 return 'Dislike';

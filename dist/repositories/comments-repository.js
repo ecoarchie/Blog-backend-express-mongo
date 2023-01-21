@@ -54,11 +54,24 @@ exports.commentRepository = {
                 { $sort: sort },
                 { $skip: options.skip },
                 { $limit: options.pageSize },
-                { $project: { _id: 0, postId: 0 } },
+                {
+                    $lookup: {
+                        from: 'commentLikes',
+                        localField: '_id',
+                        foreignField: 'commentId',
+                        as: 'likesInfo',
+                    },
+                },
+                { $project: { _id: 0, postId: 0, 'likesInfo._id': 0, 'likesInfo.commentId': 0 } },
             ];
             const comments = (yield db_1.commentsCollection.aggregate(pipeline).toArray()).map((comment) => {
+                var _a;
                 comment.id = comment.id.toString();
                 comment.userId = comment.userId.toString();
+                comment.likesInfo = ((_a = comment.likesInfo[0]) === null || _a === void 0 ? void 0 : _a.likesInfo) || {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                };
                 return comment;
             });
             return comments;
@@ -109,22 +122,22 @@ exports.commentRepository = {
     },
     _addToUsersLikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { likedComments: new mongodb_1.ObjectId(commentId) } });
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { likedComments: commentId } });
         });
     },
     _removeFromUsersLikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { likedComments: new mongodb_1.ObjectId(commentId) } });
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { likedComments: commentId } });
         });
     },
     _addToUsersDislikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { dislikedComments: new mongodb_1.ObjectId(commentId) } });
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { dislikedComments: commentId } });
         });
     },
     _removeFromUsersDislikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { dislikedComments: new mongodb_1.ObjectId(commentId) } });
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { dislikedComments: commentId } });
         });
     },
     likeComment(userId, commentId, likeStatus) {
@@ -142,7 +155,7 @@ exports.commentRepository = {
             if (likedStatusBefore === 'None') {
                 const likedUserField = likeStatus === 'Like' ? 'likedComments' : 'dislikedComments';
                 yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { [likedField]: 1 } });
-                yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { [likedUserField]: new mongodb_1.ObjectId(commentId) } });
+                yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { [likedUserField]: commentId } });
             }
             else if (likedStatusBefore === 'Like') {
                 // so likeStatus === 'Dislike'

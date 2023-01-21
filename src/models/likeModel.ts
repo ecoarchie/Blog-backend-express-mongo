@@ -17,8 +17,8 @@ export interface UsersLikesInfoModel extends LikesInfoModel {
 
 export interface UsersLikesDBModel {
   userId: ObjectId;
-  likedComments: ObjectId[];
-  dislikedComments: ObjectId[];
-  likedPosts: ObjectId[];
-  dislikedPosts: ObjectId[];
+  likedComments: string[];
+  dislikedComments: string[];
+  likedPosts: string[];
+  dislikedPosts: string[];
 }

@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId, Document } from 'mongodb';
 import { CommentDBModel, CommentViewModel } from '../models/commentModel';
 import { CommentReqQueryModel } from '../models/reqQueryModel';
 import { commentLikesCollection, commentsCollection, userLikesCollection } from './db';
@@ -39,7 +39,7 @@ export const commentRepository = {
   async getCommentsByPostId(
     postId: string,
     options: CommentReqQueryModel
-  ): Promise<CommentViewModel[]> {
+  ): Promise<Document[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
     const pipeline = [
@@ -48,16 +48,28 @@ export const commentRepository = {
       { $sort: sort },
       { $skip: options.skip },
       { $limit: options.pageSize },
-      { $project: { _id: 0, postId: 0 } },
+      {
+        $lookup: {
+          from: 'commentLikes',
+          localField: '_id',
+          foreignField: 'commentId',
+          as: 'likesInfo',
+        },
+      },
+      { $project: { _id: 0, postId: 0, 'likesInfo._id': 0, 'likesInfo.commentId': 0 } },
     ];
 
-    const comments: Array<CommentViewModel> = (
-      await commentsCollection.aggregate(pipeline).toArray()
-    ).map((comment) => {
-      comment.id = comment.id.toString();
-      comment.userId = comment.userId.toString();
-      return comment;
-    }) as Array<CommentViewModel>;
+    const comments = (await commentsCollection.aggregate(pipeline).toArray()).map(
+      (comment) => {
+        comment.id = comment.id.toString();
+        comment.userId = comment.userId.toString();
+        comment.likesInfo = comment.likesInfo[0]?.likesInfo || {
+          likesCount: 0,
+          dislikesCount: 0,
+        };
+        return comment;
+      }
+    );
     return comments;
   },
 
@@ -107,28 +119,28 @@ export const commentRepository = {
   async _addToUsersLikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
-      { $push: { likedComments: new ObjectId(commentId) } }
+      { $push: { likedComments: commentId } }
     );
   },
 
   async _removeFromUsersLikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
-      { $pull: { likedComments: new ObjectId(commentId) } }
+      { $pull: { likedComments: commentId } }
     );
   },
 
   async _addToUsersDislikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
-      { $push: { dislikedComments: new ObjectId(commentId) } }
+      { $push: { dislikedComments: commentId } }
     );
   },
 
   async _removeFromUsersDislikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
-      { $pull: { dislikedComments: new ObjectId(commentId) } }
+      { $pull: { dislikedComments: commentId } }
     );
   },
 
@@ -153,7 +165,7 @@ export const commentRepository = {
       );
       await userLikesCollection.updateOne(
         { userId: new ObjectId(userId) },
-        { $push: { [likedUserField]: new ObjectId(commentId) } }
+        { $push: { [likedUserField]: commentId } }
       );
     } else if (likedStatusBefore === 'Like') {
       // so likeStatus === 'Dislike'

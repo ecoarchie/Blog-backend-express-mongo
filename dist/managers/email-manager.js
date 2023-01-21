@@ -24,13 +24,6 @@ exports.emailManager = {
     }),
     sendEmailConfirmationMessage(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            // let transporter = nodemailer.createTransport({
-            //   service: 'gmail',
-            //   auth: {
-            //     user: 'app.cronosport@gmail.com',
-            //     pass: process.env.GMAIL_PASSWORD,
-            //   },
-            // });
             let info = yield this.transporter.sendMail({
                 from: 'BlogPost <app.cronosport.gmail.com>',
                 to: user.email,
@@ -41,13 +34,6 @@ exports.emailManager = {
     },
     sendPasswordRecoveryMessage(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            // let transporter = nodemailer.createTransport({
-            //   service: 'gmail',
-            //   auth: {
-            //     user: 'app.cronosport@gmail.com',
-            //     pass: process.env.GMAIL_PASSWORD,
-            //   },
-            // });
             let info = yield this.transporter.sendMail({
                 from: 'BlogPost <app.cronosport.gmail.com>',
                 to: user.email,

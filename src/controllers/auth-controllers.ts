@@ -23,11 +23,7 @@ export const loginUserController = async (req: Request, res: Response) => {
     const token = await jwtService.createJwt(userId);
     const lastActiveDate = new Date().toISOString();
     const deviceId = uuidv4();
-    const refreshToken = await jwtService.createJwtRefresh(
-      userId,
-      lastActiveDate,
-      deviceId
-    );
+    const refreshToken = await jwtService.createJwtRefresh(userId, lastActiveDate, deviceId);
 
     const title = req.useragent?.source;
     const ip = req.ip;
@@ -44,7 +40,7 @@ export const loginUserController = async (req: Request, res: Response) => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true, //TODO why not working with true option
+      secure: false, //TODO why not working with true option
     });
     res.status(200).send({ accessToken: token });
   } else {
@@ -98,9 +94,7 @@ export const regConfirmController = async (req: Request, res: Response) => {
 };
 
 export const resendRegEmailController = async (req: Request, res: Response) => {
-  let userByEmail: UserDBModel | null = await usersService.findUserByEmail(
-    req.body.email
-  );
+  let userByEmail: UserDBModel | null = await usersService.findUserByEmail(req.body.email);
 
   let updateResult: boolean = false;
   if (userByEmail && !userByEmail.emailConfirmation.isConfirmed) {
@@ -121,9 +115,7 @@ export const resendRegEmailController = async (req: Request, res: Response) => {
   }
 
   if (updateResult) {
-    userByEmail = (await usersService.findUserByEmail(
-      req.body.email
-    )) as UserDBModel;
+    userByEmail = (await usersService.findUserByEmail(req.body.email)) as UserDBModel;
     try {
       const result = await emailManager.sendEmailConfirmationMessage(userByEmail);
       res.sendStatus(204);
@@ -143,9 +135,7 @@ export const refreshTokenController = async (req: Request, res: Response) => {
   if (!validUserSession) {
     return res.sendStatus(401);
   } else {
-    const newAccessToken = await jwtService.createJwt(
-      validUserSession.userId.toString()
-    );
+    const newAccessToken = await jwtService.createJwt(validUserSession.userId.toString());
     const newActiveDate = new Date().toISOString();
     const newRefreshToken = await jwtService.createJwtRefresh(
       validUserSession.userId.toString(),
@@ -232,7 +222,9 @@ export const confirmPasswordController = async (req: Request, res: Response) => 
       ],
     });
   }
-  const updateRecoveryCodeAndPasswordResult =
-    await usersService.updateRecoveryCodeAndPassword(recoveryCode, newPassword);
+  const updateRecoveryCodeAndPasswordResult = await usersService.updateRecoveryCodeAndPassword(
+    recoveryCode,
+    newPassword
+  );
   res.sendStatus(204);
 };

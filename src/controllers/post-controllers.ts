@@ -4,6 +4,9 @@ import { commentRepository } from '../repositories/comments-repository';
 import { commentService } from '../service/comments-service';
 import { PostsService } from '../service/post-service';
 import { setCommentsQueryParams, setPostQueryParams } from './utils';
+import { jwtService } from '../application/jwt-service';
+import { userLikesCollection } from '../repositories/db';
+import { ObjectId } from 'mongodb';
 
 export class PostsController {
   postsService: PostsService;
@@ -68,18 +71,47 @@ export class PostsController {
   };
 
   getCommentsForPostController = async (req: Request, res: Response) => {
-    const isValidPost = await this.postsService.postsRepository.isPostExist(
-      req.params.postId
-    );
+    const isValidPost = await this.postsService.postsRepository.isPostExist(req.params.postId);
     if (!isValidPost) {
       res.sendStatus(404);
     } else {
       const options = setCommentsQueryParams(req.query);
-      const comments = await commentRepository.getCommentsByPostId(
-        req.params.postId,
-        options
-      );
+      let comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
 
+      const refreshToken = req.cookies?.refreshToken;
+      console.log(
+        '🚀 ~ file: post-controllers.ts:82 ~ PostsController ~ getCommentsForPostController= ~ cookies',
+        req.cookies
+      );
+      console.log(
+        '🚀 ~ file: post-controllers.ts:82 ~ PostsController ~ getCommentsForPostController= ~ refreshToken',
+        refreshToken
+      );
+      const validUserSession = await jwtService.verifyToken(refreshToken);
+      console.log(
+        '🚀 ~ file: post-controllers.ts:91 ~ PostsController ~ getCommentsForPostController= ~ validUserSession',
+        validUserSession
+      );
+      const currentUserId = validUserSession?.userId;
+      console.log(
+        '🚀 ~ file: post-controllers.ts:92 ~ PostsController ~ getCommentsForPostController= ~ currentUserId',
+        currentUserId
+      );
+      const userLikesDislikes = await userLikesCollection.findOne({ userId: currentUserId });
+      console.log(
+        '🚀 ~ file: post-controllers.ts:101 ~ PostsController ~ getCommentsForPostController= ~ userLikesDislikes',
+        userLikesDislikes
+      );
+      comments = comments.map((comment) => {
+        if (userLikesDislikes!.likedComments.includes(comment.id)) {
+          comment.likesInfo.myStatus = 'Like';
+        } else if (userLikesDislikes!.dislikedComments.includes(comment.id)) {
+          comment.likesInfo.myStatus = 'Disike';
+        } else {
+          comment.likesInfo.myStatus = 'None';
+        }
+        return comment;
+      });
       const totalCount: number = await commentRepository.countAllCommentsByPostId(
         req.params.postId
       );
@@ -96,11 +128,7 @@ export class PostsController {
   };
 
   createCommentForPostController = async (req: Request, res: Response) => {
-    if (
-      !(await this.postsService.postsRepository.isPostExist(
-        req.params.postId.toString()
-      ))
-    ) {
+    if (!(await this.postsService.postsRepository.isPostExist(req.params.postId.toString()))) {
       res.sendStatus(404);
       return;
     }
