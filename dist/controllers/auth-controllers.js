@@ -41,7 +41,7 @@ const loginUserController = (req, res) => __awaiter(void 0, void 0, void 0, func
         yield session_service_1.sessionService.addSession(deviceId, lastActiveDate, tokenExpireDate, ip, title, userId);
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: false, //TODO why not working with true option
+            secure: true, //TODO why not working with true option
         });
         res.status(200).send({ accessToken: token });
     }
