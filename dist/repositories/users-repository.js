@@ -172,19 +172,11 @@ exports.usersRepository = {
                 });
             }
             const resLiked = yield db_1.userLikesCollection.findOne({
-                $and: [
-                    { userId: new mongodb_1.ObjectId(userId) },
-                    { likedComments: new mongodb_1.ObjectId(commentId) },
-                ],
+                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { likedComments: new mongodb_1.ObjectId(commentId) }],
             });
-            console.log('🚀 ~ file: users-repository.ts:196 ~ resLiked', resLiked);
             const resDisliked = yield db_1.userLikesCollection.findOne({
-                $and: [
-                    { userId: new mongodb_1.ObjectId(userId) },
-                    { dislikedComments: new mongodb_1.ObjectId(commentId) },
-                ],
+                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { dislikedComments: new mongodb_1.ObjectId(commentId) }],
             });
-            console.log('🚀 ~ file: users-repository.ts:204 ~ resDisliked', resDisliked);
             let result = 'None';
             if (resLiked)
                 result = 'Like';

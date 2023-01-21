@@ -1,10 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { UserReqQueryModel } from '../models/reqQueryModel';
-import {
-  passwordRecoveryCodeModel,
-  UserDBModel,
-  UserViewModel,
-} from '../models/userModels';
+import { passwordRecoveryCodeModel, UserDBModel, UserViewModel } from '../models/userModels';
 import { userLikesCollection, usersCollection } from './db';
 import { UsersLikesDBModel } from '../models/likeModel';
 
@@ -93,10 +89,8 @@ export const usersRepository = {
   async findUserByLoginOrEmail(
     loginOrEmail: string | { login: string; email: string }
   ): Promise<UserDBModel | null> {
-    const login =
-      typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
-    const email =
-      typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
+    const login = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.login;
+    const email = typeof loginOrEmail === 'string' ? loginOrEmail : loginOrEmail.email;
     const result = await usersCollection.findOne({
       $or: [{ login: login }, { email: email }],
     });
@@ -153,10 +147,7 @@ export const usersRepository = {
     );
   },
 
-  async updateRecoveryCodeAndPassword(
-    recoveryCode: string,
-    hash: string
-  ): Promise<boolean> {
+  async updateRecoveryCodeAndPassword(recoveryCode: string, hash: string): Promise<boolean> {
     const result = await usersCollection.updateOne(
       { 'passwordRecovery.recoveryCode': recoveryCode },
       {
@@ -188,20 +179,12 @@ export const usersRepository = {
       });
     }
     const resLiked = await userLikesCollection.findOne({
-      $and: [
-        { userId: new ObjectId(userId) },
-        { likedComments: new ObjectId(commentId) },
-      ],
+      $and: [{ userId: new ObjectId(userId) }, { likedComments: new ObjectId(commentId) }],
     });
-    console.log('🚀 ~ file: users-repository.ts:196 ~ resLiked', resLiked);
 
     const resDisliked = await userLikesCollection.findOne({
-      $and: [
-        { userId: new ObjectId(userId) },
-        { dislikedComments: new ObjectId(commentId) },
-      ],
+      $and: [{ userId: new ObjectId(userId) }, { dislikedComments: new ObjectId(commentId) }],
     });
-    console.log('🚀 ~ file: users-repository.ts:204 ~ resDisliked', resDisliked);
     let result: 'None' | 'Like' | 'Dislike' = 'None';
     if (resLiked) result = 'Like';
     else if (resDisliked) result = 'Dislike';

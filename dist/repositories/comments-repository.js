@@ -132,7 +132,7 @@ exports.commentRepository = {
             const likedField = likeStatus === 'Like' ? 'likesInfo.likesCount' : 'likesInfo.dislikesCount';
             if (likedStatusBefore === likeStatus) {
                 return;
-                //below is method when double like/dislike cancels first like/dislike
+                //below is method when double like/dislike cancels first like/dislike.
                 // await commentLikesCollection.updateOne(
                 //   { commentId: new Object(commentId) },
                 //   { $inc: { [likedField]: -1 } }
