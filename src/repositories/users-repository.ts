@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { UserReqQueryModel } from '../models/reqQueryModel';
 import { passwordRecoveryCodeModel, UserDBModel, UserViewModel } from '../models/userModels';
 import { userLikesCollection, usersCollection } from './db';
-import { UsersLikesDBModel } from '../models/likeModel';
+import { LikeStatus, UsersLikesDBModel } from '../models/likeModel';
 
 export const usersRepository = {
   async deleteAllUsers() {
@@ -162,10 +162,7 @@ export const usersRepository = {
     return result.matchedCount === 1;
   },
 
-  async checkLikeStatus(
-    userId: string,
-    commentId: string
-  ): Promise<'None' | 'Like' | 'Dislike'> {
+  async checkLikeStatus(userId: string, commentId: string): Promise<LikeStatus> {
     const foundUser = await userLikesCollection.findOne({
       userId: new ObjectId(userId),
     });
@@ -181,15 +178,16 @@ export const usersRepository = {
     const resLiked = await userLikesCollection.findOne({
       $and: [{ userId: new ObjectId(userId) }, { likedComments: new ObjectId(commentId) }],
     });
-
+    if (resLiked) return 'Like';
     const resDisliked = await userLikesCollection.findOne({
       $and: [{ userId: new ObjectId(userId) }, { dislikedComments: new ObjectId(commentId) }],
     });
-    let result: 'None' | 'Like' | 'Dislike' = 'None';
-    if (resLiked) result = 'Like';
-    else if (resDisliked) result = 'Dislike';
-    else result = 'None';
-
-    return result;
+    if (resDisliked) return 'Dislike';
+    return 'None';
+    // let result: 'None' | 'Like' | 'Dislike' = 'None';
+    // if (resLiked) result = 'Like';
+    // else if (resDisliked) result = 'Dislike';
+    // else result = 'None';
+    // return result;
   },
 };

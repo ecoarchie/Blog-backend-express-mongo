@@ -102,6 +102,7 @@ exports.commentRepository = {
     deleteAllComments() {
         return __awaiter(this, void 0, void 0, function* () {
             yield db_1.commentLikesCollection.deleteMany({});
+            //TODO now it deletes whole userLikes collection, along with posts likes. Rewrite
             yield db_1.userLikesCollection.deleteMany({});
             return db_1.commentsCollection.deleteMany({});
         });

@@ -1,7 +1,9 @@
 import { ObjectId, WithId, Document } from 'mongodb';
 
+export type LikeStatus = 'None' | 'Like' | 'Dislike';
+
 export interface LikeInputModel {
-  likeStatus: 'None' | 'Like' | 'Dislike';
+  likeStatus: LikeStatus;
 }
 
 export interface LikesInfoModel {
@@ -10,7 +12,7 @@ export interface LikesInfoModel {
 }
 
 export interface UsersLikesInfoModel extends LikesInfoModel {
-  myStatus: 'None' | 'Like' | 'Dislike';
+  myStatus: LikeStatus;
 }
 
 export interface UsersLikesDBModel {

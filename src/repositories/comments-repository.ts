@@ -99,6 +99,7 @@ export const commentRepository = {
 
   async deleteAllComments() {
     await commentLikesCollection.deleteMany({});
+    //TODO now it deletes whole userLikes collection, along with posts likes. Rewrite
     await userLikesCollection.deleteMany({});
     return commentsCollection.deleteMany({});
   },

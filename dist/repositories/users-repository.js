@@ -174,17 +174,19 @@ exports.usersRepository = {
             const resLiked = yield db_1.userLikesCollection.findOne({
                 $and: [{ userId: new mongodb_1.ObjectId(userId) }, { likedComments: new mongodb_1.ObjectId(commentId) }],
             });
+            if (resLiked)
+                return 'Like';
             const resDisliked = yield db_1.userLikesCollection.findOne({
                 $and: [{ userId: new mongodb_1.ObjectId(userId) }, { dislikedComments: new mongodb_1.ObjectId(commentId) }],
             });
-            let result = 'None';
-            if (resLiked)
-                result = 'Like';
-            else if (resDisliked)
-                result = 'Dislike';
-            else
-                result = 'None';
-            return result;
+            if (resDisliked)
+                return 'Dislike';
+            return 'None';
+            // let result: 'None' | 'Like' | 'Dislike' = 'None';
+            // if (resLiked) result = 'Like';
+            // else if (resDisliked) result = 'Dislike';
+            // else result = 'None';
+            // return result;
         });
     },
 };
