@@ -40,7 +40,7 @@ class BlogsController {
                 res.sendStatus(404);
             }
             else {
-                const postCreated = yield post_service_1.postsService.createBlogPost(blog.id, req.body);
+                const postCreated = yield this.postsService.createBlogPost(blog.id, req.body);
                 res.status(201).send(postCreated);
             }
         });
@@ -75,8 +75,8 @@ class BlogsController {
             const blog = yield this.blogsService.findBlogById(req.params.blogId.toString());
             if (blog) {
                 const { pageNumber, pageSize, sortBy, sortDirection, skip } = (0, utils_1.setBlogQueryParams)(req.query);
-                const posts = yield post_service_1.postsService.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection);
-                const totalCount = yield post_service_1.postsService.countPostsByBlogId(blog.id.toString());
+                const posts = yield this.postsService.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection);
+                const totalCount = yield this.postsService.countPostsByBlogId(blog.id.toString());
                 const pagesCount = Math.ceil(totalCount / pageSize);
                 res.send({
                     pagesCount,
@@ -91,6 +91,7 @@ class BlogsController {
             }
         });
         this.blogsService = new blog_service_1.BlogsService();
+        this.postsService = new post_service_1.PostsService();
     }
 }
 exports.blogsController = new BlogsController();

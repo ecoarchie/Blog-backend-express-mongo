@@ -9,3 +9,4 @@ exports.commentRouter = (0, express_1.Router)();
 exports.commentRouter.get('/:id', comments_controllers_1.getCommentByIdController);
 exports.commentRouter.put('/:commentId', jwt_auth_mware_1.jwtAuthMware, (0, input_validation_middleware_1.commentBodyValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, comments_controllers_1.updateCommentByIdController);
 exports.commentRouter.delete('/:commentId', jwt_auth_mware_1.jwtAuthMware, comments_controllers_1.deleteCommentByIdController);
+exports.commentRouter.put('/:commentId/like-status', jwt_auth_mware_1.jwtAuthMware, (0, input_validation_middleware_1.LikeBodyValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, comments_controllers_1.likeCommentController);

@@ -2,13 +2,15 @@ import { Request, Response } from 'express';
 import { BlogViewModel } from '../models/blogModel';
 import { PostViewModel } from '../models/postModel';
 import { BlogsService } from '../service/blog-service';
-import { postsService } from '../service/post-service';
+import { PostsService } from '../service/post-service';
 import { setBlogQueryParams } from './utils';
 
 class BlogsController {
-  private blogsService: BlogsService;
+  public blogsService: BlogsService;
+  public postsService: PostsService;
   constructor() {
     this.blogsService = new BlogsService();
+    this.postsService = new PostsService();
   }
 
   getAllBlogs = async (req: Request, res: Response) => {
@@ -39,7 +41,7 @@ class BlogsController {
     if (!blog) {
       res.sendStatus(404);
     } else {
-      const postCreated: PostViewModel = await postsService.createBlogPost(
+      const postCreated: PostViewModel = await this.postsService.createBlogPost(
         blog.id!,
         req.body
       );
@@ -91,7 +93,7 @@ class BlogsController {
       const { pageNumber, pageSize, sortBy, sortDirection, skip } =
         setBlogQueryParams(req.query);
 
-      const posts: Array<BlogViewModel> = await postsService.findPostsByBlogId(
+      const posts: Array<BlogViewModel> = await this.postsService.findPostsByBlogId(
         blog.id!.toString(),
         skip,
         pageSize,
@@ -99,7 +101,7 @@ class BlogsController {
         sortDirection
       );
 
-      const totalCount: number = await postsService.countPostsByBlogId(
+      const totalCount: number = await this.postsService.countPostsByBlogId(
         blog.id!.toString()
       );
       const pagesCount: number = Math.ceil(totalCount / pageSize);

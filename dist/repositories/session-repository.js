@@ -25,7 +25,7 @@ exports.sessionRepository = {
                 return null;
             }
             else {
-                const jwtPayload = jsonwebtoken_1.default.verify(refreshToken, process.env.SECRET); //TODO how to avoid this?
+                const jwtPayload = jsonwebtoken_1.default.verify(refreshToken, process.env.SECRET);
                 const userId = jwtPayload.userId;
                 const result = yield db_1.userSessionCollection
                     .find({ userId: new mongodb_1.ObjectId(userId) })

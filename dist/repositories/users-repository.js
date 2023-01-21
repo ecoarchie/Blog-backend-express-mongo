@@ -157,4 +157,42 @@ exports.usersRepository = {
             return result.matchedCount === 1;
         });
     },
+    checkLikeStatus(userId, commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const foundUser = yield db_1.userLikesCollection.findOne({
+                userId: new mongodb_1.ObjectId(userId),
+            });
+            if (!foundUser) {
+                yield db_1.userLikesCollection.insertOne({
+                    userId: new mongodb_1.ObjectId(userId),
+                    likedComments: [],
+                    dislikedComments: [],
+                    likedPosts: [],
+                    dislikedPosts: [],
+                });
+            }
+            const resLiked = yield db_1.userLikesCollection.findOne({
+                $and: [
+                    { userId: new mongodb_1.ObjectId(userId) },
+                    { likedComments: new mongodb_1.ObjectId(commentId) },
+                ],
+            });
+            console.log('🚀 ~ file: users-repository.ts:196 ~ resLiked', resLiked);
+            const resDisliked = yield db_1.userLikesCollection.findOne({
+                $and: [
+                    { userId: new mongodb_1.ObjectId(userId) },
+                    { dislikedComments: new mongodb_1.ObjectId(commentId) },
+                ],
+            });
+            console.log('🚀 ~ file: users-repository.ts:204 ~ resDisliked', resDisliked);
+            let result = 'None';
+            if (resLiked)
+                result = 'Like';
+            else if (resDisliked)
+                result = 'Dislike';
+            else
+                result = 'None';
+            return result;
+        });
+    },
 };

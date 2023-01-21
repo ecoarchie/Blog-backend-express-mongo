@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.inputValidatiomMiddleware = exports.newPasswordValidation = exports.emailValidation = exports.commentBodyValidation = exports.userBodyValidation = exports.postBodyValidation = exports.blogBodyValidation = void 0;
+exports.inputValidatiomMiddleware = exports.LikeBodyValidation = exports.newPasswordValidation = exports.emailValidation = exports.commentBodyValidation = exports.userBodyValidation = exports.postBodyValidation = exports.blogBodyValidation = void 0;
 const express_validator_1 = require("express-validator");
 const blogBodyValidation = () => {
     return [
@@ -132,6 +132,20 @@ const newPasswordValidation = () => {
     ];
 };
 exports.newPasswordValidation = newPasswordValidation;
+const LikeBodyValidation = () => {
+    return [
+        (0, express_validator_1.check)('likeStatus')
+            .exists()
+            .withMessage('Like status is required')
+            .trim()
+            .not()
+            .isEmpty()
+            .withMessage('Like status cannot be empty')
+            .isIn(['None', 'Like', 'Dislike'])
+            .withMessage('Like must be None, Like or Dislike string'),
+    ];
+};
+exports.LikeBodyValidation = LikeBodyValidation;
 const inputValidatiomMiddleware = (req, res, next) => {
     const errorFormatter = ({ msg, param }) => {
         return { message: msg, field: param };

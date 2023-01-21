@@ -1,7 +1,12 @@
 import { ObjectId } from 'mongodb';
 import { CommentDBModel, CommentViewModel } from '../models/commentModel';
 import { CommentReqQueryModel } from '../models/reqQueryModel';
-import { commentsCollection } from './db';
+import {
+  commentLikesCollection,
+  commentsCollection,
+  userLikesCollection,
+} from './db';
+import { usersRepository } from './users-repository';
 
 export const commentRepository = {
   async getCommentById(id: string): Promise<CommentViewModel | null> {
@@ -61,7 +66,9 @@ export const commentRepository = {
   },
 
   async countAllCommentsByPostId(postId: string): Promise<number> {
-    const commentsCount = await commentsCollection.countDocuments({ postId: new ObjectId(postId) });
+    const commentsCount = await commentsCollection.countDocuments({
+      postId: new ObjectId(postId),
+    });
     return commentsCount;
   },
 
@@ -75,6 +82,13 @@ export const commentRepository = {
     };
 
     const result = await commentsCollection.insertOne(comment);
+    const commentLikeResult = await commentLikesCollection.insertOne({
+      commentId: result.insertedId!,
+      likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+      },
+    });
 
     const newComment: CommentViewModel = {
       id: result.insertedId!.toString(),
@@ -88,6 +102,82 @@ export const commentRepository = {
   },
 
   async deleteAllComments() {
+    await commentLikesCollection.deleteMany({});
+    await userLikesCollection.deleteMany({});
     return commentsCollection.deleteMany({});
+  },
+
+  async _addToUsersLikeList(userId: string, commentId: string) {
+    await userLikesCollection.updateOne(
+      { userId: new ObjectId(userId) },
+      { $push: { likedComments: new ObjectId(commentId) } }
+    );
+  },
+
+  async _removeFromUsersLikeList(userId: string, commentId: string) {
+    await userLikesCollection.updateOne(
+      { userId: new ObjectId(userId) },
+      { $pull: { likedComments: new ObjectId(commentId) } }
+    );
+  },
+
+  async _addToUsersDislikeList(userId: string, commentId: string) {
+    await userLikesCollection.updateOne(
+      { userId: new ObjectId(userId) },
+      { $push: { dislikedComments: new ObjectId(commentId) } }
+    );
+  },
+
+  async _removeFromUsersDislikeList(userId: string, commentId: string) {
+    await userLikesCollection.updateOne(
+      { userId: new ObjectId(userId) },
+      { $pull: { dislikedComments: new ObjectId(commentId) } }
+    );
+  },
+
+  async likeComment(userId: string, commentId: string, likeStatus: string) {
+    const likedStatusBefore = await usersRepository.checkLikeStatus(
+      userId,
+      commentId
+    );
+    const likedField =
+      likeStatus === 'Like' ? 'likesInfo.likesCount' : 'likesInfo.dislikesCount';
+    if (likedStatusBefore === likeStatus) {
+      return;
+      //below is method when double like/dislike cancels first like/dislike
+      // await commentLikesCollection.updateOne(
+      //   { commentId: new Object(commentId) },
+      //   { $inc: { [likedField]: -1 } }
+      // );
+    }
+
+    if (likedStatusBefore === 'None') {
+      const likedUserField =
+        likeStatus === 'Like' ? 'likedComments' : 'dislikedComments';
+      await commentLikesCollection.updateOne(
+        { commentId: new ObjectId(commentId) },
+        { $inc: { [likedField]: 1 } }
+      );
+      await userLikesCollection.updateOne(
+        { userId: new ObjectId(userId) },
+        { $push: { [likedUserField]: new ObjectId(commentId) } }
+      );
+    } else if (likedStatusBefore === 'Like') {
+      // so likeStatus === 'Dislike'
+      await commentLikesCollection.updateOne(
+        { commentId: new ObjectId(commentId) },
+        { $inc: { 'likesInfo.likesCount': -1, 'likesInfo.dislikesCount': 1 } }
+      );
+      await this._removeFromUsersLikeList(userId, commentId);
+      await this._addToUsersDislikeList(userId, commentId);
+    } else if (likedStatusBefore === 'Dislike') {
+      // so likeStatus === 'Like'
+      await commentLikesCollection.updateOne(
+        { commentId: new ObjectId(commentId) },
+        { $inc: { 'likesInfo.likesCount': 1, 'likesInfo.dislikesCount': -1 } }
+      );
+      await this._addToUsersLikeList(userId, commentId);
+      await this._removeFromUsersDislikeList(userId, commentId);
+    }
   },
 };

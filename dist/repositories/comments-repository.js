@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
+const users_repository_1 = require("./users-repository");
 exports.commentRepository = {
     getCommentById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -65,7 +66,9 @@ exports.commentRepository = {
     },
     countAllCommentsByPostId(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const commentsCount = yield db_1.commentsCollection.countDocuments({ postId: new mongodb_1.ObjectId(postId) });
+            const commentsCount = yield db_1.commentsCollection.countDocuments({
+                postId: new mongodb_1.ObjectId(postId),
+            });
             return commentsCount;
         });
     },
@@ -79,6 +82,13 @@ exports.commentRepository = {
                 createdAt: commentData.createdAt,
             };
             const result = yield db_1.commentsCollection.insertOne(comment);
+            const commentLikeResult = yield db_1.commentLikesCollection.insertOne({
+                commentId: result.insertedId,
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
+            });
             const newComment = {
                 id: result.insertedId.toString(),
                 content: commentData.content,
@@ -91,7 +101,60 @@ exports.commentRepository = {
     },
     deleteAllComments() {
         return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.commentLikesCollection.deleteMany({});
+            yield db_1.userLikesCollection.deleteMany({});
             return db_1.commentsCollection.deleteMany({});
+        });
+    },
+    _addToUsersLikeList(userId, commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { likedComments: new mongodb_1.ObjectId(commentId) } });
+        });
+    },
+    _removeFromUsersLikeList(userId, commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { likedComments: new mongodb_1.ObjectId(commentId) } });
+        });
+    },
+    _addToUsersDislikeList(userId, commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { dislikedComments: new mongodb_1.ObjectId(commentId) } });
+        });
+    },
+    _removeFromUsersDislikeList(userId, commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { dislikedComments: new mongodb_1.ObjectId(commentId) } });
+        });
+    },
+    likeComment(userId, commentId, likeStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const likedStatusBefore = yield users_repository_1.usersRepository.checkLikeStatus(userId, commentId);
+            const likedField = likeStatus === 'Like' ? 'likesInfo.likesCount' : 'likesInfo.dislikesCount';
+            if (likedStatusBefore === likeStatus) {
+                return;
+                //below is method when double like/dislike cancels first like/dislike
+                // await commentLikesCollection.updateOne(
+                //   { commentId: new Object(commentId) },
+                //   { $inc: { [likedField]: -1 } }
+                // );
+            }
+            if (likedStatusBefore === 'None') {
+                const likedUserField = likeStatus === 'Like' ? 'likedComments' : 'dislikedComments';
+                yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { [likedField]: 1 } });
+                yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { [likedUserField]: new mongodb_1.ObjectId(commentId) } });
+            }
+            else if (likedStatusBefore === 'Like') {
+                // so likeStatus === 'Dislike'
+                yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { 'likesInfo.likesCount': -1, 'likesInfo.dislikesCount': 1 } });
+                yield this._removeFromUsersLikeList(userId, commentId);
+                yield this._addToUsersDislikeList(userId, commentId);
+            }
+            else if (likedStatusBefore === 'Dislike') {
+                // so likeStatus === 'Like'
+                yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { 'likesInfo.likesCount': 1, 'likesInfo.dislikesCount': -1 } });
+                yield this._addToUsersLikeList(userId, commentId);
+                yield this._removeFromUsersDislikeList(userId, commentId);
+            }
         });
     },
 };

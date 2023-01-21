@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsService = exports.PostsService = void 0;
+exports.PostsService = void 0;
 const posts_repository_1 = require("../repositories/posts-repository");
 class PostsService {
     constructor() {
@@ -68,4 +68,4 @@ class PostsService {
     }
 }
 exports.PostsService = PostsService;
-exports.postsService = new PostsService();
+// export const postsService = new PostsService();

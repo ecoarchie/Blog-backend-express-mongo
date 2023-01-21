@@ -70,4 +70,26 @@ exports.commentService = {
             return createdComment;
         });
     },
+    likeCommentService(userId, commentId, likeStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const foundComment = yield this.getCommentByIdService(commentId);
+            if (!foundComment)
+                return 404;
+            try {
+                if (likeStatus === 'None')
+                    return 204;
+                const likeComment = yield comments_repository_1.commentRepository.likeComment(userId, commentId, likeStatus);
+                // const updateUsersLikes = await usersRepository.updateCommentLikes(
+                //   userId,
+                //   commentId,
+                //   likeStatus
+                // );
+                return 204;
+            }
+            catch (error) {
+                console.error(error);
+                return 404;
+            }
+        });
+    },
 };

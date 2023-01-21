@@ -1,6 +1,5 @@
 node_modules
 yarn.lock
-tsconfig.json
 jest.config.js
 __tests__
 .env

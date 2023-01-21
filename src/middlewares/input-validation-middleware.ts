@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { validationResult, ValidationError, body } from 'express-validator';
+import { validationResult, ValidationError, body, check } from 'express-validator';
 
 export const blogBodyValidation = () => {
   return [
@@ -134,6 +134,20 @@ export const newPasswordValidation = () => {
       .withMessage('Password cannot be empty')
       .isLength({ max: 20, min: 6 })
       .withMessage('Password should be between 6 and 20 symbols'),
+  ];
+};
+
+export const LikeBodyValidation = () => {
+  return [
+    check('likeStatus')
+      .exists()
+      .withMessage('Like status is required')
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage('Like status cannot be empty')
+      .isIn(['None', 'Like', 'Dislike'])
+      .withMessage('Like must be None, Like or Dislike string'),
   ];
 };
 

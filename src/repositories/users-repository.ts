@@ -5,7 +5,8 @@ import {
   UserDBModel,
   UserViewModel,
 } from '../models/userModels';
-import { usersCollection } from './db';
+import { userLikesCollection, usersCollection } from './db';
+import { UsersLikesDBModel } from '../models/likeModel';
 
 export const usersRepository = {
   async deleteAllUsers() {
@@ -168,5 +169,44 @@ export const usersRepository = {
       }
     );
     return result.matchedCount === 1;
+  },
+
+  async checkLikeStatus(
+    userId: string,
+    commentId: string
+  ): Promise<'None' | 'Like' | 'Dislike'> {
+    const foundUser = await userLikesCollection.findOne({
+      userId: new ObjectId(userId),
+    });
+    if (!foundUser) {
+      await userLikesCollection.insertOne({
+        userId: new ObjectId(userId),
+        likedComments: [],
+        dislikedComments: [],
+        likedPosts: [],
+        dislikedPosts: [],
+      });
+    }
+    const resLiked = await userLikesCollection.findOne({
+      $and: [
+        { userId: new ObjectId(userId) },
+        { likedComments: new ObjectId(commentId) },
+      ],
+    });
+    console.log('🚀 ~ file: users-repository.ts:196 ~ resLiked', resLiked);
+
+    const resDisliked = await userLikesCollection.findOne({
+      $and: [
+        { userId: new ObjectId(userId) },
+        { dislikedComments: new ObjectId(commentId) },
+      ],
+    });
+    console.log('🚀 ~ file: users-repository.ts:204 ~ resDisliked', resDisliked);
+    let result: 'None' | 'Like' | 'Dislike' = 'None';
+    if (resLiked) result = 'Like';
+    else if (resDisliked) result = 'Dislike';
+    else result = 'None';
+
+    return result;
   },
 };

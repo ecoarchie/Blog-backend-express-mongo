@@ -1,23 +1,29 @@
 import { ObjectId } from 'mongodb';
+import { LikesInfoModel } from './likeModel';
 
-export type CommentDBModel = {
+export interface CommentDBModel {
   _id?: ObjectId | null;
   postId: ObjectId;
   content: string;
   userId: ObjectId;
   userLogin: string;
   createdAt: string;
-};
+}
 
-export type CommentViewModel = {
+export interface CommentViewModel {
   id?: string;
   postId?: string;
   content: string;
   userId: string;
   userLogin: string;
   createdAt: string;
-};
+}
 
-export type CommentInputModel = {
+export interface CommentInputModel {
   content: string;
-};
+}
+
+export interface CommentLikesDBModel {
+  commentId: ObjectId;
+  likesInfo: LikesInfoModel;
+}

@@ -1,5 +1,6 @@
 import { CommentViewModel } from '../models/commentModel';
 import { commentRepository } from '../repositories/comments-repository';
+import { usersRepository } from '../repositories/users-repository';
 
 export const commentService = {
   async getCommentByIdService(id: string): Promise<CommentViewModel | null> {
@@ -29,7 +30,10 @@ export const commentService = {
     return result ? { status: 204 } : { status: 404 };
   },
 
-  async deleteCommentByIdService(userId: string, commentId: string): Promise<{ status: number }> {
+  async deleteCommentByIdService(
+    userId: string,
+    commentId: string
+  ): Promise<{ status: number }> {
     const deleteResponse = { status: 0 };
 
     const comment = await commentRepository.getCommentById(commentId);
@@ -65,5 +69,31 @@ export const commentService = {
     const createdComment = await commentRepository.createComment(commentToInsert);
 
     return createdComment;
+  },
+
+  async likeCommentService(
+    userId: string,
+    commentId: string,
+    likeStatus: string
+  ): Promise<number> {
+    const foundComment = await this.getCommentByIdService(commentId);
+    if (!foundComment) return 404;
+    try {
+      if (likeStatus === 'None') return 204;
+      const likeComment = await commentRepository.likeComment(
+        userId,
+        commentId,
+        likeStatus
+      );
+      // const updateUsersLikes = await usersRepository.updateCommentLikes(
+      //   userId,
+      //   commentId,
+      //   likeStatus
+      // );
+      return 204;
+    } catch (error) {
+      console.error(error);
+      return 404;
+    }
   },
 };

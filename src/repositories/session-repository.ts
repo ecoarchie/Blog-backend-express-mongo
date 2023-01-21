@@ -2,7 +2,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
 import { jwtService } from '../application/jwt-service';
 import { DeviceViewModel } from '../models/UserSessionModel';
-import { usersCollection, userSessionCollection } from './db';
+import { userSessionCollection } from './db';
 
 export const sessionRepository = {
   async getActiveSessions(refreshToken: string): Promise<DeviceViewModel[] | null> {
@@ -10,10 +10,7 @@ export const sessionRepository = {
     if (!isValidToken) {
       return null;
     } else {
-      const jwtPayload: JwtPayload = jwt.verify(
-        refreshToken,
-        process.env.SECRET!
-      ) as JwtPayload; //TODO how to avoid this?
+      const jwtPayload = jwt.verify(refreshToken, process.env.SECRET!) as JwtPayload;
       const userId = jwtPayload.userId;
       const result = await userSessionCollection
         .find({ userId: new ObjectId(userId) })

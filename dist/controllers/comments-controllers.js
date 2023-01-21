@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCommentByIdController = exports.updateCommentByIdController = exports.getCommentByIdController = void 0;
+exports.likeCommentController = exports.deleteCommentByIdController = exports.updateCommentByIdController = exports.getCommentByIdController = void 0;
 const comments_service_1 = require("../service/comments-service");
 const getCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const commentFound = yield comments_service_1.commentService.getCommentByIdService(req.params.id.toString());
@@ -34,3 +34,11 @@ const deleteCommentByIdController = (req, res) => __awaiter(void 0, void 0, void
     res.sendStatus(deleteResult.status);
 });
 exports.deleteCommentByIdController = deleteCommentByIdController;
+const likeCommentController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.id;
+    const commentId = req.params.commentId;
+    const likeStatus = req.body.likeStatus;
+    const resStatus = yield comments_service_1.commentService.likeCommentService(userId, commentId, likeStatus);
+    res.sendStatus(resStatus);
+});
+exports.likeCommentController = likeCommentController;

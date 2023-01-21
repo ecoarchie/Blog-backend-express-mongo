@@ -19,7 +19,7 @@ export class BlogsService {
 
   async createBlog(bodyJson: BlogInputModel): Promise<BlogViewModel> {
     const { name, description, websiteUrl } = bodyJson;
-    const blogToInsert: BlogDBModel = {
+    const blogToInsert = {
       name,
       description,
       websiteUrl,

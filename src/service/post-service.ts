@@ -67,4 +67,4 @@ export class PostsService {
     return this.postsRepository.countAllPosts();
   }
 }
-export const postsService = new PostsService();
+// export const postsService = new PostsService();
