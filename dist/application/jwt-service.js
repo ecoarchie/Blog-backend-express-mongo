@@ -19,14 +19,14 @@ const db_1 = require("../repositories/db");
 exports.jwtService = {
     createJwt(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const token = jsonwebtoken_1.default.sign({ userId }, process.env.SECRET, { expiresIn: '2h' });
+            const token = jsonwebtoken_1.default.sign({ userId }, process.env.SECRET, { expiresIn: '20m' });
             return token;
         });
     },
     createJwtRefresh(userId, lastActiveDate, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             const token = jsonwebtoken_1.default.sign({ userId, lastActiveDate, deviceId }, process.env.SECRET, {
-                expiresIn: '20h',
+                expiresIn: '4h',
             });
             return token;
         });
