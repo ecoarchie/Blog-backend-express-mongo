@@ -5,18 +5,34 @@ import { commentLikesCollection, commentsCollection, userLikesCollection } from 
 import { usersRepository } from './users-repository';
 
 export const commentRepository = {
-  async getCommentById(id: string): Promise<CommentViewModel | null> {
-    if (!ObjectId.isValid(id)) return null;
+  async getCommentById(commentId: string, userId: string): Promise<CommentViewModel | null> {
+    if (!ObjectId.isValid(commentId)) return null;
 
-    const commentFound = await commentsCollection.findOne({ _id: new ObjectId(id) });
+    const commentFound = await commentsCollection.findOne({ _id: new ObjectId(commentId) });
     let commentView: CommentViewModel | null = null;
     if (commentFound) {
+      const likesInfo = await commentLikesCollection.findOne({
+        commentId: new ObjectId(commentId),
+      });
+      const userLikesDislikes = await userLikesCollection.findOne({
+        userId: new ObjectId(userId),
+      });
+      let myStatus;
+      if (userLikesDislikes!.likedComments.includes(commentId)) {
+        myStatus = 'Like';
+      } else if (userLikesDislikes!.dislikedComments.includes(commentId)) {
+        myStatus = 'Disike';
+      } else {
+        myStatus = 'None';
+      }
+
       commentView = {
         id: commentFound._id!.toString(),
         content: commentFound.content,
         userId: commentFound.userId.toString(),
         userLogin: commentFound.userLogin,
         createdAt: commentFound.createdAt,
+        likesInfo: { ...likesInfo!.likesInfo, myStatus: myStatus },
       };
     }
     return commentView;
@@ -32,6 +48,7 @@ export const commentRepository = {
 
   async deleteCommentById(id: string) {
     const result = await commentsCollection.deleteOne({ _id: new ObjectId(id) });
+    //TODO delete comment mentions from all users likes, also delete comment likes
 
     return result.deletedCount === 1;
   },
@@ -104,6 +121,11 @@ export const commentRepository = {
       userId: commentData.userId,
       userLogin: commentData.userLogin,
       createdAt: commentData.createdAt,
+      likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+      },
     };
 
     return newComment;

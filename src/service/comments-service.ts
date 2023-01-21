@@ -3,8 +3,11 @@ import { commentRepository } from '../repositories/comments-repository';
 import { usersRepository } from '../repositories/users-repository';
 
 export const commentService = {
-  async getCommentByIdService(id: string): Promise<CommentViewModel | null> {
-    return commentRepository.getCommentById(id);
+  async getCommentByIdService(
+    commentId: string,
+    userId: string
+  ): Promise<CommentViewModel | null> {
+    return commentRepository.getCommentById(commentId, userId);
   },
 
   async updateCommentByIdService(
@@ -13,7 +16,7 @@ export const commentService = {
     content: string
   ): Promise<{ status: number }> {
     const updateResponse = { status: 0 };
-    const comment = await commentRepository.getCommentById(commentId);
+    const comment = await commentRepository.getCommentById(commentId, userId);
     let commentOwner;
     if (comment) {
       commentOwner = comment.userId;
@@ -36,7 +39,7 @@ export const commentService = {
   ): Promise<{ status: number }> {
     const deleteResponse = { status: 0 };
 
-    const comment = await commentRepository.getCommentById(commentId);
+    const comment = await commentRepository.getCommentById(commentId, userId);
     let commentOwner;
     if (comment) {
       commentOwner = comment.userId;
@@ -76,15 +79,11 @@ export const commentService = {
     commentId: string,
     likeStatus: string
   ): Promise<number> {
-    const foundComment = await this.getCommentByIdService(commentId);
+    const foundComment = await this.getCommentByIdService(commentId, userId);
     if (!foundComment) return 404;
     try {
       if (likeStatus === 'None') return 204;
-      const likeComment = await commentRepository.likeComment(
-        userId,
-        commentId,
-        likeStatus
-      );
+      const likeComment = await commentRepository.likeComment(userId, commentId, likeStatus);
       // const updateUsersLikes = await usersRepository.updateCommentLikes(
       //   userId,
       //   commentId,

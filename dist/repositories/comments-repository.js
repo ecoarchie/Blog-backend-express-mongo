@@ -14,19 +14,36 @@ const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
 const users_repository_1 = require("./users-repository");
 exports.commentRepository = {
-    getCommentById(id) {
+    getCommentById(commentId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongodb_1.ObjectId.isValid(id))
+            if (!mongodb_1.ObjectId.isValid(commentId))
                 return null;
-            const commentFound = yield db_1.commentsCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+            const commentFound = yield db_1.commentsCollection.findOne({ _id: new mongodb_1.ObjectId(commentId) });
             let commentView = null;
             if (commentFound) {
+                const likesInfo = yield db_1.commentLikesCollection.findOne({
+                    commentId: new mongodb_1.ObjectId(commentId),
+                });
+                const userLikesDislikes = yield db_1.userLikesCollection.findOne({
+                    userId: new mongodb_1.ObjectId(userId),
+                });
+                let myStatus;
+                if (userLikesDislikes.likedComments.includes(commentId)) {
+                    myStatus = 'Like';
+                }
+                else if (userLikesDislikes.dislikedComments.includes(commentId)) {
+                    myStatus = 'Disike';
+                }
+                else {
+                    myStatus = 'None';
+                }
                 commentView = {
                     id: commentFound._id.toString(),
                     content: commentFound.content,
                     userId: commentFound.userId.toString(),
                     userLogin: commentFound.userLogin,
                     createdAt: commentFound.createdAt,
+                    likesInfo: Object.assign(Object.assign({}, likesInfo.likesInfo), { myStatus: myStatus }),
                 };
             }
             return commentView;
@@ -41,6 +58,7 @@ exports.commentRepository = {
     deleteCommentById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.commentsCollection.deleteOne({ _id: new mongodb_1.ObjectId(id) });
+            //TODO delete comment mentions from all users likes, also delete comment likes
             return result.deletedCount === 1;
         });
     },
@@ -108,6 +126,11 @@ exports.commentRepository = {
                 userId: commentData.userId,
                 userLogin: commentData.userLogin,
                 createdAt: commentData.createdAt,
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    myStatus: 'None',
+                },
             };
             return newComment;
         });

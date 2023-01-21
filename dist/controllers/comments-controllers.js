@@ -11,8 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.likeCommentController = exports.deleteCommentByIdController = exports.updateCommentByIdController = exports.getCommentByIdController = void 0;
 const comments_service_1 = require("../service/comments-service");
+const jwt_service_1 = require("../application/jwt-service");
 const getCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const commentFound = yield comments_service_1.commentService.getCommentByIdService(req.params.id.toString());
+    var _a;
+    const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
+    const validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
+    const currentUserId = validUserSession.userId;
+    const commentFound = yield comments_service_1.commentService.getCommentByIdService(req.params.id.toString(), currentUserId.toString());
     if (commentFound) {
         res.status(200).send(commentFound);
     }

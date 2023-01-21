@@ -12,15 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentService = void 0;
 const comments_repository_1 = require("../repositories/comments-repository");
 exports.commentService = {
-    getCommentByIdService(id) {
+    getCommentByIdService(commentId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return comments_repository_1.commentRepository.getCommentById(id);
+            return comments_repository_1.commentRepository.getCommentById(commentId, userId);
         });
     },
     updateCommentByIdService(commentId, userId, content) {
         return __awaiter(this, void 0, void 0, function* () {
             const updateResponse = { status: 0 };
-            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId);
+            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId, userId);
             let commentOwner;
             if (comment) {
                 commentOwner = comment.userId;
@@ -40,7 +40,7 @@ exports.commentService = {
     deleteCommentByIdService(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
             const deleteResponse = { status: 0 };
-            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId);
+            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId, userId);
             let commentOwner;
             if (comment) {
                 commentOwner = comment.userId;
@@ -72,7 +72,7 @@ exports.commentService = {
     },
     likeCommentService(userId, commentId, likeStatus) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundComment = yield this.getCommentByIdService(commentId);
+            const foundComment = yield this.getCommentByIdService(commentId, userId);
             if (!foundComment)
                 return 404;
             try {

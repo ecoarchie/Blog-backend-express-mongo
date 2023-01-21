@@ -79,29 +79,9 @@ export class PostsController {
       let comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
 
       const refreshToken = req.cookies?.refreshToken;
-      console.log(
-        '🚀 ~ file: post-controllers.ts:82 ~ PostsController ~ getCommentsForPostController= ~ cookies',
-        req.cookies
-      );
-      console.log(
-        '🚀 ~ file: post-controllers.ts:82 ~ PostsController ~ getCommentsForPostController= ~ refreshToken',
-        refreshToken
-      );
       const validUserSession = await jwtService.verifyToken(refreshToken);
-      console.log(
-        '🚀 ~ file: post-controllers.ts:91 ~ PostsController ~ getCommentsForPostController= ~ validUserSession',
-        validUserSession
-      );
       const currentUserId = validUserSession?.userId;
-      console.log(
-        '🚀 ~ file: post-controllers.ts:92 ~ PostsController ~ getCommentsForPostController= ~ currentUserId',
-        currentUserId
-      );
       const userLikesDislikes = await userLikesCollection.findOne({ userId: currentUserId });
-      console.log(
-        '🚀 ~ file: post-controllers.ts:101 ~ PostsController ~ getCommentsForPostController= ~ userLikesDislikes',
-        userLikesDislikes
-      );
       comments = comments.map((comment) => {
         if (userLikesDislikes!.likedComments.includes(comment.id)) {
           comment.likesInfo.myStatus = 'Like';
