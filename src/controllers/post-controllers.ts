@@ -6,7 +6,8 @@ import { PostsService } from '../service/post-service';
 import { setCommentsQueryParams, setPostQueryParams } from './utils';
 import { jwtService } from '../application/jwt-service';
 import { userLikesCollection } from '../repositories/db';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
+import { UsersLikesDBModel } from '../models/likeModel';
 
 export class PostsController {
   postsService: PostsService;
@@ -79,11 +80,20 @@ export class PostsController {
       let comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
 
       const refreshToken = req.cookies?.refreshToken;
-      const validUserSession = await jwtService.verifyToken(refreshToken);
-      const currentUserId = validUserSession?.userId;
-      const userLikesDislikes = await userLikesCollection.findOne({ userId: currentUserId });
+      let validUserSession;
+      let currentUserId;
+      let userLikesDislikes: WithId<UsersLikesDBModel> | null;
+      if (refreshToken) {
+        validUserSession = await jwtService.verifyToken(refreshToken);
+        currentUserId = validUserSession?.userId;
+        userLikesDislikes = await userLikesCollection.findOne({ userId: currentUserId });
+      } else {
+        userLikesDislikes = null;
+      }
       comments = comments.map((comment) => {
-        if (userLikesDislikes!.likedComments.includes(comment.id)) {
+        if (!userLikesDislikes) {
+          comment.likesInfo.myStatus = 'None';
+        } else if (userLikesDislikes!.likedComments.includes(comment.id)) {
           comment.likesInfo.myStatus = 'Like';
         } else if (userLikesDislikes!.dislikedComments.includes(comment.id)) {
           comment.likesInfo.myStatus = 'Disike';

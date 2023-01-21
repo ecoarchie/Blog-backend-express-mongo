@@ -74,11 +74,22 @@ class PostsController {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
                 let comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
                 const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
-                const validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
-                const currentUserId = validUserSession === null || validUserSession === void 0 ? void 0 : validUserSession.userId;
-                const userLikesDislikes = yield db_1.userLikesCollection.findOne({ userId: currentUserId });
+                let validUserSession;
+                let currentUserId;
+                let userLikesDislikes;
+                if (refreshToken) {
+                    validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
+                    currentUserId = validUserSession === null || validUserSession === void 0 ? void 0 : validUserSession.userId;
+                    userLikesDislikes = yield db_1.userLikesCollection.findOne({ userId: currentUserId });
+                }
+                else {
+                    userLikesDislikes = null;
+                }
                 comments = comments.map((comment) => {
-                    if (userLikesDislikes.likedComments.includes(comment.id)) {
+                    if (!userLikesDislikes) {
+                        comment.likesInfo.myStatus = 'None';
+                    }
+                    else if (userLikesDislikes.likedComments.includes(comment.id)) {
                         comment.likesInfo.myStatus = 'Like';
                     }
                     else if (userLikesDislikes.dislikedComments.includes(comment.id)) {
