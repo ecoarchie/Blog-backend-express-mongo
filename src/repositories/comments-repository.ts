@@ -18,12 +18,16 @@ export const commentRepository = {
         userId: new ObjectId(userId),
       });
       let myStatus;
-      if (userLikesDislikes!.likedComments.includes(commentId)) {
-        myStatus = 'Like';
-      } else if (userLikesDislikes!.dislikedComments.includes(commentId)) {
-        myStatus = 'Disike';
-      } else {
+      if (!userLikesDislikes) {
         myStatus = 'None';
+      } else {
+        if (userLikesDislikes!.likedComments.includes(commentId)) {
+          myStatus = 'Like';
+        } else if (userLikesDislikes!.dislikedComments.includes(commentId)) {
+          myStatus = 'Disike';
+        } else {
+          myStatus = 'None';
+        }
       }
 
       commentView = {

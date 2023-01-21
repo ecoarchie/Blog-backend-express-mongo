@@ -28,14 +28,19 @@ exports.commentRepository = {
                     userId: new mongodb_1.ObjectId(userId),
                 });
                 let myStatus;
-                if (userLikesDislikes.likedComments.includes(commentId)) {
-                    myStatus = 'Like';
-                }
-                else if (userLikesDislikes.dislikedComments.includes(commentId)) {
-                    myStatus = 'Disike';
+                if (!userLikesDislikes) {
+                    myStatus = 'None';
                 }
                 else {
-                    myStatus = 'None';
+                    if (userLikesDislikes.likedComments.includes(commentId)) {
+                        myStatus = 'Like';
+                    }
+                    else if (userLikesDislikes.dislikedComments.includes(commentId)) {
+                        myStatus = 'Disike';
+                    }
+                    else {
+                        myStatus = 'None';
+                    }
                 }
                 commentView = {
                     id: commentFound._id.toString(),

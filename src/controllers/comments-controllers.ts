@@ -5,8 +5,14 @@ import { jwtService } from '../application/jwt-service';
 
 export const getCommentByIdController = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
-  const validUserSession = await jwtService.verifyToken(refreshToken);
-  const currentUserId = validUserSession!.userId;
+  let validUserSession;
+  let currentUserId;
+  if (refreshToken) {
+    validUserSession = await jwtService.verifyToken(refreshToken);
+    currentUserId = validUserSession!.userId;
+  } else {
+    currentUserId = '';
+  }
   const commentFound: CommentViewModel | null = await commentService.getCommentByIdService(
     req.params.id.toString(),
     currentUserId.toString()

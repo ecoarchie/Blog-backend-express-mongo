@@ -15,8 +15,15 @@ const jwt_service_1 = require("../application/jwt-service");
 const getCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
-    const validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
-    const currentUserId = validUserSession.userId;
+    let validUserSession;
+    let currentUserId;
+    if (refreshToken) {
+        validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
+        currentUserId = validUserSession.userId;
+    }
+    else {
+        currentUserId = '';
+    }
     const commentFound = yield comments_service_1.commentService.getCommentByIdService(req.params.id.toString(), currentUserId.toString());
     if (commentFound) {
         res.status(200).send(commentFound);
