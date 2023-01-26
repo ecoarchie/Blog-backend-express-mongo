@@ -4,19 +4,7 @@ import { commentService } from '../service/comments-service';
 import { jwtService } from '../application/jwt-service';
 
 export const getCommentByIdController = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies?.refreshToken;
-  console.log(
-    '🚀 ~ file: comments-controllers.ts:8 ~ getCommentByIdController ~ refreshToken',
-    refreshToken
-  );
-  let validUserSession;
-  let currentUserId;
-  if (refreshToken) {
-    validUserSession = await jwtService.verifyToken(refreshToken);
-    currentUserId = validUserSession!.userId;
-  } else {
-    currentUserId = '';
-  }
+  let currentUserId = req.user?.id || '';
   const commentFound: CommentViewModel | null = await commentService.getCommentByIdService(
     req.params.id.toString(),
     currentUserId.toString()

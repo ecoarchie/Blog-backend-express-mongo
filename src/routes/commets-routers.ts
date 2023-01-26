@@ -10,11 +10,11 @@ import {
   commentBodyValidation,
   inputValidatiomMiddleware,
 } from '../middlewares/input-validation-middleware';
-import { jwtAuthMware } from '../middlewares/jwt-auth-mware';
+import { accessTokenValidation, jwtAuthMware } from '../middlewares/jwt-auth-mware';
 
 export const commentRouter = Router();
 
-commentRouter.get('/:id', getCommentByIdController);
+commentRouter.get('/:id', accessTokenValidation, getCommentByIdController);
 
 commentRouter.put(
   '/:commentId',

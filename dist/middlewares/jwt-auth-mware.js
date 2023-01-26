@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.jwtAuthMware = void 0;
+exports.accessTokenValidation = exports.jwtAuthMware = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 const jwt_service_1 = require("../application/jwt-service");
 const user_service_1 = require("../service/user-service");
@@ -31,3 +31,18 @@ const jwtAuthMware = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     res.sendStatus(401);
 });
 exports.jwtAuthMware = jwtAuthMware;
+const accessTokenValidation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const authorization = req.headers.authorization;
+    if (!authorization) {
+        req.user = null;
+        return next();
+    }
+    const token = authorization.split(' ')[1];
+    const userId = yield jwt_service_1.jwtService.getUserIdByToken(token);
+    if (userId) {
+        req.user = yield user_service_1.usersService.findUserByIdService(userId);
+        return next();
+    }
+    return next();
+});
+exports.accessTokenValidation = accessTokenValidation;
