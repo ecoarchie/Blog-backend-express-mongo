@@ -43,10 +43,12 @@ export const commentRepository = {
       commentView = {
         id: commentFound._id!.toString(),
         content: commentFound.content,
-        userId: commentFound.userId.toString(),
-        userLogin: commentFound.userLogin,
         createdAt: commentFound.createdAt,
         likesInfo: { ...likesInfo!.likesInfo, myStatus: myStatus },
+        commentatorInfo: {
+          userId: commentFound.userId.toString(),
+          userLogin: commentFound.userLogin,
+        },
       };
     }
     return commentView;
@@ -115,8 +117,8 @@ export const commentRepository = {
     const comment: CommentDBModel = {
       postId: new ObjectId(commentData.postId),
       content: commentData.content,
-      userId: new ObjectId(commentData.userId),
-      userLogin: commentData.userLogin,
+      userId: new ObjectId(commentData.commentatorInfo.userId),
+      userLogin: commentData.commentatorInfo.userLogin,
       createdAt: commentData.createdAt,
     };
 
@@ -132,8 +134,10 @@ export const commentRepository = {
     const newComment: CommentViewModel = {
       id: result.insertedId!.toString(),
       content: commentData.content,
-      userId: commentData.userId,
-      userLogin: commentData.userLogin,
+      commentatorInfo: {
+        userId: commentData.commentatorInfo.userId,
+        userLogin: commentData.commentatorInfo.userLogin,
+      },
       createdAt: commentData.createdAt,
       likesInfo: {
         likesCount: 0,

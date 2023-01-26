@@ -53,10 +53,12 @@ exports.commentRepository = {
                 commentView = {
                     id: commentFound._id.toString(),
                     content: commentFound.content,
-                    userId: commentFound.userId.toString(),
-                    userLogin: commentFound.userLogin,
                     createdAt: commentFound.createdAt,
                     likesInfo: Object.assign(Object.assign({}, likesInfo.likesInfo), { myStatus: myStatus }),
+                    commentatorInfo: {
+                        userId: commentFound.userId.toString(),
+                        userLogin: commentFound.userLogin,
+                    },
                 };
             }
             return commentView;
@@ -121,8 +123,8 @@ exports.commentRepository = {
             const comment = {
                 postId: new mongodb_1.ObjectId(commentData.postId),
                 content: commentData.content,
-                userId: new mongodb_1.ObjectId(commentData.userId),
-                userLogin: commentData.userLogin,
+                userId: new mongodb_1.ObjectId(commentData.commentatorInfo.userId),
+                userLogin: commentData.commentatorInfo.userLogin,
                 createdAt: commentData.createdAt,
             };
             const result = yield db_1.commentsCollection.insertOne(comment);
@@ -136,8 +138,10 @@ exports.commentRepository = {
             const newComment = {
                 id: result.insertedId.toString(),
                 content: commentData.content,
-                userId: commentData.userId,
-                userLogin: commentData.userLogin,
+                commentatorInfo: {
+                    userId: commentData.commentatorInfo.userId,
+                    userLogin: commentData.commentatorInfo.userLogin,
+                },
                 createdAt: commentData.createdAt,
                 likesInfo: {
                     likesCount: 0,

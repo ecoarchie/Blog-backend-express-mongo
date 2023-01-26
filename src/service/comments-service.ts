@@ -19,7 +19,7 @@ export const commentService = {
     const comment = await commentRepository.getCommentById(commentId, userId);
     let commentOwner;
     if (comment) {
-      commentOwner = comment.userId;
+      commentOwner = comment.commentatorInfo.userId;
     } else {
       updateResponse.status = 404;
       return updateResponse;
@@ -42,7 +42,7 @@ export const commentService = {
     const comment = await commentRepository.getCommentById(commentId, userId);
     let commentOwner;
     if (comment) {
-      commentOwner = comment.userId;
+      commentOwner = comment.commentatorInfo.userId;
     } else {
       deleteResponse.status = 404;
       return deleteResponse;
@@ -64,8 +64,7 @@ export const commentService = {
     const commentToInsert: CommentViewModel = {
       postId,
       content,
-      userId,
-      userLogin,
+      commentatorInfo: { userId, userLogin },
       createdAt: new Date().toISOString(),
     };
 

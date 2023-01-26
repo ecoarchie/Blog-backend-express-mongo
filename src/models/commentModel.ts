@@ -14,9 +14,11 @@ export interface CommentViewModel {
   id?: string;
   postId?: string;
   content: string;
-  userId: string;
-  userLogin: string;
   createdAt: string;
+  commentatorInfo: {
+    userId: string;
+    userLogin: string;
+  };
   likesInfo?: {
     likesCount: number;
     dislikesCount: number;

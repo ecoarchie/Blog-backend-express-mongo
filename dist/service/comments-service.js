@@ -23,7 +23,7 @@ exports.commentService = {
             const comment = yield comments_repository_1.commentRepository.getCommentById(commentId, userId);
             let commentOwner;
             if (comment) {
-                commentOwner = comment.userId;
+                commentOwner = comment.commentatorInfo.userId;
             }
             else {
                 updateResponse.status = 404;
@@ -43,7 +43,7 @@ exports.commentService = {
             const comment = yield comments_repository_1.commentRepository.getCommentById(commentId, userId);
             let commentOwner;
             if (comment) {
-                commentOwner = comment.userId;
+                commentOwner = comment.commentatorInfo.userId;
             }
             else {
                 deleteResponse.status = 404;
@@ -62,8 +62,7 @@ exports.commentService = {
             const commentToInsert = {
                 postId,
                 content,
-                userId,
-                userLogin,
+                commentatorInfo: { userId, userLogin },
                 createdAt: new Date().toISOString(),
             };
             const createdComment = yield comments_repository_1.commentRepository.createComment(commentToInsert);
