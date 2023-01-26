@@ -28,7 +28,10 @@ export const commentRepository = {
         );
       }
       let myStatus;
-      if (!userLikesDislikes) {
+      if (
+        !userLikesDislikes?.likedComments.includes(commentId) &&
+        !userLikesDislikes?.dislikedComments.includes(commentId)
+      ) {
         myStatus = 'None';
       } else {
         if (userLikesDislikes!.likedComments.includes(commentId)) {

@@ -73,7 +73,6 @@ class PostsController {
             else {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
                 let comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
-                let validUserSession;
                 let currentUserId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 let userLikesDislikes;
                 if (currentUserId) {
@@ -85,7 +84,8 @@ class PostsController {
                     userLikesDislikes = null;
                 }
                 comments = comments.map((comment) => {
-                    if (!userLikesDislikes) {
+                    if (!(userLikesDislikes === null || userLikesDislikes === void 0 ? void 0 : userLikesDislikes.likedComments.includes(comment.id)) &&
+                        !(userLikesDislikes === null || userLikesDislikes === void 0 ? void 0 : userLikesDislikes.dislikedComments.includes(comment.id))) {
                         comment.likesInfo.myStatus = 'None';
                     }
                     else if (userLikesDislikes.likedComments.includes(comment.id)) {

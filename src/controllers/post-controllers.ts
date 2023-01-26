@@ -79,7 +79,6 @@ export class PostsController {
       const options = setCommentsQueryParams(req.query);
       let comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
 
-      let validUserSession;
       let currentUserId = req.user?.id;
       let userLikesDislikes: WithId<UsersLikesDBModel> | null;
       if (currentUserId) {
@@ -90,7 +89,10 @@ export class PostsController {
         userLikesDislikes = null;
       }
       comments = comments.map((comment) => {
-        if (!userLikesDislikes) {
+        if (
+          !userLikesDislikes?.likedComments.includes(comment.id) &&
+          !userLikesDislikes?.dislikedComments.includes(comment.id)
+        ) {
           comment.likesInfo.myStatus = 'None';
         } else if (userLikesDislikes!.likedComments.includes(comment.id)) {
           comment.likesInfo.myStatus = 'Like';

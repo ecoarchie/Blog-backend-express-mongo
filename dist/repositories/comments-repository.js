@@ -36,7 +36,8 @@ exports.commentRepository = {
                     console.log('🚀 ~ file: comments-repository.ts:24 ~ getCommentById ~ userLikesDislikes', userLikesDislikes);
                 }
                 let myStatus;
-                if (!userLikesDislikes) {
+                if (!(userLikesDislikes === null || userLikesDislikes === void 0 ? void 0 : userLikesDislikes.likedComments.includes(commentId)) &&
+                    !(userLikesDislikes === null || userLikesDislikes === void 0 ? void 0 : userLikesDislikes.dislikedComments.includes(commentId))) {
                     myStatus = 'None';
                 }
                 else {
