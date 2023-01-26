@@ -14,8 +14,8 @@ const comments_repository_1 = require("../repositories/comments-repository");
 const comments_service_1 = require("../service/comments-service");
 const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
-const jwt_service_1 = require("../application/jwt-service");
 const db_1 = require("../repositories/db");
+const mongodb_1 = require("mongodb");
 class PostsController {
     constructor() {
         this.getAllPostsController = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -73,16 +73,13 @@ class PostsController {
             else {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
                 let comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
-                const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
-                const cookie = req.cookies;
-                console.log('🚀 ~ file: post-controllers.ts:83 ~ PostsController ~ getCommentsForPostController= ~ cookie', cookie);
                 let validUserSession;
-                let currentUserId;
+                let currentUserId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 let userLikesDislikes;
-                if (refreshToken) {
-                    validUserSession = yield jwt_service_1.jwtService.verifyToken(refreshToken);
-                    currentUserId = validUserSession === null || validUserSession === void 0 ? void 0 : validUserSession.userId;
-                    userLikesDislikes = yield db_1.userLikesCollection.findOne({ userId: currentUserId });
+                if (currentUserId) {
+                    userLikesDislikes = yield db_1.userLikesCollection.findOne({
+                        userId: new mongodb_1.ObjectId(currentUserId),
+                    });
                 }
                 else {
                     userLikesDislikes = null;

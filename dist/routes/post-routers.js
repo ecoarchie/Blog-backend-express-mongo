@@ -13,5 +13,5 @@ exports.postRouter.post('/', basic_auth_middleware_1.basicAuthMiddleware, blog_i
 exports.postRouter.get('/:id', post_controllers_1.postsController.findPostByIdController);
 exports.postRouter.put('/:id', basic_auth_middleware_1.basicAuthMiddleware, blog_id_custom_validator_1.isValidBlogId, (0, input_validation_middleware_1.postBodyValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, post_controllers_1.postsController.updatePostByIdController);
 exports.postRouter.delete('/:id', basic_auth_middleware_1.basicAuthMiddleware, post_controllers_1.postsController.deletePostByIdController);
-exports.postRouter.get('/:postId/comments', post_controllers_1.postsController.getCommentsForPostController);
+exports.postRouter.get('/:postId/comments', jwt_auth_mware_1.accessTokenValidation, post_controllers_1.postsController.getCommentsForPostController);
 exports.postRouter.post('/:postId/comments', jwt_auth_mware_1.jwtAuthMware, (0, input_validation_middleware_1.commentBodyValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, post_controllers_1.postsController.createCommentForPostController);

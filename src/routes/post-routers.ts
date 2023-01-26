@@ -7,7 +7,7 @@ import {
   inputValidatiomMiddleware,
   postBodyValidation,
 } from '../middlewares/input-validation-middleware';
-import { jwtAuthMware } from '../middlewares/jwt-auth-mware';
+import { accessTokenValidation, jwtAuthMware } from '../middlewares/jwt-auth-mware';
 
 export const postRouter = Router();
 
@@ -33,13 +33,13 @@ postRouter.put(
   postsController.updatePostByIdController
 );
 
-postRouter.delete(
-  '/:id',
-  basicAuthMiddleware,
-  postsController.deletePostByIdController
-);
+postRouter.delete('/:id', basicAuthMiddleware, postsController.deletePostByIdController);
 
-postRouter.get('/:postId/comments', postsController.getCommentsForPostController);
+postRouter.get(
+  '/:postId/comments',
+  accessTokenValidation,
+  postsController.getCommentsForPostController
+);
 
 postRouter.post(
   '/:postId/comments',

@@ -79,19 +79,13 @@ export class PostsController {
       const options = setCommentsQueryParams(req.query);
       let comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
 
-      const refreshToken = req.cookies?.refreshToken;
-      const cookie = req.cookies;
-      console.log(
-        '🚀 ~ file: post-controllers.ts:83 ~ PostsController ~ getCommentsForPostController= ~ cookie',
-        cookie
-      );
       let validUserSession;
-      let currentUserId;
+      let currentUserId = req.user?.id;
       let userLikesDislikes: WithId<UsersLikesDBModel> | null;
-      if (refreshToken) {
-        validUserSession = await jwtService.verifyToken(refreshToken);
-        currentUserId = validUserSession?.userId;
-        userLikesDislikes = await userLikesCollection.findOne({ userId: currentUserId });
+      if (currentUserId) {
+        userLikesDislikes = await userLikesCollection.findOne({
+          userId: new ObjectId(currentUserId),
+        });
       } else {
         userLikesDislikes = null;
       }
