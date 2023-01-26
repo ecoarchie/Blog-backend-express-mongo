@@ -57,8 +57,8 @@ exports.commentRepository = {
                     createdAt: commentFound.createdAt,
                     likesInfo: Object.assign(Object.assign({}, likesInfo.likesInfo), { myStatus: myStatus }),
                     commentatorInfo: {
-                        userId: commentFound.userId.toString(),
-                        userLogin: commentFound.userLogin,
+                        userId: commentFound.commentatorInfo.userId.toString(),
+                        userLogin: commentFound.commentatorInfo.userLogin,
                     },
                 };
             }
@@ -101,7 +101,7 @@ exports.commentRepository = {
             const comments = (yield db_1.commentsCollection.aggregate(pipeline).toArray()).map((comment) => {
                 var _a;
                 comment.id = comment.id.toString();
-                comment.userId = comment.userId.toString();
+                comment.commentatorInfo.userId = comment.userId.toString();
                 comment.likesInfo = ((_a = comment.likesInfo[0]) === null || _a === void 0 ? void 0 : _a.likesInfo) || {
                     likesCount: 0,
                     dislikesCount: 0,
@@ -124,8 +124,10 @@ exports.commentRepository = {
             const comment = {
                 postId: new mongodb_1.ObjectId(commentData.postId),
                 content: commentData.content,
-                userId: new mongodb_1.ObjectId(commentData.commentatorInfo.userId),
-                userLogin: commentData.commentatorInfo.userLogin,
+                commentatorInfo: {
+                    userId: new mongodb_1.ObjectId(commentData.commentatorInfo.userId),
+                    userLogin: commentData.commentatorInfo.userLogin,
+                },
                 createdAt: commentData.createdAt,
             };
             const result = yield db_1.commentsCollection.insertOne(comment);

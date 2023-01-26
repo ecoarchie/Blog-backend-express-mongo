@@ -49,8 +49,8 @@ export const commentRepository = {
         createdAt: commentFound.createdAt,
         likesInfo: { ...likesInfo!.likesInfo, myStatus: myStatus },
         commentatorInfo: {
-          userId: commentFound.userId.toString(),
-          userLogin: commentFound.userLogin,
+          userId: commentFound.commentatorInfo.userId.toString(),
+          userLogin: commentFound.commentatorInfo.userLogin,
         },
       };
     }
@@ -98,7 +98,7 @@ export const commentRepository = {
     const comments = (await commentsCollection.aggregate(pipeline).toArray()).map(
       (comment) => {
         comment.id = comment.id.toString();
-        comment.userId = comment.userId.toString();
+        comment.commentatorInfo.userId = comment.userId.toString();
         comment.likesInfo = comment.likesInfo[0]?.likesInfo || {
           likesCount: 0,
           dislikesCount: 0,
@@ -120,8 +120,10 @@ export const commentRepository = {
     const comment: CommentDBModel = {
       postId: new ObjectId(commentData.postId),
       content: commentData.content,
-      userId: new ObjectId(commentData.commentatorInfo.userId),
-      userLogin: commentData.commentatorInfo.userLogin,
+      commentatorInfo: {
+        userId: new ObjectId(commentData.commentatorInfo.userId),
+        userLogin: commentData.commentatorInfo.userLogin,
+      },
       createdAt: commentData.createdAt,
     };
 

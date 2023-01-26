@@ -5,8 +5,10 @@ export interface CommentDBModel {
   _id?: ObjectId | null;
   postId: ObjectId;
   content: string;
-  userId: ObjectId;
-  userLogin: string;
+  commentatorInfo: {
+    userId: ObjectId;
+    userLogin: string;
+  };
   createdAt: string;
 }
 
