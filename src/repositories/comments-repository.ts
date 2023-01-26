@@ -34,7 +34,7 @@ export const commentRepository = {
         if (userLikesDislikes!.likedComments.includes(commentId)) {
           myStatus = 'Like';
         } else if (userLikesDislikes!.dislikedComments.includes(commentId)) {
-          myStatus = 'Disike';
+          myStatus = 'Dislike';
         } else {
           myStatus = 'None';
         }

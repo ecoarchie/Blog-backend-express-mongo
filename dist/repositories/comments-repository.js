@@ -44,7 +44,7 @@ exports.commentRepository = {
                         myStatus = 'Like';
                     }
                     else if (userLikesDislikes.dislikedComments.includes(commentId)) {
-                        myStatus = 'Disike';
+                        myStatus = 'Dislike';
                     }
                     else {
                         myStatus = 'None';

@@ -101,7 +101,7 @@ export class PostsController {
         } else if (userLikesDislikes!.likedComments.includes(comment.id)) {
           comment.likesInfo.myStatus = 'Like';
         } else if (userLikesDislikes!.dislikedComments.includes(comment.id)) {
-          comment.likesInfo.myStatus = 'Disike';
+          comment.likesInfo.myStatus = 'Dislike';
         } else {
           comment.likesInfo.myStatus = 'None';
         }
