@@ -189,6 +189,22 @@ export const commentRepository = {
 
   async likeComment(userId: string, commentId: string, likeStatus: string) {
     const likedStatusBefore = await usersRepository.checkLikeStatus(userId, commentId);
+    if (likeStatus === 'None') {
+      if (likedStatusBefore === 'Like') {
+        await commentLikesCollection.updateOne(
+          { commentId: new ObjectId(commentId) },
+          { $inc: { 'likesInfo.likesCount': -1 } }
+        );
+        await this._removeFromUsersLikeList(userId, commentId);
+      } else if (likedStatusBefore === 'Dislike') {
+        await commentLikesCollection.updateOne(
+          { commentId: new ObjectId(commentId) },
+          { $inc: { 'likesInfo.dislikesCount': -1 } }
+        );
+        await this._removeFromUsersDislikeList(userId, commentId);
+      }
+      return;
+    }
     const likedField =
       likeStatus === 'Like' ? 'likesInfo.likesCount' : 'likesInfo.dislikesCount';
     if (likedStatusBefore === likeStatus) {

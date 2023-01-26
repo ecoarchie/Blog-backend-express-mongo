@@ -75,8 +75,6 @@ exports.commentService = {
             if (!foundComment)
                 return 404;
             try {
-                if (likeStatus === 'None')
-                    return 204;
                 const likeComment = yield comments_repository_1.commentRepository.likeComment(userId, commentId, likeStatus);
                 // const updateUsersLikes = await usersRepository.updateCommentLikes(
                 //   userId,

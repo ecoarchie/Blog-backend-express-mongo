@@ -81,7 +81,6 @@ export const commentService = {
     const foundComment = await this.getCommentByIdService(commentId, userId);
     if (!foundComment) return 404;
     try {
-      if (likeStatus === 'None') return 204;
       const likeComment = await commentRepository.likeComment(userId, commentId, likeStatus);
       // const updateUsersLikes = await usersRepository.updateCommentLikes(
       //   userId,

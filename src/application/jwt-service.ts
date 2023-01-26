@@ -5,7 +5,7 @@ import { userSessionCollection } from '../repositories/db';
 
 export const jwtService = {
   async createJwt(userId: string) {
-    const token = jwt.sign({ userId }, process.env.SECRET!, { expiresIn: '20m' });
+    const token = jwt.sign({ userId }, process.env.SECRET!, { expiresIn: '2h' });
     return token;
   },
 

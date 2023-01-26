@@ -184,6 +184,17 @@ exports.commentRepository = {
     likeComment(userId, commentId, likeStatus) {
         return __awaiter(this, void 0, void 0, function* () {
             const likedStatusBefore = yield users_repository_1.usersRepository.checkLikeStatus(userId, commentId);
+            if (likeStatus === 'None') {
+                if (likedStatusBefore === 'Like') {
+                    yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { 'likesInfo.likesCount': -1 } });
+                    yield this._removeFromUsersLikeList(userId, commentId);
+                }
+                else if (likedStatusBefore === 'Dislike') {
+                    yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { 'likesInfo.dislikesCount': -1 } });
+                    yield this._removeFromUsersDislikeList(userId, commentId);
+                }
+                return;
+            }
             const likedField = likeStatus === 'Like' ? 'likesInfo.likesCount' : 'likesInfo.dislikesCount';
             if (likedStatusBefore === likeStatus) {
                 return;

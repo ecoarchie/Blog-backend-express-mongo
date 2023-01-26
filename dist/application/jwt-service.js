@@ -19,7 +19,7 @@ const db_1 = require("../repositories/db");
 exports.jwtService = {
     createJwt(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const token = jsonwebtoken_1.default.sign({ userId }, process.env.SECRET, { expiresIn: '20m' });
+            const token = jsonwebtoken_1.default.sign({ userId }, process.env.SECRET, { expiresIn: '2h' });
             return token;
         });
     },
