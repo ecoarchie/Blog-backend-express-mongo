@@ -101,7 +101,7 @@ exports.commentRepository = {
             const comments = (yield db_1.commentsCollection.aggregate(pipeline).toArray()).map((comment) => {
                 var _a;
                 comment.id = comment.id.toString();
-                comment.commentatorInfo.userId = comment.userId.toString();
+                comment.commentatorInfo.userId = comment.commentatorInfo.userId.toString();
                 comment.likesInfo = ((_a = comment.likesInfo[0]) === null || _a === void 0 ? void 0 : _a.likesInfo) || {
                     likesCount: 0,
                     dislikesCount: 0,

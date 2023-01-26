@@ -98,7 +98,7 @@ export const commentRepository = {
     const comments = (await commentsCollection.aggregate(pipeline).toArray()).map(
       (comment) => {
         comment.id = comment.id.toString();
-        comment.commentatorInfo.userId = comment.userId.toString();
+        comment.commentatorInfo.userId = comment.commentatorInfo.userId.toString();
         comment.likesInfo = comment.likesInfo[0]?.likesInfo || {
           likesCount: 0,
           dislikesCount: 0,
