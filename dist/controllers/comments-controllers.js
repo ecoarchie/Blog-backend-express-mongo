@@ -14,6 +14,7 @@ const comments_service_1 = require("../service/comments-service");
 const getCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     let currentUserId = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || '';
+    console.log('🚀 ~ file: comments-controllers.ts:8 ~ getCommentByIdController ~ currentUserId', currentUserId);
     const commentFound = yield comments_service_1.commentService.getCommentByIdService(req.params.id.toString(), currentUserId.toString());
     if (commentFound) {
         res.status(200).send(commentFound);
