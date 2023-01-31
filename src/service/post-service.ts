@@ -36,15 +36,15 @@ export class PostsService {
     return this.postsRepository.deletePostById(id);
   }
 
-  async findPostsByBlogId(
-    blogId: string,
-    skip: number,
-    limit: number,
-    sortBy: string,
-    sortDirection: 'asc' | 'desc'
-  ) {
-    return this.postsRepository.findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection);
-  }
+  // async findPostsByBlogId(
+  //   blogId: string,
+  //   skip: number,
+  //   limit: number,
+  //   sortBy: string,
+  //   sortDirection: 'asc' | 'desc'
+  // ) {
+  //   return this.postsRepository.findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection);
+  // }
 
   async countPostsByBlogId(blogId: string): Promise<number> {
     return this.postsRepository.countPostsByBlogId(blogId);

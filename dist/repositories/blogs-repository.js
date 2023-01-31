@@ -73,16 +73,36 @@ class BlogsRepository {
             if (!mongodb_1.ObjectId.isValid(id))
                 return false;
             const result = yield db_1.blogsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: Object.assign({}, newDatajson) });
-            const { name } = newDatajson;
             yield updatePostsForUpdatedBlog();
             return result.matchedCount === 1;
             function updatePostsForUpdatedBlog() {
                 return __awaiter(this, void 0, void 0, function* () {
+                    const { name } = newDatajson;
                     if (name) {
                         yield db_1.postsCollection.updateMany({ blogId: new mongodb_1.ObjectId(id) }, { $set: { blogName: name } });
                     }
                 });
             }
+        });
+    }
+    findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sort = {};
+            sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
+            const pipeline = [
+                { $match: { blogId: new mongodb_1.ObjectId(blogId) } },
+                { $addFields: { id: '$_id' } },
+                { $sort: sort },
+                { $skip: skip },
+                { $limit: limit },
+                { $project: { _id: 0 } },
+            ];
+            const posts = (yield db_1.postsCollection.aggregate(pipeline).toArray()).map((post) => {
+                post.id = post.id.toString();
+                post.blogId = post.blogId.toString();
+                return post;
+            });
+            return posts;
         });
     }
     deleteBlogById(id) {

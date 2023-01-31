@@ -29,9 +29,9 @@ export class BlogsService {
     return createdBlog;
   }
 
-  async findBlogById(id: string): Promise<BlogViewModel | null> {
-    return this.blogsRepository.findBlogById(id);
-  }
+  // async findBlogById(id: string): Promise<BlogViewModel | null> {
+  //   return this.blogsRepository.findBlogById(id);
+  // }
 
   async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
     return this.blogsRepository.updateBlogById(id, newDatajson);

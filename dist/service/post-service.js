@@ -51,11 +51,15 @@ class PostsService {
             return this.postsRepository.deletePostById(id);
         });
     }
-    findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.postsRepository.findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection);
-        });
-    }
+    // async findPostsByBlogId(
+    //   blogId: string,
+    //   skip: number,
+    //   limit: number,
+    //   sortBy: string,
+    //   sortDirection: 'asc' | 'desc'
+    // ) {
+    //   return this.postsRepository.findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection);
+    // }
     countPostsByBlogId(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.postsRepository.countPostsByBlogId(blogId);

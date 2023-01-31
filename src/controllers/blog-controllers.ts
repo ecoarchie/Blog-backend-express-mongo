@@ -44,7 +44,7 @@ class BlogsController {
   };
 
   createBlogPost = async (req: Request, res: Response) => {
-    const blog = await this.blogsService.findBlogById(req.params.blogId.toString());
+    const blog = await this.blogsRepository.findBlogById(req.params.blogId.toString());
     if (!blog) {
       res.sendStatus(404);
     } else {
@@ -59,7 +59,7 @@ class BlogsController {
   };
 
   getBlogById = async (req: Request, res: Response) => {
-    const blogFound: BlogViewModel | null = await this.blogsService.findBlogById(
+    const blogFound: BlogViewModel | null = await this.blogsRepository.findBlogById(
       req.params.id.toString()
     );
 
@@ -98,16 +98,18 @@ class BlogsController {
   };
 
   getPostsByBlogId = async (req: Request, res: Response) => {
-    const blog: BlogViewModel | null = await this.blogsService.findBlogById(
+    const blog: BlogViewModel | null = await this.blogsRepository.findBlogById(
       req.params.blogId.toString()
     );
 
-    if (blog) {
+    if (!blog) {
+      res.sendStatus(404);
+    } else {
       const { pageNumber, pageSize, sortBy, sortDirection, skip } = setBlogQueryParams(
         req.query
       );
 
-      const posts: Array<BlogViewModel> = await this.postsService.findPostsByBlogId(
+      const posts: Array<BlogViewModel> = await this.blogsRepository.findPostsByBlogId(
         blog.id!.toString(),
         skip,
         pageSize,
@@ -127,8 +129,6 @@ class BlogsController {
         totalCount,
         items: posts,
       });
-    } else {
-      res.sendStatus(404);
     }
   };
 }

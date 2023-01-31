@@ -40,7 +40,7 @@ class BlogsController {
             res.status(201).send(newBlog);
         });
         this.createBlogPost = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const blog = yield this.blogsService.findBlogById(req.params.blogId.toString());
+            const blog = yield this.blogsRepository.findBlogById(req.params.blogId.toString());
             if (!blog) {
                 res.sendStatus(404);
             }
@@ -55,7 +55,7 @@ class BlogsController {
             }
         });
         this.getBlogById = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const blogFound = yield this.blogsService.findBlogById(req.params.id.toString());
+            const blogFound = yield this.blogsRepository.findBlogById(req.params.id.toString());
             if (blogFound) {
                 res.status(200).send(blogFound);
             }
@@ -86,10 +86,13 @@ class BlogsController {
             }
         });
         this.getPostsByBlogId = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const blog = yield this.blogsService.findBlogById(req.params.blogId.toString());
-            if (blog) {
+            const blog = yield this.blogsRepository.findBlogById(req.params.blogId.toString());
+            if (!blog) {
+                res.sendStatus(404);
+            }
+            else {
                 const { pageNumber, pageSize, sortBy, sortDirection, skip } = (0, utils_1.setBlogQueryParams)(req.query);
-                const posts = yield this.postsService.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection);
+                const posts = yield this.blogsRepository.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection);
                 const totalCount = yield this.postsService.countPostsByBlogId(blog.id.toString());
                 const pagesCount = Math.ceil(totalCount / pageSize);
                 res.send({
@@ -99,9 +102,6 @@ class BlogsController {
                     totalCount,
                     items: posts,
                 });
-            }
-            else {
-                res.sendStatus(404);
             }
         });
         this.blogsService = new blog_service_1.BlogsService();

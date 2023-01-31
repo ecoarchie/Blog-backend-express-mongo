@@ -107,26 +107,6 @@ class PostsRepository {
             return result.deletedCount === 1;
         });
     }
-    findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const sort = {};
-            sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
-            const pipeline = [
-                { $match: { blogId: new bson_1.ObjectId(blogId) } },
-                { $addFields: { id: '$_id' } },
-                { $sort: sort },
-                { $skip: skip },
-                { $limit: limit },
-                { $project: { _id: 0 } },
-            ];
-            const posts = (yield db_1.postsCollection.aggregate(pipeline).toArray()).map((post) => {
-                post.id = post.id.toString();
-                post.blogId = post.blogId.toString();
-                return post;
-            });
-            return posts;
-        });
-    }
     countPostsByBlogId(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             return db_1.postsCollection.count({ blogId: new bson_1.ObjectId(blogId) });

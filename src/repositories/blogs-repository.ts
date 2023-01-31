@@ -66,12 +66,12 @@ export class BlogsRepository {
       { _id: new ObjectId(id) },
       { $set: { ...newDatajson } }
     );
-    const { name } = newDatajson;
     await updatePostsForUpdatedBlog();
 
     return result.matchedCount === 1;
 
     async function updatePostsForUpdatedBlog() {
+      const { name } = newDatajson;
       if (name) {
         await postsCollection.updateMany(
           { blogId: new ObjectId(id) },
@@ -79,6 +79,34 @@ export class BlogsRepository {
         );
       }
     }
+  }
+
+  async findPostsByBlogId(
+    blogId: string,
+    skip: number,
+    limit: number,
+    sortBy: string,
+    sortDirection: 'asc' | 'desc'
+  ) {
+    const sort: any = {};
+    sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
+    const pipeline = [
+      { $match: { blogId: new ObjectId(blogId) } },
+      { $addFields: { id: '$_id' } },
+      { $sort: sort },
+      { $skip: skip },
+      { $limit: limit },
+      { $project: { _id: 0 } },
+    ];
+
+    const posts: Array<BlogViewModel> = (
+      await postsCollection.aggregate(pipeline).toArray()
+    ).map((post) => {
+      post.id = post.id.toString();
+      post.blogId = post.blogId.toString();
+      return post;
+    }) as Array<BlogViewModel>;
+    return posts;
   }
 
   async deleteBlogById(id: string): Promise<boolean> {

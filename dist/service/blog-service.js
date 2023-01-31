@@ -36,11 +36,9 @@ class BlogsService {
             return createdBlog;
         });
     }
-    findBlogById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.blogsRepository.findBlogById(id);
-        });
-    }
+    // async findBlogById(id: string): Promise<BlogViewModel | null> {
+    //   return this.blogsRepository.findBlogById(id);
+    // }
     updateBlogById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.blogsRepository.updateBlogById(id, newDatajson);

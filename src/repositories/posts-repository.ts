@@ -85,34 +85,6 @@ export class PostsRepository {
     return result.deletedCount === 1;
   }
 
-  async findPostsByBlogId(
-    blogId: string,
-    skip: number,
-    limit: number,
-    sortBy: string,
-    sortDirection: 'asc' | 'desc'
-  ) {
-    const sort: any = {};
-    sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
-    const pipeline = [
-      { $match: { blogId: new ObjectId(blogId) } },
-      { $addFields: { id: '$_id' } },
-      { $sort: sort },
-      { $skip: skip },
-      { $limit: limit },
-      { $project: { _id: 0 } },
-    ];
-
-    const posts: Array<BlogViewModel> = (
-      await postsCollection.aggregate(pipeline).toArray()
-    ).map((post) => {
-      post.id = post.id.toString();
-      post.blogId = post.blogId.toString();
-      return post;
-    }) as Array<BlogViewModel>;
-    return posts;
-  }
-
   async countPostsByBlogId(blogId: string): Promise<number> {
     return postsCollection.count({ blogId: new ObjectId(blogId) });
   }
