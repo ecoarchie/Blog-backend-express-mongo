@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
 import { BlogReqQueryModel } from '../models/reqQueryModel';
-import { blogsCollection } from './db';
+import { blogsCollection, postsCollection } from './db';
 
 export class BlogsRepository {
   async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
@@ -54,8 +54,8 @@ export class BlogsRepository {
     });
     let blogToReturn: BlogViewModel | null = null;
     if (blogById) {
-      const { _id, ...rest } = blogById; //TODO replace destructuring to explicit property assignment, because returned obj from db might have unnecesary properties
-      blogToReturn = { id: _id!.toString(), ...rest };
+      const { _id, name, description, websiteUrl, createdAt } = blogById;
+      blogToReturn = { id: _id!.toString(), name, description, websiteUrl, createdAt };
     }
     return blogToReturn;
   }
@@ -66,9 +66,19 @@ export class BlogsRepository {
       { _id: new ObjectId(id) },
       { $set: { ...newDatajson } }
     );
-    //TODO update all posts related to this blog
+    const { name } = newDatajson;
+    await updatePosts();
 
     return result.matchedCount === 1;
+
+    async function updatePosts() {
+      if (name) {
+        await postsCollection.updateMany(
+          { blogId: new ObjectId(id) },
+          { $set: { blogName: name } }
+        );
+      }
+    }
   }
 
   async deleteBlogById(id: string): Promise<boolean> {

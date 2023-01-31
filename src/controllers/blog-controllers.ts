@@ -64,7 +64,11 @@ class BlogsController {
   updateBlogById = async (req: Request, res: Response) => {
     const isBlogUpdated: boolean = await this.blogsService.updateBlogById(
       req.params.id.toString(),
-      req.body
+      {
+        name: req.body.name,
+        description: req.body.description,
+        websiteUrl: req.body.websiteUrl,
+      }
     );
     if (isBlogUpdated) {
       res.sendStatus(204);
@@ -90,8 +94,9 @@ class BlogsController {
     );
 
     if (blog) {
-      const { pageNumber, pageSize, sortBy, sortDirection, skip } =
-        setBlogQueryParams(req.query);
+      const { pageNumber, pageSize, sortBy, sortDirection, skip } = setBlogQueryParams(
+        req.query
+      );
 
       const posts: Array<BlogViewModel> = await this.postsService.findPostsByBlogId(
         blog.id!.toString(),

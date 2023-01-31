@@ -181,7 +181,7 @@ describe('blogs routes', () => {
         .send(blogToCreate)
         .expect(201);
 
-      const res = await request(app)
+      await request(app)
         .put(`/blogs/${result.body.id}`)
         .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
         .send({
@@ -196,6 +196,51 @@ describe('blogs routes', () => {
       expect(updatedBlog.body.name).toBe('updated name');
       expect(updatedBlog.body.description).toBe('updated description');
       expect(updatedBlog.body.websiteUrl).toBe('https://vk.ru');
+    });
+  });
+
+  describe('PUT /blogs/{id} - update blog and update related posts', () => {
+    const blogToCreate = {
+      name: 'new blog4',
+      description: 'desc4',
+      websiteUrl: 'https://youtube.com',
+    };
+
+    const postToCreate = {
+      title: 'new post',
+      shortDescription: 'post ',
+      content: 'https://email.com',
+      blogId: null,
+    };
+
+    it('Should update posts related to updated blog if blog name was changed', async () => {
+      const result = await request(app)
+        .post('/blogs')
+        .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+        .send(blogToCreate)
+        .expect(201);
+
+      postToCreate.blogId = result.body.id;
+      const postResult = await request(app)
+        .post('/posts')
+        .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+        .send(postToCreate)
+        .expect(201);
+
+      expect(postResult.body.blogName).toBe('new blog4');
+
+      await request(app)
+        .put(`/blogs/${result.body.id}`)
+        .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+        .send({
+          name: 'updated name',
+          description: 'updated description',
+          websiteUrl: 'https://vk.ru',
+        })
+        .expect(204);
+
+      const updatedPost = await request(app).get(`/posts/${postResult.body.id}`).expect(200);
+      expect(updatedPost.body.blogName).toBe('updated name');
     });
   });
 
