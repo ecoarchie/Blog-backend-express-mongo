@@ -1,6 +1,7 @@
-import { body, CustomValidator } from 'express-validator';
-import { blogsRepository } from '../repositories/blogs-repository';
+import { body } from 'express-validator';
+import { BlogsRepository } from '../repositories/blogs-repository';
 
+const blogsRepository = new BlogsRepository();
 export const isValidBlogId = body('blogId')
   .exists()
   .withMessage('Post ID is required')

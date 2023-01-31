@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import { blogRouter } from './routes/blog-routers';
 import { postRouter } from './routes/post-routers';
 import { userRouter } from './routes/user-routes';
-import { blogsRepository } from './repositories/blogs-repository';
+import { BlogsRepository } from './repositories/blogs-repository';
 import { postsRepository } from './repositories/posts-repository';
 import { usersRepository } from './repositories/users-repository';
 import * as dotenv from 'dotenv';
@@ -37,6 +37,7 @@ app.get('/', async (req, res) => {
   res.send('Hello World!');
 });
 
+const blogsRepository = new BlogsRepository();
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
   await blogsRepository.deleteAllBlogs();
   await postsRepository.deleteAllPosts();

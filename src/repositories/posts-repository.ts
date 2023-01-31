@@ -2,9 +2,10 @@ import { ObjectId, ObjectID } from 'bson';
 import { BlogViewModel } from '../models/blogModel';
 import { PostDBModel, PostInputModel, PostViewModel } from '../models/postModel';
 import { PostReqQueryModel } from '../models/reqQueryModel';
-import { blogsRepository } from './blogs-repository';
+import { BlogsRepository } from './blogs-repository';
 import { postsCollection } from './db';
 
+const blogsRepository = new BlogsRepository();
 export class PostsRepository {
   async getAllPosts(options: PostReqQueryModel): Promise<PostViewModel[]> {
     const sort: any = {};

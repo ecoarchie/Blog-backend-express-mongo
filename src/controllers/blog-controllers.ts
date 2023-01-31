@@ -6,10 +6,10 @@ import { PostsService } from '../service/post-service';
 import { setBlogQueryParams } from './utils';
 import { BlogsRepository } from '../repositories/blogs-repository';
 
-class BlogsController {
-  public blogsService: BlogsService;
-  public postsService: PostsService;
-  public blogsRepository: BlogsRepository;
+export class BlogsController {
+  private blogsService: BlogsService;
+  private postsService: PostsService;
+  private blogsRepository: BlogsRepository;
   constructor() {
     this.blogsService = new BlogsService();
     this.postsService = new PostsService();
@@ -132,5 +132,3 @@ class BlogsController {
     }
   };
 }
-
-export const blogsController = new BlogsController();

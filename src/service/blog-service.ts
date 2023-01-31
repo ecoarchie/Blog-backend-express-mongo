@@ -1,8 +1,8 @@
-import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
+import { BlogViewModel, BlogInputModel } from '../models/blogModel';
 import { BlogsRepository } from '../repositories/blogs-repository';
 
 export class BlogsService {
-  blogsRepository: BlogsRepository;
+  private blogsRepository: BlogsRepository;
 
   constructor() {
     this.blogsRepository = new BlogsRepository();
@@ -36,5 +36,3 @@ export class BlogsService {
     return this.blogsRepository.countAllBlogs();
   }
 }
-
-// export const blogsService = new BlogsService();

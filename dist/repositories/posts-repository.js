@@ -24,6 +24,7 @@ exports.postsRepository = exports.PostsRepository = void 0;
 const bson_1 = require("bson");
 const blogs_repository_1 = require("./blogs-repository");
 const db_1 = require("./db");
+const blogsRepository = new blogs_repository_1.BlogsRepository();
 class PostsRepository {
     getAllPosts(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -54,7 +55,7 @@ class PostsRepository {
     createPost(data) {
         return __awaiter(this, void 0, void 0, function* () {
             const { title, shortDescription, content, blogId } = data;
-            const blog = (yield blogs_repository_1.blogsRepository.findBlogById(blogId));
+            const blog = (yield blogsRepository.findBlogById(blogId));
             const blogName = blog.name;
             const postToInsert = {
                 title,

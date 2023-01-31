@@ -119,5 +119,3 @@ export class BlogsRepository {
     return blogsCollection.countDocuments();
   }
 }
-
-export const blogsRepository = new BlogsRepository();

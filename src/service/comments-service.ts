@@ -1,6 +1,5 @@
 import { CommentViewModel } from '../models/commentModel';
 import { commentRepository } from '../repositories/comments-repository';
-import { usersRepository } from '../repositories/users-repository';
 
 export const commentService = {
   async getCommentByIdService(

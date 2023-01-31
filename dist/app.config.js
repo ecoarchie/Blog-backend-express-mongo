@@ -70,8 +70,9 @@ exports.app.use('/security/devices', session_routers_1.sessionRouter);
 exports.app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.send('Hello World!');
 }));
+const blogsRepository = new blogs_repository_1.BlogsRepository();
 exports.app.delete('/testing/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield blogs_repository_1.blogsRepository.deleteAllBlogs();
+    yield blogsRepository.deleteAllBlogs();
     yield posts_repository_1.postsRepository.deleteAllPosts();
     yield users_repository_1.usersRepository.deleteAllUsers();
     yield comments_repository_1.commentRepository.deleteAllComments();

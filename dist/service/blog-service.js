@@ -50,4 +50,3 @@ class BlogsService {
     }
 }
 exports.BlogsService = BlogsService;
-// export const blogsService = new BlogsService();

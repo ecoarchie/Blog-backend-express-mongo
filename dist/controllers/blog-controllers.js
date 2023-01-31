@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsController = void 0;
+exports.BlogsController = void 0;
 const blog_service_1 = require("../service/blog-service");
 const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
@@ -109,4 +109,4 @@ class BlogsController {
         this.blogsRepository = new blogs_repository_1.BlogsRepository();
     }
 }
-exports.blogsController = new BlogsController();
+exports.BlogsController = BlogsController;
