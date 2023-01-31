@@ -15,9 +15,6 @@ class BlogsService {
     constructor() {
         this.blogsRepository = new blogs_repository_1.BlogsRepository();
     }
-    // async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
-    //   return this.blogsRepository.findBlogs(options);
-    // }
     deleteAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.blogsRepository.deleteAllBlogs();
@@ -36,9 +33,6 @@ class BlogsService {
             return createdBlog;
         });
     }
-    // async findBlogById(id: string): Promise<BlogViewModel | null> {
-    //   return this.blogsRepository.findBlogById(id);
-    // }
     updateBlogById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.blogsRepository.updateBlogById(id, newDatajson);

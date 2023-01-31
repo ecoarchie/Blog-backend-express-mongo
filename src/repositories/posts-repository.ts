@@ -6,7 +6,7 @@ import { blogsRepository } from './blogs-repository';
 import { postsCollection } from './db';
 
 export class PostsRepository {
-  async findPosts(options: PostReqQueryModel): Promise<PostViewModel[]> {
+  async getAllPosts(options: PostReqQueryModel): Promise<PostViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
     const searchTerm = !options.searchNameTerm
@@ -58,30 +58,38 @@ export class PostsRepository {
     return newPost;
   }
 
-  async findPostById(id: string): Promise<PostViewModel | null> {
+  async getPostById(id: string): Promise<PostViewModel | null> {
     if (!ObjectId.isValid(id)) return null;
     const postById = await postsCollection.findOne({ _id: new ObjectId(id) });
     let postToReturn: PostViewModel | null = null;
     if (postById) {
-      const { _id, blogId, ...rest } = postById;
-      postToReturn = { id: _id!.toString(), blogId: blogId.toString(), ...rest };
+      const { _id, title, shortDescription, content, blogId, blogName, createdAt } = postById;
+      postToReturn = {
+        id: _id!.toString(),
+        title,
+        shortDescription,
+        content,
+        blogId: blogId.toString(),
+        blogName,
+        createdAt,
+      };
     }
     return postToReturn;
   }
 
-  async updatePostById(id: string, newDatajson: PostInputModel): Promise<boolean> {
-    if (!ObjectId.isValid(id)) return false;
-    const { blogId, ...rest } = newDatajson;
+  async updatePostById(postId: string, updateParams: PostInputModel): Promise<boolean> {
+    if (!ObjectId.isValid(postId)) return false;
+    const { blogId, ...rest } = updateParams;
     const result = await postsCollection.updateOne(
-      { _id: new ObjectId(id), blogId: new ObjectId(blogId) },
+      { _id: new ObjectId(postId), blogId: new ObjectId(blogId) },
       { $set: { ...rest } }
     );
     return result.matchedCount === 1;
   }
 
-  async deletePostById(id: string): Promise<boolean> {
-    if (!ObjectId.isValid(id)) return false;
-    const result = await postsCollection.deleteOne({ _id: new ObjectId(id) });
+  async deletePostById(postId: string): Promise<boolean> {
+    if (!ObjectId.isValid(postId)) return false;
+    const result = await postsCollection.deleteOne({ _id: new ObjectId(postId) });
     return result.deletedCount === 1;
   }
 

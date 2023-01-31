@@ -25,7 +25,7 @@ const bson_1 = require("bson");
 const blogs_repository_1 = require("./blogs-repository");
 const db_1 = require("./db");
 class PostsRepository {
-    findPosts(options) {
+    getAllPosts(options) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
             sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
@@ -77,33 +77,41 @@ class PostsRepository {
             return newPost;
         });
     }
-    findPostById(id) {
+    getPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bson_1.ObjectId.isValid(id))
                 return null;
             const postById = yield db_1.postsCollection.findOne({ _id: new bson_1.ObjectId(id) });
             let postToReturn = null;
             if (postById) {
-                const { _id, blogId } = postById, rest = __rest(postById, ["_id", "blogId"]);
-                postToReturn = Object.assign({ id: _id.toString(), blogId: blogId.toString() }, rest);
+                const { _id, title, shortDescription, content, blogId, blogName, createdAt } = postById;
+                postToReturn = {
+                    id: _id.toString(),
+                    title,
+                    shortDescription,
+                    content,
+                    blogId: blogId.toString(),
+                    blogName,
+                    createdAt,
+                };
             }
             return postToReturn;
         });
     }
-    updatePostById(id, newDatajson) {
+    updatePostById(postId, updateParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!bson_1.ObjectId.isValid(id))
+            if (!bson_1.ObjectId.isValid(postId))
                 return false;
-            const { blogId } = newDatajson, rest = __rest(newDatajson, ["blogId"]);
-            const result = yield db_1.postsCollection.updateOne({ _id: new bson_1.ObjectId(id), blogId: new bson_1.ObjectId(blogId) }, { $set: Object.assign({}, rest) });
+            const { blogId } = updateParams, rest = __rest(updateParams, ["blogId"]);
+            const result = yield db_1.postsCollection.updateOne({ _id: new bson_1.ObjectId(postId), blogId: new bson_1.ObjectId(blogId) }, { $set: Object.assign({}, rest) });
             return result.matchedCount === 1;
         });
     }
-    deletePostById(id) {
+    deletePostById(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!bson_1.ObjectId.isValid(id))
+            if (!bson_1.ObjectId.isValid(postId))
                 return false;
-            const result = yield db_1.postsCollection.deleteOne({ _id: new bson_1.ObjectId(id) });
+            const result = yield db_1.postsCollection.deleteOne({ _id: new bson_1.ObjectId(postId) });
             return result.deletedCount === 1;
         });
     }

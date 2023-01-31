@@ -15,11 +15,6 @@ class PostsService {
     constructor() {
         this.postsRepository = new posts_repository_1.PostsRepository();
     }
-    findPosts(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.postsRepository.findPosts(options);
-        });
-    }
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.postsRepository.deleteAllPosts();
@@ -36,30 +31,16 @@ class PostsService {
             return blogPost;
         });
     }
-    findPostById(id) {
+    updatePostById(postId, updateParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.postsRepository.findPostById(id);
+            return this.postsRepository.updatePostById(postId, updateParams);
         });
     }
-    updatePostById(id, newDatajson) {
+    deletePostById(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.postsRepository.updatePostById(id, newDatajson);
+            return this.postsRepository.deletePostById(postId);
         });
     }
-    deletePostById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.postsRepository.deletePostById(id);
-        });
-    }
-    // async findPostsByBlogId(
-    //   blogId: string,
-    //   skip: number,
-    //   limit: number,
-    //   sortBy: string,
-    //   sortDirection: 'asc' | 'desc'
-    // ) {
-    //   return this.postsRepository.findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection);
-    // }
     countPostsByBlogId(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.postsRepository.countPostsByBlogId(blogId);
@@ -72,4 +53,3 @@ class PostsService {
     }
 }
 exports.PostsService = PostsService;
-// export const postsService = new PostsService();

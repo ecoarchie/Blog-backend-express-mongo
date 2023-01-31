@@ -22,7 +22,7 @@ postRouter.post(
   postsController.createPostController
 );
 
-postRouter.get('/:id', postsController.findPostByIdController);
+postRouter.get('/:id', postsController.getPostByIdController);
 
 postRouter.put(
   '/:id',

@@ -1,14 +1,10 @@
-import { BlogPostInputModel, PostInputModel, PostViewModel } from '../models/postModel';
-import { PostReqQueryModel } from '../models/reqQueryModel';
+import { PostInputModel, PostViewModel } from '../models/postModel';
 import { PostsRepository } from '../repositories/posts-repository';
 
 export class PostsService {
   postsRepository: PostsRepository;
   constructor() {
     this.postsRepository = new PostsRepository();
-  }
-  async findPosts(options: PostReqQueryModel): Promise<PostViewModel[]> {
-    return this.postsRepository.findPosts(options);
   }
 
   async deleteAllPosts() {
@@ -24,27 +20,13 @@ export class PostsService {
     return blogPost;
   }
 
-  async findPostById(id: string): Promise<PostViewModel | null> {
-    return this.postsRepository.findPostById(id);
+  async updatePostById(postId: string, updateParams: PostInputModel): Promise<boolean> {
+    return this.postsRepository.updatePostById(postId, updateParams);
   }
 
-  async updatePostById(id: string, newDatajson: PostInputModel): Promise<boolean> {
-    return this.postsRepository.updatePostById(id, newDatajson);
+  async deletePostById(postId: string): Promise<boolean> {
+    return this.postsRepository.deletePostById(postId);
   }
-
-  async deletePostById(id: string): Promise<boolean> {
-    return this.postsRepository.deletePostById(id);
-  }
-
-  // async findPostsByBlogId(
-  //   blogId: string,
-  //   skip: number,
-  //   limit: number,
-  //   sortBy: string,
-  //   sortDirection: 'asc' | 'desc'
-  // ) {
-  //   return this.postsRepository.findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection);
-  // }
 
   async countPostsByBlogId(blogId: string): Promise<number> {
     return this.postsRepository.countPostsByBlogId(blogId);
@@ -54,4 +36,3 @@ export class PostsService {
     return this.postsRepository.countAllPosts();
   }
 }
-// export const postsService = new PostsService();

@@ -10,7 +10,7 @@ const jwt_auth_mware_1 = require("../middlewares/jwt-auth-mware");
 exports.postRouter = (0, express_1.Router)();
 exports.postRouter.get('/', post_controllers_1.postsController.getAllPostsController);
 exports.postRouter.post('/', basic_auth_middleware_1.basicAuthMiddleware, blog_id_custom_validator_1.isValidBlogId, (0, input_validation_middleware_1.postBodyValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, post_controllers_1.postsController.createPostController);
-exports.postRouter.get('/:id', post_controllers_1.postsController.findPostByIdController);
+exports.postRouter.get('/:id', post_controllers_1.postsController.getPostByIdController);
 exports.postRouter.put('/:id', basic_auth_middleware_1.basicAuthMiddleware, blog_id_custom_validator_1.isValidBlogId, (0, input_validation_middleware_1.postBodyValidation)(), input_validation_middleware_1.inputValidatiomMiddleware, post_controllers_1.postsController.updatePostByIdController);
 exports.postRouter.delete('/:id', basic_auth_middleware_1.basicAuthMiddleware, post_controllers_1.postsController.deletePostByIdController);
 exports.postRouter.get('/:postId/comments', jwt_auth_mware_1.accessTokenValidation, post_controllers_1.postsController.getCommentsForPostController);

@@ -19,12 +19,10 @@ const session_repository_1 = require("../repositories/session-repository");
 const getActiveSessionsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-        // console.log('no refresh token');
         return res.sendStatus(401);
     }
     const activeSessions = yield session_repository_1.sessionRepository.getActiveSessions(refreshToken);
     if (!activeSessions) {
-        // console.log('no active sessions');
         return res.sendStatus(401);
     }
     res.send(activeSessions);
@@ -63,7 +61,6 @@ const deleteDeviceSessionController = (req, res) => __awaiter(void 0, void 0, vo
     else {
         const deviceIdFromParams = req.params.deviceId;
         const jwtPayload = jsonwebtoken_1.default.verify(refreshToken, process.env.SECRET);
-        const deviceIdFromToken = jwtPayload.deviceId;
         const resultCode = yield session_repository_1.sessionRepository.deleteDeviceSession(jwtPayload.userId, deviceIdFromParams);
         res.sendStatus(resultCode);
     }

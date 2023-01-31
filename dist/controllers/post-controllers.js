@@ -16,11 +16,12 @@ const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
 const db_1 = require("../repositories/db");
 const mongodb_1 = require("mongodb");
+const posts_repository_1 = require("../repositories/posts-repository");
 class PostsController {
     constructor() {
         this.getAllPostsController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const options = (0, utils_1.setPostQueryParams)(req.query);
-            const foundPosts = yield this.postsService.findPosts(options);
+            const foundPosts = yield this.postsRepository.getAllPosts(options);
             const totalCount = options.searchNameTerm
                 ? foundPosts.length
                 : yield this.postsService.countAllPosts();
@@ -34,11 +35,16 @@ class PostsController {
             });
         });
         this.createPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const newPost = yield this.postsService.createPost(req.body);
+            const newPost = yield this.postsService.createPost({
+                title: req.body.title,
+                shortDescription: req.body.shortDescription,
+                content: req.body.content,
+                blogId: req.body.blogId,
+            });
             res.status(201).send(newPost);
         });
-        this.findPostByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const postFound = yield this.postsService.findPostById(req.params.id.toString());
+        this.getPostByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const postFound = yield this.postsRepository.getPostById(req.params.id.toString());
             if (postFound) {
                 res.send(postFound);
             }
@@ -47,7 +53,13 @@ class PostsController {
             }
         });
         this.updatePostByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const isPostUpdated = yield this.postsService.updatePostById(req.params.id.toString(), req.body);
+            const updateParams = {
+                title: req.body.title,
+                shortDescription: req.body.shortDescription,
+                content: req.body.content,
+                blogId: req.body.blogId,
+            };
+            const isPostUpdated = yield this.postsService.updatePostById(req.params.id.toString(), updateParams);
             if (isPostUpdated) {
                 res.sendStatus(204);
             }
@@ -64,6 +76,7 @@ class PostsController {
                 res.sendStatus(204);
             }
         });
+        //TODO refactor this
         this.getCommentsForPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const isValidPost = yield this.postsService.postsRepository.isPostExist(req.params.postId);
@@ -74,14 +87,11 @@ class PostsController {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
                 let comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
                 let currentUserId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-                let userLikesDislikes;
+                let userLikesDislikes = null;
                 if (currentUserId) {
                     userLikesDislikes = yield db_1.userLikesCollection.findOne({
                         userId: new mongodb_1.ObjectId(currentUserId),
                     });
-                }
-                else {
-                    userLikesDislikes = null;
                 }
                 comments = comments.map((comment) => {
                     if (!(userLikesDislikes === null || userLikesDislikes === void 0 ? void 0 : userLikesDislikes.likedComments.includes(comment.id)) &&
@@ -119,6 +129,7 @@ class PostsController {
             res.status(201).send(newComment);
         });
         this.postsService = new post_service_1.PostsService();
+        this.postsRepository = new posts_repository_1.PostsRepository();
     }
 }
 exports.PostsController = PostsController;

@@ -1,5 +1,4 @@
 import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
-import { BlogReqQueryModel } from '../models/reqQueryModel';
 import { BlogsRepository } from '../repositories/blogs-repository';
 
 export class BlogsService {
@@ -8,10 +7,6 @@ export class BlogsService {
   constructor() {
     this.blogsRepository = new BlogsRepository();
   }
-
-  // async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
-  //   return this.blogsRepository.findBlogs(options);
-  // }
 
   async deleteAllBlogs() {
     return this.blogsRepository.deleteAllBlogs();
@@ -28,10 +23,6 @@ export class BlogsService {
     const createdBlog = await this.blogsRepository.createBlog(blogToInsert);
     return createdBlog;
   }
-
-  // async findBlogById(id: string): Promise<BlogViewModel | null> {
-  //   return this.blogsRepository.findBlogById(id);
-  // }
 
   async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
     return this.blogsRepository.updateBlogById(id, newDatajson);
