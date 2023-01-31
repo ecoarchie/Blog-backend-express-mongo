@@ -1,14 +1,9 @@
 import { Request, Response } from 'express';
 import { CommentViewModel } from '../models/commentModel';
 import { commentService } from '../service/comments-service';
-import { jwtService } from '../application/jwt-service';
 
 export const getCommentByIdController = async (req: Request, res: Response) => {
   let currentUserId = req.user?.id || '';
-  console.log(
-    '🚀 ~ file: comments-controllers.ts:8 ~ getCommentByIdController ~ currentUserId',
-    currentUserId
-  );
   const commentFound: CommentViewModel | null = await commentService.getCommentByIdService(
     req.params.id.toString(),
     currentUserId.toString()

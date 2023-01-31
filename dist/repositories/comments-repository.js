@@ -26,14 +26,12 @@ exports.commentRepository = {
                 });
                 let userLikesDislikes;
                 if (!userId) {
-                    console.log('🚀 ~ file: comments-repository.ts:19 ~ getCommentById ~ userId', userId);
                     userLikesDislikes = null;
                 }
                 else {
                     userLikesDislikes = yield db_1.userLikesCollection.findOne({
                         userId: new mongodb_1.ObjectId(userId),
                     });
-                    console.log('🚀 ~ file: comments-repository.ts:24 ~ getCommentById ~ userLikesDislikes', userLikesDislikes);
                 }
                 let myStatus;
                 if (!(userLikesDislikes === null || userLikesDislikes === void 0 ? void 0 : userLikesDislikes.likedComments.includes(commentId)) &&

@@ -25,6 +25,7 @@
     "express-validator": "^6.14.2",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^4.12.1",
+    "morgan": "^1.10.0",
     "nodemailer": "^6.8.0",
     "uuid": "^9.0.0"
   },
@@ -35,6 +36,7 @@
     "@types/express-rate-limit": "^6.0.0",
     "@types/express-useragent": "^1.0.2",
     "@types/jest": "^29.2.4",
+    "@types/morgan": "^1.9.4",
     "@types/node": "^18.11.14",
     "@types/nodemailer": "^6.4.7",
     "@types/supertest": "^2.0.12",

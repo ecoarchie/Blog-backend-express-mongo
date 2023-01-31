@@ -18,7 +18,6 @@ export const jwtAuthMware = async (req: Request, res: Response, next: NextFuncti
     req.user = await usersService.findUserByIdService(userId);
     return next();
   }
-
   res.sendStatus(401);
 };
 
