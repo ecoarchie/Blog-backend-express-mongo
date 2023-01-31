@@ -9,9 +9,9 @@ export class BlogsService {
     this.blogsRepository = new BlogsRepository();
   }
 
-  async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
-    return this.blogsRepository.findBlogs(options);
-  }
+  // async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
+  //   return this.blogsRepository.findBlogs(options);
+  // }
 
   async deleteAllBlogs() {
     return this.blogsRepository.deleteAllBlogs();

@@ -30,9 +30,9 @@ class PostsService {
             return this.postsRepository.createPost(data);
         });
     }
-    createBlogPost(blogId, postData) {
+    createBlogPost(postData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogPost = yield this.createPost(Object.assign({ blogId }, postData));
+            const blogPost = yield this.createPost(Object.assign({}, postData));
             return blogPost;
         });
     }

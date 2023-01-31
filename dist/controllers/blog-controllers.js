@@ -13,14 +13,15 @@ exports.blogsController = void 0;
 const blog_service_1 = require("../service/blog-service");
 const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
+const blogs_repository_1 = require("../repositories/blogs-repository");
 class BlogsController {
     constructor() {
         this.getAllBlogs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const options = (0, utils_1.setBlogQueryParams)(req.query);
-            const foundBlogs = yield this.blogsService.findBlogs(options);
+            const foundBlogs = yield this.blogsRepository.findBlogs(options);
             const totalCount = options.searchNameTerm
                 ? foundBlogs.length
-                : yield this.blogsService.countAllBlogs();
+                : yield this.blogsRepository.countAllBlogs();
             const pagesCount = Math.ceil(totalCount / options.pageSize);
             res.send({
                 pagesCount,
@@ -31,7 +32,11 @@ class BlogsController {
             });
         });
         this.createBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const newBlog = yield this.blogsService.createBlog(req.body);
+            const newBlog = yield this.blogsService.createBlog({
+                name: req.body.name,
+                description: req.body.description,
+                websiteUrl: req.body.websiteUrl,
+            });
             res.status(201).send(newBlog);
         });
         this.createBlogPost = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -40,7 +45,12 @@ class BlogsController {
                 res.sendStatus(404);
             }
             else {
-                const postCreated = yield this.postsService.createBlogPost(blog.id, req.body);
+                const postCreated = yield this.postsService.createBlogPost({
+                    blogId: blog.id,
+                    title: req.body.title,
+                    shortDescription: req.body.shortDescription,
+                    content: req.body.content,
+                });
                 res.status(201).send(postCreated);
             }
         });
@@ -96,6 +106,7 @@ class BlogsController {
         });
         this.blogsService = new blog_service_1.BlogsService();
         this.postsService = new post_service_1.PostsService();
+        this.blogsRepository = new blogs_repository_1.BlogsRepository();
     }
 }
 exports.blogsController = new BlogsController();

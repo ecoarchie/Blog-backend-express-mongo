@@ -1,8 +1,4 @@
-import {
-  BlogPostInputModel,
-  PostInputModel,
-  PostViewModel,
-} from '../models/postModel';
+import { BlogPostInputModel, PostInputModel, PostViewModel } from '../models/postModel';
 import { PostReqQueryModel } from '../models/reqQueryModel';
 import { PostsRepository } from '../repositories/posts-repository';
 
@@ -23,11 +19,8 @@ export class PostsService {
     return this.postsRepository.createPost(data);
   }
 
-  async createBlogPost(
-    blogId: string,
-    postData: BlogPostInputModel
-  ): Promise<PostViewModel> {
-    const blogPost = await this.createPost({ blogId, ...postData });
+  async createBlogPost(postData: PostInputModel): Promise<PostViewModel> {
+    const blogPost = await this.createPost({ ...postData });
     return blogPost;
   }
 
@@ -50,13 +43,7 @@ export class PostsService {
     sortBy: string,
     sortDirection: 'asc' | 'desc'
   ) {
-    return this.postsRepository.findPostsByBlogId(
-      blogId,
-      skip,
-      limit,
-      sortBy,
-      sortDirection
-    );
+    return this.postsRepository.findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection);
   }
 
   async countPostsByBlogId(blogId: string): Promise<number> {

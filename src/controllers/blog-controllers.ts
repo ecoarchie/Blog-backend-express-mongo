@@ -4,22 +4,25 @@ import { PostViewModel } from '../models/postModel';
 import { BlogsService } from '../service/blog-service';
 import { PostsService } from '../service/post-service';
 import { setBlogQueryParams } from './utils';
+import { BlogsRepository } from '../repositories/blogs-repository';
 
 class BlogsController {
   public blogsService: BlogsService;
   public postsService: PostsService;
+  public blogsRepository: BlogsRepository;
   constructor() {
     this.blogsService = new BlogsService();
     this.postsService = new PostsService();
+    this.blogsRepository = new BlogsRepository();
   }
 
   getAllBlogs = async (req: Request, res: Response) => {
     const options = setBlogQueryParams(req.query);
 
-    const foundBlogs = await this.blogsService.findBlogs(options);
+    const foundBlogs = await this.blogsRepository.findBlogs(options);
     const totalCount: number = options.searchNameTerm
       ? foundBlogs.length
-      : await this.blogsService.countAllBlogs();
+      : await this.blogsRepository.countAllBlogs();
     const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
     res.send({
@@ -32,7 +35,11 @@ class BlogsController {
   };
 
   createBlog = async (req: Request, res: Response) => {
-    const newBlog = await this.blogsService.createBlog(req.body);
+    const newBlog = await this.blogsService.createBlog({
+      name: req.body.name,
+      description: req.body.description,
+      websiteUrl: req.body.websiteUrl,
+    });
     res.status(201).send(newBlog);
   };
 
@@ -41,10 +48,12 @@ class BlogsController {
     if (!blog) {
       res.sendStatus(404);
     } else {
-      const postCreated: PostViewModel = await this.postsService.createBlogPost(
-        blog.id!,
-        req.body
-      );
+      const postCreated: PostViewModel = await this.postsService.createBlogPost({
+        blogId: blog.id!,
+        title: req.body.title,
+        shortDescription: req.body.shortDescription,
+        content: req.body.content,
+      });
       res.status(201).send(postCreated);
     }
   };

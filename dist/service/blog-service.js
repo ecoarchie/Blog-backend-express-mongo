@@ -15,11 +15,9 @@ class BlogsService {
     constructor() {
         this.blogsRepository = new blogs_repository_1.BlogsRepository();
     }
-    findBlogs(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.blogsRepository.findBlogs(options);
-        });
-    }
+    // async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
+    //   return this.blogsRepository.findBlogs(options);
+    // }
     deleteAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.blogsRepository.deleteAllBlogs();
