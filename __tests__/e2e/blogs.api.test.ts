@@ -3,7 +3,11 @@ import { app } from '../../src/app.config';
 import { ObjectId } from 'mongodb';
 
 describe('blogs routes', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
+    await request(app).delete('/testing/all-data');
+  });
+
+  afterEach(async () => {
     await request(app).delete('/testing/all-data');
   });
 
@@ -16,6 +20,35 @@ describe('blogs routes', () => {
       await request(app)
         .get('/blogs')
         .expect(200, { pagesCount: 0, page: 1, pageSize: 10, totalCount: 0, items: [] });
+    });
+
+    it('given default search params should return 12 blogs, pagesCount = 2, total count = 12, items = 10 items', async () => {
+      const blogs: any[] = [];
+
+      for (let i = 1; i < 13; i++) {
+        blogs.push({
+          name: `new blog ${i}`,
+          description: `desc ${i}`,
+          websiteUrl: `https://google.com`,
+        });
+      }
+      await Promise.all(
+        blogs.map(async (blog) => {
+          await request(app)
+            .post('/blogs')
+            .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+            .send(blog)
+            .expect(201);
+        })
+      );
+
+      const result = await request(app).get('/blogs').expect(200);
+
+      expect(result.body.pagesCount).toEqual(2);
+      expect(result.body.page).toEqual(1);
+      expect(result.body.pageSize).toEqual(10);
+      expect(result.body.totalCount).toEqual(12);
+      expect(result.body.items.length).toEqual(10);
     });
   });
 

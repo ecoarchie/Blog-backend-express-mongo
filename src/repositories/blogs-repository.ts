@@ -67,11 +67,11 @@ export class BlogsRepository {
       { $set: { ...newDatajson } }
     );
     const { name } = newDatajson;
-    await updatePosts();
+    await updatePostsForUpdatedBlog();
 
     return result.matchedCount === 1;
 
-    async function updatePosts() {
+    async function updatePostsForUpdatedBlog() {
       if (name) {
         await postsCollection.updateMany(
           { blogId: new ObjectId(id) },

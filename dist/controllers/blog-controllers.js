@@ -54,7 +54,11 @@ class BlogsController {
             }
         });
         this.updateBlogById = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const isBlogUpdated = yield this.blogsService.updateBlogById(req.params.id.toString(), req.body);
+            const isBlogUpdated = yield this.blogsService.updateBlogById(req.params.id.toString(), {
+                name: req.body.name,
+                description: req.body.description,
+                websiteUrl: req.body.websiteUrl,
+            });
             if (isBlogUpdated) {
                 res.sendStatus(204);
             }

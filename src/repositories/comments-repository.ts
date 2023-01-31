@@ -62,7 +62,9 @@ export const commentRepository = {
 
   async deleteCommentById(id: string) {
     const result = await commentsCollection.deleteOne({ _id: new ObjectId(id) });
-    //TODO delete comment mentions from all users likes, also delete comment likes
+    /*TODO delete comment mentions from all users likes, also delete comment likes
+      need to rewrite all likes model, place info about user liked/disliked inside comment itself
+    */
 
     return result.deletedCount === 1;
   },

@@ -8,17 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsRepository = exports.BlogsRepository = void 0;
 const mongodb_1 = require("mongodb");
@@ -73,8 +62,8 @@ class BlogsRepository {
             });
             let blogToReturn = null;
             if (blogById) {
-                const { _id } = blogById, rest = __rest(blogById, ["_id"]); //TODO replace destructuring to explicit property assignment, because returned obj from db might have unnecesary properties
-                blogToReturn = Object.assign({ id: _id.toString() }, rest);
+                const { _id, name, description, websiteUrl, createdAt } = blogById;
+                blogToReturn = { id: _id.toString(), name, description, websiteUrl, createdAt };
             }
             return blogToReturn;
         });
@@ -84,8 +73,16 @@ class BlogsRepository {
             if (!mongodb_1.ObjectId.isValid(id))
                 return false;
             const result = yield db_1.blogsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: Object.assign({}, newDatajson) });
-            //TODO update all posts related to this blog
+            const { name } = newDatajson;
+            yield updatePostsForUpdatedBlog();
             return result.matchedCount === 1;
+            function updatePostsForUpdatedBlog() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    if (name) {
+                        yield db_1.postsCollection.updateMany({ blogId: new mongodb_1.ObjectId(id) }, { $set: { blogName: name } });
+                    }
+                });
+            }
         });
     }
     deleteBlogById(id) {

@@ -72,7 +72,9 @@ exports.commentRepository = {
     deleteCommentById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.commentsCollection.deleteOne({ _id: new mongodb_1.ObjectId(id) });
-            //TODO delete comment mentions from all users likes, also delete comment likes
+            /*TODO delete comment mentions from all users likes, also delete comment likes
+              need to rewrite all likes model, place info about user liked/disliked inside comment itself
+            */
             return result.deletedCount === 1;
         });
     },
