@@ -196,6 +196,12 @@ describe('blogs routes', () => {
         createdAt: expect.stringMatching(
           /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/
         ),
+        extendedLikesInfo: {
+          likesCount: 0,
+          dislikesCount: 0,
+          myStatus: 'None',
+          newestLikes: [],
+        },
       });
     });
   });
