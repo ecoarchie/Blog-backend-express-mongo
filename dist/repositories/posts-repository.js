@@ -24,9 +24,10 @@ exports.postsRepository = exports.PostsRepository = void 0;
 const bson_1 = require("bson");
 const blogs_repository_1 = require("./blogs-repository");
 const db_1 = require("./db");
+const users_repository_1 = require("./users-repository");
 const blogsRepository = new blogs_repository_1.BlogsRepository();
 class PostsRepository {
-    getAllPosts(options) {
+    getAllPosts(options, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
             sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
@@ -44,12 +45,36 @@ class PostsRepository {
             const posts = (yield db_1.postsCollection
                 .aggregate(pipeline)
                 .toArray());
+            const postsLikesInfo = yield db_1.postLikesCollection.find().toArray();
+            yield Promise.all(postsLikesInfo.map((p) => __awaiter(this, void 0, void 0, function* () {
+                p.myStatus = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                    field: 'Posts',
+                    fieldId: p.postId.toString(),
+                });
+                console.log(p.myStatus);
+                return p;
+            })));
+            posts.map((post) => {
+                let extendedLikesInfo = postsLikesInfo.find((p) => p.postId.toString() === post.id.toString());
+                post.extendedLikesInfo = {
+                    likesCount: extendedLikesInfo.likesCount,
+                    dislikesCount: extendedLikesInfo.dislikesCount,
+                    myStatus: extendedLikesInfo.myStatus,
+                    newestLikes: extendedLikesInfo.newestLikes.slice(0, 3),
+                };
+                return post;
+            });
             return posts;
         });
     }
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield db_1.postsCollection.deleteMany({});
+        });
+    }
+    deleteAllPostsLikes() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield db_1.postLikesCollection.deleteMany({});
         });
     }
     createPost(data) {
@@ -66,6 +91,14 @@ class PostsRepository {
                 createdAt: new Date().toISOString(),
             };
             const result = yield db_1.postsCollection.insertOne(postToInsert);
+            if (result.insertedId) {
+                db_1.postLikesCollection.insertOne({
+                    postId: result.insertedId,
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                });
+            }
             const newPost = {
                 id: result.insertedId.toString(),
                 title: postToInsert.title,
@@ -78,14 +111,19 @@ class PostsRepository {
             return newPost;
         });
     }
-    getPostById(id) {
+    getPostById(postId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!bson_1.ObjectId.isValid(id))
+            if (!bson_1.ObjectId.isValid(postId))
                 return null;
-            const postById = yield db_1.postsCollection.findOne({ _id: new bson_1.ObjectId(id) });
+            const postById = yield db_1.postsCollection.findOne({ _id: new bson_1.ObjectId(postId) });
             let postToReturn = null;
             if (postById) {
                 const { _id, title, shortDescription, content, blogId, blogName, createdAt } = postById;
+                const postLikesInfo = yield db_1.postLikesCollection.findOne({ postId: new bson_1.ObjectId(postId) }, { projection: { _id: 0 } });
+                const myStatus = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                    field: 'Posts',
+                    fieldId: postId,
+                });
                 postToReturn = {
                     id: _id.toString(),
                     title,
@@ -94,6 +132,12 @@ class PostsRepository {
                     blogId: blogId.toString(),
                     blogName,
                     createdAt,
+                    extendedLikesInfo: {
+                        likesCount: postLikesInfo.likesCount,
+                        dislikesCount: postLikesInfo.dislikesCount,
+                        newestLikes: postLikesInfo.newestLikes.slice(0, 3),
+                        myStatus,
+                    },
                 };
             }
             return postToReturn;
@@ -131,6 +175,96 @@ class PostsRepository {
             if (!bson_1.ObjectId.isValid(postId))
                 return false;
             return (yield db_1.postsCollection.countDocuments({ _id: new bson_1.ObjectId(postId) })) > 0;
+        });
+    }
+    _addToUsersLikeList(userId, postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new bson_1.ObjectId(userId) }, { $push: { likedPosts: postId } });
+        });
+    }
+    _removeFromUsersLikeList(userId, postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new bson_1.ObjectId(userId) }, { $pull: { likedPosts: postId } });
+        });
+    }
+    _addToUsersDislikeList(userId, postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new bson_1.ObjectId(userId) }, { $push: { dislikedPosts: postId } });
+        });
+    }
+    _removeFromUsersDislikeList(userId, postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.userLikesCollection.updateOne({ userId: new bson_1.ObjectId(userId) }, { $pull: { dislikedPosts: postId } });
+        });
+    }
+    _addUserToNewestLikes(userId, postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const foundUser = yield users_repository_1.usersRepository.findUserById(userId);
+            const newestLiked = {
+                addedAt: new Date().toISOString(),
+                userId,
+                login: foundUser.login,
+            };
+            const newestLikesToUpdate = yield db_1.postLikesCollection.findOne({
+                postId: new bson_1.ObjectId(postId),
+            });
+            const newestLikesArray = newestLikesToUpdate.newestLikes;
+            const alreadyLiked = newestLikesArray.find((p) => p.userId === userId);
+            if (!alreadyLiked)
+                newestLikesArray.unshift(newestLiked);
+            const result = yield db_1.postLikesCollection.updateOne({ postId: new bson_1.ObjectId(postId) }, { $set: { newestLikes: newestLikesArray } });
+        });
+    }
+    _removeFromNewestLikes(userId, postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield db_1.postLikesCollection.updateOne({ postId: new bson_1.ObjectId(postId) }, { $pull: { newestLikes: { userId } } });
+        });
+    }
+    likePost(userId, postId, likeStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const likedStatusBefore = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                field: 'Posts',
+                fieldId: postId,
+            });
+            if (likedStatusBefore === likeStatus)
+                return;
+            if (likeStatus === 'None') {
+                if (likedStatusBefore === 'Like') {
+                    yield db_1.postLikesCollection.updateOne({ postId: new bson_1.ObjectId(postId) }, { $inc: { likesCount: -1 } });
+                    yield this._removeFromUsersLikeList(userId, postId);
+                }
+                else if (likedStatusBefore === 'Dislike') {
+                    yield db_1.postLikesCollection.updateOne({ postId: new bson_1.ObjectId(postId) }, { $inc: { dislikesCount: -1 } });
+                    yield this._removeFromUsersDislikeList(userId, postId);
+                }
+                return;
+            }
+            const likedField = likeStatus === 'Like' ? 'likesCount' : 'dislikesCount';
+            if (likedStatusBefore === 'None') {
+                const likedUserField = likeStatus === 'Like' ? 'likedPosts' : 'dislikedPosts';
+                yield db_1.postLikesCollection.updateOne({ postId: new bson_1.ObjectId(postId) }, { $inc: { [likedField]: 1 } });
+                yield db_1.userLikesCollection.updateOne({ userId: new bson_1.ObjectId(userId) }, { $push: { [likedUserField]: postId } });
+                if (likeStatus === 'Like') {
+                    yield this._addUserToNewestLikes(userId, postId);
+                }
+                else {
+                    yield this._removeFromNewestLikes(userId, postId);
+                }
+            }
+            else if (likedStatusBefore === 'Like') {
+                // so likeStatus === 'Dislike'
+                yield db_1.postLikesCollection.updateOne({ postId: new bson_1.ObjectId(postId) }, { $inc: { likesCount: -1, dislikesCount: 1 } });
+                yield this._removeFromUsersLikeList(userId, postId);
+                yield this._addToUsersDislikeList(userId, postId);
+                yield this._removeFromNewestLikes(userId, postId);
+            }
+            else if (likedStatusBefore === 'Dislike') {
+                // so likeStatus === 'Like'
+                yield db_1.postLikesCollection.updateOne({ postId: new bson_1.ObjectId(postId) }, { $inc: { likesCount: 1, dislikesCount: -1 } });
+                yield this._addToUsersLikeList(userId, postId);
+                yield this._removeFromUsersDislikeList(userId, postId);
+                yield this._addUserToNewestLikes(userId, postId);
+            }
         });
     }
 }

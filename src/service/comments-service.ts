@@ -81,11 +81,6 @@ export const commentService = {
     if (!foundComment) return 404;
     try {
       const likeComment = await commentRepository.likeComment(userId, commentId, likeStatus);
-      // const updateUsersLikes = await usersRepository.updateCommentLikes(
-      //   userId,
-      //   commentId,
-      //   likeStatus
-      // );
       return 204;
     } catch (error) {
       console.error(error);

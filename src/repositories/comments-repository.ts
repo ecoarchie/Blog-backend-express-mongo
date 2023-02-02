@@ -187,7 +187,10 @@ export const commentRepository = {
   },
 
   async likeComment(userId: string, commentId: string, likeStatus: string) {
-    const likedStatusBefore = await usersRepository.checkLikeStatus(userId, commentId);
+    const likedStatusBefore = await usersRepository.checkLikeStatus(userId, {
+      field: 'Comments',
+      fieldId: commentId,
+    });
     if (likeStatus === 'None') {
       if (likedStatusBefore === 'Like') {
         await commentLikesCollection.updateOne(

@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { BlogDBModel } from '../models/blogModel';
 import { CommentDBModel, CommentLikesDBModel } from '../models/commentModel';
-import { PostDBModel } from '../models/postModel';
+import { PostDBModel, PostLikesDBModel } from '../models/postModel';
 import { TokenDBModel } from '../models/tokenModels';
 import { UserDBModel } from '../models/userModels';
 import { UserSessionModel } from '../models/UserSessionModel';
@@ -19,8 +19,8 @@ export const commentsCollection = db.collection<CommentDBModel>('comments');
 export const tokensCollection = db.collection<TokenDBModel>('tokens');
 export const userSessionCollection = db.collection<UserSessionModel>('sessions');
 export const userLikesCollection = db.collection<UsersLikesDBModel>('usersLikes');
-export const commentLikesCollection =
-  db.collection<CommentLikesDBModel>('commentLikes');
+export const commentLikesCollection = db.collection<CommentLikesDBModel>('commentLikes');
+export const postLikesCollection = db.collection<PostLikesDBModel>('postLikes');
 
 export async function runDb() {
   try {

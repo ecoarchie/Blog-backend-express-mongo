@@ -15,6 +15,9 @@ import { commentRepository } from './repositories/comments-repository';
 import { sessionRouter } from './routes/session-routers';
 import useragent from 'express-useragent';
 import { sessionService } from './application/session-service';
+import { postBodyValidation } from './middlewares/input-validation-middleware';
+import { postLikesCollection } from './repositories/db';
+import { PostsService } from './service/post-service';
 
 dotenv.config();
 
@@ -24,7 +27,7 @@ export const port = process.env.PORT;
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(useragent.express());
-app.use(morgan('combined'));
+app.use(morgan('tiny'));
 app.set('trust proxy', true);
 app.use('/blogs', blogRouter);
 app.use('/posts', postRouter);
@@ -44,6 +47,7 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
   await usersRepository.deleteAllUsers();
   await commentRepository.deleteAllComments();
   await sessionService.deleteAllSessions();
+  await postsRepository.deleteAllPostsLikes();
   res.sendStatus(204);
   return;
 });

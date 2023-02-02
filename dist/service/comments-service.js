@@ -76,11 +76,6 @@ exports.commentService = {
                 return 404;
             try {
                 const likeComment = yield comments_repository_1.commentRepository.likeComment(userId, commentId, likeStatus);
-                // const updateUsersLikes = await usersRepository.updateCommentLikes(
-                //   userId,
-                //   commentId,
-                //   likeStatus
-                // );
                 return 204;
             }
             catch (error) {

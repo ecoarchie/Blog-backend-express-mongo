@@ -3,6 +3,7 @@ import { postsController } from '../controllers/post-controllers';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import { isValidBlogId } from '../middlewares/blog-id-custom-validator';
 import {
+  LikeBodyValidation,
   commentBodyValidation,
   inputValidatiomMiddleware,
   postBodyValidation,
@@ -11,7 +12,7 @@ import { accessTokenValidation, jwtAuthMware } from '../middlewares/jwt-auth-mwa
 
 export const postRouter = Router();
 
-postRouter.get('/', postsController.getAllPostsController);
+postRouter.get('/', accessTokenValidation, postsController.getAllPostsController);
 
 postRouter.post(
   '/',
@@ -22,7 +23,7 @@ postRouter.post(
   postsController.createPostController
 );
 
-postRouter.get('/:id', postsController.getPostByIdController);
+postRouter.get('/:id', accessTokenValidation, postsController.getPostByIdController);
 
 postRouter.put(
   '/:id',
@@ -47,4 +48,12 @@ postRouter.post(
   commentBodyValidation(),
   inputValidatiomMiddleware,
   postsController.createCommentForPostController
+);
+
+postRouter.put(
+  '/:postId/like-status',
+  jwtAuthMware,
+  LikeBodyValidation(),
+  inputValidatiomMiddleware,
+  postsController.likePostController
 );

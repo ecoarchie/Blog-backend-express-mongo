@@ -2,6 +2,11 @@ import { ObjectId, WithId, Document } from 'mongodb';
 
 export type LikeStatus = 'None' | 'Like' | 'Dislike';
 
+export type LikeStatusObject = {
+  field: string;
+  fieldId: string;
+};
+
 export interface LikeInputModel {
   likeStatus: LikeStatus;
 }

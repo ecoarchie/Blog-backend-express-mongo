@@ -16,6 +16,12 @@ export type PostViewModel = PostInputModel & {
   id?: string;
   blogName: string;
   createdAt: string;
+  extendedLikesInfo?: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: string;
+    newestLikes: NewestLikesModel[];
+  };
 };
 
 export type PostDBModel = {
@@ -27,3 +33,17 @@ export type PostDBModel = {
   blogName: string;
   createdAt: string;
 };
+
+export interface NewestLikesModel {
+  addedAt: string;
+  userId: string;
+  login: string;
+}
+
+export interface PostLikesDBModel {
+  postId: ObjectId;
+  likesCount: number;
+  dislikesCount: number;
+  myStatus?: string;
+  newestLikes: NewestLikesModel[];
+}

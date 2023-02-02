@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runDb = exports.commentLikesCollection = exports.userLikesCollection = exports.userSessionCollection = exports.tokensCollection = exports.commentsCollection = exports.usersCollection = exports.postsCollection = exports.blogsCollection = void 0;
+exports.runDb = exports.postLikesCollection = exports.commentLikesCollection = exports.userLikesCollection = exports.userSessionCollection = exports.tokensCollection = exports.commentsCollection = exports.usersCollection = exports.postsCollection = exports.blogsCollection = void 0;
 const mongodb_1 = require("mongodb");
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017';
 const client = new mongodb_1.MongoClient(mongoUri);
@@ -22,6 +22,7 @@ exports.tokensCollection = db.collection('tokens');
 exports.userSessionCollection = db.collection('sessions');
 exports.userLikesCollection = db.collection('usersLikes');
 exports.commentLikesCollection = db.collection('commentLikes');
+exports.postLikesCollection = db.collection('postLikes');
 function runDb() {
     return __awaiter(this, void 0, void 0, function* () {
         try {

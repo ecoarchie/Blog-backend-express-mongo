@@ -19,7 +19,7 @@ export class PostsController {
   getAllPostsController = async (req: Request, res: Response) => {
     const options = setPostQueryParams(req.query);
 
-    const foundPosts = await this.postsRepository.getAllPosts(options);
+    const foundPosts = await this.postsRepository.getAllPosts(options, req.user!.id || '');
     const totalCount: number = options.searchNameTerm
       ? foundPosts.length
       : await this.postsService.countAllPosts();
@@ -46,7 +46,8 @@ export class PostsController {
 
   getPostByIdController = async (req: Request, res: Response) => {
     const postFound: PostViewModel | null = await this.postsRepository.getPostById(
-      req.params.id.toString()
+      req.params.id.toString(),
+      req.user?.id || ''
     );
     if (postFound) {
       res.send(postFound);
@@ -143,6 +144,15 @@ export class PostsController {
       req.body.content
     );
     res.status(201).send(newComment);
+  };
+
+  likePostController = async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const postId = req.params.postId;
+    const likeStatus = req.body.likeStatus;
+
+    const resStatus = await this.postsService.likePostService(userId, postId, likeStatus);
+    res.sendStatus(resStatus);
   };
 }
 

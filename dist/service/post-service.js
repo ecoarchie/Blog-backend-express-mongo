@@ -12,12 +12,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsService = void 0;
 const posts_repository_1 = require("../repositories/posts-repository");
 class PostsService {
+    static deleteAllPostsLikes() {
+        throw new Error('Method not implemented.');
+    }
     constructor() {
         this.postsRepository = new posts_repository_1.PostsRepository();
     }
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.postsRepository.deleteAllPosts();
+        });
+    }
+    deleteAllPostsLikes() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.postsRepository.deleteAllPostsLikes();
         });
     }
     createPost(data) {
@@ -49,6 +57,21 @@ class PostsService {
     countAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.postsRepository.countAllPosts();
+        });
+    }
+    likePostService(userId, postId, likeStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const foundPost = yield this.postsRepository.getPostById(postId, userId);
+            if (!foundPost)
+                return 404;
+            try {
+                const likePost = yield this.postsRepository.likePost(userId, postId, likeStatus);
+                return 204;
+            }
+            catch (error) {
+                console.error(error);
+                return 404;
+            }
         });
     }
 }

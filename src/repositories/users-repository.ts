@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { UserReqQueryModel } from '../models/reqQueryModel';
 import { passwordRecoveryCodeModel, UserDBModel, UserViewModel } from '../models/userModels';
 import { userLikesCollection, usersCollection } from './db';
-import { LikeStatus, UsersLikesDBModel } from '../models/likeModel';
+import { LikeStatus, LikeStatusObject, UsersLikesDBModel } from '../models/likeModel';
 
 export const usersRepository = {
   async deleteAllUsers() {
@@ -169,32 +169,27 @@ export const usersRepository = {
     return result.matchedCount === 1;
   },
 
-  async checkLikeStatus(userId: string, commentId: string): Promise<LikeStatus> {
-    const foundUser = await userLikesCollection.findOne({
+  async checkLikeStatus(userId: string, likeStatusObj: LikeStatusObject): Promise<LikeStatus> {
+    if (!ObjectId.isValid(userId)) {
+      console.log('here');
+      return 'None';
+    }
+    // const searchLikedField: any = {};
+    // const likedKey = 'liked'.concat(likeStatusObj.field);
+    // searchLikedField[likedKey] = likeStatusObj.fieldId;
+    const resLiked = await userLikesCollection.findOne({
       userId: new ObjectId(userId),
     });
-    // if (!foundUser) {
-    //   await userLikesCollection.insertOne({
-    //     userId: new ObjectId(userId),
-    //     likedComments: [],
-    //     dislikedComments: [],
-    //     likedPosts: [],
-    //     dislikedPosts: [],
-    //   });
-    // }
-    const resLiked = await userLikesCollection.findOne({
-      $and: [{ userId: new ObjectId(userId) }, { likedComments: commentId }],
-    });
-    if (resLiked) return 'Like';
-    const resDisliked = await userLikesCollection.findOne({
-      $and: [{ userId: new ObjectId(userId) }, { dislikedComments: commentId }],
-    });
-    if (resDisliked) return 'Dislike';
+    if (resLiked?.likedPosts.includes(likeStatusObj.fieldId)) return 'Like';
+    if (resLiked?.dislikedPosts.includes(likeStatusObj.fieldId)) return 'Dislike';
+
+    // const searchDislikedField: any = {};
+    // const dislikedKey = 'disliked'.concat(likeStatusObj.field);
+    // searchDislikedField[dislikedKey] = likeStatusObj.fieldId;
+    // const resDisliked = await userLikesCollection.findOne({
+    //   $and: [{ userId: new ObjectId(userId) }, { [dislikedKey]: [likeStatusObj.fieldId] }],
+    // });
+    // if (resDisliked) return 'Dislike';
     return 'None';
-    // let result: 'None' | 'Like' | 'Dislike' = 'None';
-    // if (resLiked) result = 'Like';
-    // else if (resDisliked) result = 'Dislike';
-    // else result = 'None';
-    // return result;
   },
 };

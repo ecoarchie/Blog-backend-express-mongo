@@ -388,6 +388,45 @@ describe('Comments routes', () => {
       );
     });
 
+    it('should return comment with status "like" and count of likes = 1, after 2 consequtive likes by one user', async () => {
+      const comment = await request(app)
+        .post(`/posts/${postId}/comments`)
+        .set('Cookie', refreshToken)
+        .set('authorization', `Bearer ${accessToken}`)
+        .send({
+          content: 'comment 1111111111111111111111111111111111',
+        })
+        .expect(201);
+
+      await request(app)
+        .put(`/comments/${comment.body.id}/like-status`)
+        .set('Cookie', refreshToken)
+        .set('authorization', `Bearer ${accessToken}`)
+        .send({
+          likeStatus: 'Like',
+        })
+        .expect(204);
+
+      await request(app)
+        .put(`/comments/${comment.body.id}/like-status`)
+        .set('Cookie', refreshToken)
+        .set('authorization', `Bearer ${accessToken}`)
+        .send({
+          likeStatus: 'Like',
+        })
+        .expect(204);
+
+      const result = await request(app)
+        .get(`/comments/${comment.body.id}`)
+        .set('Cookie', refreshToken)
+        .set('authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(result.body.likesInfo.likesCount).toBe(1);
+      expect(result.body.content).toBe('comment 1111111111111111111111111111111111');
+      expect(result.body.likesInfo.myStatus).toBe('Like');
+    });
+
     it('should return comment with 1 like and 2 dislikes', async () => {
       const comment = await request(app)
         .post(`/posts/${postId}/comments`)

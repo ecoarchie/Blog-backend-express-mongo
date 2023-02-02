@@ -164,36 +164,30 @@ exports.usersRepository = {
             return result.matchedCount === 1;
         });
     },
-    checkLikeStatus(userId, commentId) {
+    checkLikeStatus(userId, likeStatusObj) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundUser = yield db_1.userLikesCollection.findOne({
+            if (!mongodb_1.ObjectId.isValid(userId)) {
+                console.log('here');
+                return 'None';
+            }
+            // const searchLikedField: any = {};
+            // const likedKey = 'liked'.concat(likeStatusObj.field);
+            // searchLikedField[likedKey] = likeStatusObj.fieldId;
+            const resLiked = yield db_1.userLikesCollection.findOne({
                 userId: new mongodb_1.ObjectId(userId),
             });
-            // if (!foundUser) {
-            //   await userLikesCollection.insertOne({
-            //     userId: new ObjectId(userId),
-            //     likedComments: [],
-            //     dislikedComments: [],
-            //     likedPosts: [],
-            //     dislikedPosts: [],
-            //   });
-            // }
-            const resLiked = yield db_1.userLikesCollection.findOne({
-                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { likedComments: commentId }],
-            });
-            if (resLiked)
+            if (resLiked === null || resLiked === void 0 ? void 0 : resLiked.likedPosts.includes(likeStatusObj.fieldId))
                 return 'Like';
-            const resDisliked = yield db_1.userLikesCollection.findOne({
-                $and: [{ userId: new mongodb_1.ObjectId(userId) }, { dislikedComments: commentId }],
-            });
-            if (resDisliked)
+            if (resLiked === null || resLiked === void 0 ? void 0 : resLiked.dislikedPosts.includes(likeStatusObj.fieldId))
                 return 'Dislike';
+            // const searchDislikedField: any = {};
+            // const dislikedKey = 'disliked'.concat(likeStatusObj.field);
+            // searchDislikedField[dislikedKey] = likeStatusObj.fieldId;
+            // const resDisliked = await userLikesCollection.findOne({
+            //   $and: [{ userId: new ObjectId(userId) }, { [dislikedKey]: [likeStatusObj.fieldId] }],
+            // });
+            // if (resDisliked) return 'Dislike';
             return 'None';
-            // let result: 'None' | 'Like' | 'Dislike' = 'None';
-            // if (resLiked) result = 'Like';
-            // else if (resDisliked) result = 'Dislike';
-            // else result = 'None';
-            // return result;
         });
     },
 };

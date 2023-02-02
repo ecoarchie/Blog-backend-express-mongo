@@ -97,7 +97,7 @@ describe('posts routes', () => {
   });
 
   describe('GET "/posts/{id}"  - find post by ID', () => {
-    it('should find blog if id is valid', async () => {
+    it('should find post if id is valid', async () => {
       const blogToCreate = {
         name: 'new blog',
         description: 'desc',
@@ -126,9 +126,16 @@ describe('posts routes', () => {
       const createdPost = response.body;
 
       const postToFind = await request(app).get(`/posts/${createdPost.id}`).expect(200);
+      expect(postToFind.body.id).toBe(createdPost.id);
       expect(postToFind.body.title).toBe('new post1');
       expect(postToFind.body.shortDescription).toBe('blog with created date field');
       expect(postToFind.body.content).toBe('https://email.com');
+      expect(postToFind.body.extendedLikesInfo).toStrictEqual({
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      });
     });
 
     it('should NOT find post with invalid ID', async () => {

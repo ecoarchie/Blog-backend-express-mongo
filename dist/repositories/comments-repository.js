@@ -185,7 +185,10 @@ exports.commentRepository = {
     },
     likeComment(userId, commentId, likeStatus) {
         return __awaiter(this, void 0, void 0, function* () {
-            const likedStatusBefore = yield users_repository_1.usersRepository.checkLikeStatus(userId, commentId);
+            const likedStatusBefore = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                field: 'Comments',
+                fieldId: commentId,
+            });
             if (likeStatus === 'None') {
                 if (likedStatusBefore === 'Like') {
                     yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { 'likesInfo.likesCount': -1 } });
