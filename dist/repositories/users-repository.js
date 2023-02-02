@@ -167,7 +167,6 @@ exports.usersRepository = {
     checkLikeStatus(userId, likeStatusObj) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mongodb_1.ObjectId.isValid(userId)) {
-                console.log('here');
                 return 'None';
             }
             // const searchLikedField: any = {};

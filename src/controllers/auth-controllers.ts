@@ -18,7 +18,6 @@ export const loginUserController = async (req: Request, res: Response) => {
   const userLoginOrEmail = req.body.loginOrEmail;
 
   const userId = await usersService.checkCredentials(userLoginOrEmail, userPassword);
-  // console.log('user id when login', userId);
   if (userId) {
     const token = await jwtService.createJwt(userId);
     const lastActiveDate = new Date().toISOString();
@@ -143,7 +142,6 @@ export const refreshTokenController = async (req: Request, res: Response) => {
       validUserSession.deviceId
     );
     const tokenExpireDate: any = jwt.verify(newRefreshToken, process.env.SECRET!);
-    // console.log('token nn ', tokenExpireDate);
     const newSession: UserSessionModel = {
       ...validUserSession,
       ip: req.header('x-forwarded-for') || (req.socket.remoteAddress as string),

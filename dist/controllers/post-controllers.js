@@ -130,7 +130,7 @@ class PostsController {
             res.status(201).send(newComment);
         });
         this.likePostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userId = req.user.id;
+            const userId = req.user ? req.user.id : '';
             const postId = req.params.postId;
             const likeStatus = req.body.likeStatus;
             const resStatus = yield this.postsService.likePostService(userId, postId, likeStatus);

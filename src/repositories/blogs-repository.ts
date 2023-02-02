@@ -1,7 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel';
 import { BlogReqQueryModel } from '../models/reqQueryModel';
-import { blogsCollection, postsCollection } from './db';
+import { blogsCollection, postLikesCollection, postsCollection } from './db';
+import { usersRepository } from './users-repository';
 
 export class BlogsRepository {
   async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
@@ -86,7 +87,8 @@ export class BlogsRepository {
     skip: number,
     limit: number,
     sortBy: string,
-    sortDirection: 'asc' | 'desc'
+    sortDirection: 'asc' | 'desc',
+    userId: string
   ) {
     const sort: any = {};
     sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
@@ -99,13 +101,28 @@ export class BlogsRepository {
       { $project: { _id: 0 } },
     ];
 
-    const posts: Array<BlogViewModel> = (
-      await postsCollection.aggregate(pipeline).toArray()
-    ).map((post) => {
+    const postsLikesInfo = await postLikesCollection.find().toArray();
+    await Promise.all(
+      postsLikesInfo.map(async (p) => {
+        p.myStatus = await usersRepository.checkLikeStatus(userId, {
+          field: 'Posts',
+          fieldId: p.postId.toString(),
+        });
+        return p;
+      })
+    );
+    const posts = (await postsCollection.aggregate(pipeline).toArray()).map((post) => {
       post.id = post.id.toString();
       post.blogId = post.blogId.toString();
+      let extendedLikesInfo = postsLikesInfo.find((p) => p.postId.toString() === post.id);
+      post.extendedLikesInfo = {
+        likesCount: extendedLikesInfo!.likesCount,
+        dislikesCount: extendedLikesInfo!.dislikesCount,
+        myStatus: extendedLikesInfo!.myStatus!,
+        newestLikes: extendedLikesInfo!.newestLikes.slice(0, 3),
+      };
       return post;
-    }) as Array<BlogViewModel>;
+    });
     return posts;
   }
 

@@ -51,7 +51,6 @@ class PostsRepository {
                     field: 'Posts',
                     fieldId: p.postId.toString(),
                 });
-                console.log(p.myStatus);
                 return p;
             })));
             posts.map((post) => {
@@ -107,6 +106,12 @@ class PostsRepository {
                 blogId: blogId,
                 blogName: postToInsert.blogName,
                 createdAt: postToInsert.createdAt,
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    myStatus: 'None',
+                    newestLikes: [],
+                },
             };
             return newPost;
         });

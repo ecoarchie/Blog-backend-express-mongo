@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
+const users_repository_1 = require("./users-repository");
 class BlogsRepository {
     findBlogs(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -85,7 +86,7 @@ class BlogsRepository {
             }
         });
     }
-    findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection) {
+    findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
             sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
@@ -97,9 +98,24 @@ class BlogsRepository {
                 { $limit: limit },
                 { $project: { _id: 0 } },
             ];
+            const postsLikesInfo = yield db_1.postLikesCollection.find().toArray();
+            yield Promise.all(postsLikesInfo.map((p) => __awaiter(this, void 0, void 0, function* () {
+                p.myStatus = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                    field: 'Posts',
+                    fieldId: p.postId.toString(),
+                });
+                return p;
+            })));
             const posts = (yield db_1.postsCollection.aggregate(pipeline).toArray()).map((post) => {
                 post.id = post.id.toString();
                 post.blogId = post.blogId.toString();
+                let extendedLikesInfo = postsLikesInfo.find((p) => p.postId.toString() === post.id);
+                post.extendedLikesInfo = {
+                    likesCount: extendedLikesInfo.likesCount,
+                    dislikesCount: extendedLikesInfo.dislikesCount,
+                    myStatus: extendedLikesInfo.myStatus,
+                    newestLikes: extendedLikesInfo.newestLikes.slice(0, 3),
+                };
                 return post;
             });
             return posts;

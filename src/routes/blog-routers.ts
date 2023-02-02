@@ -6,6 +6,7 @@ import {
 } from '../middlewares/input-validation-middleware';
 import { BlogsController } from '../controllers/blog-controllers';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
+import { accessTokenValidation } from '../middlewares/jwt-auth-mware';
 
 export const blogRouter = Router();
 const blogsController = new BlogsController();
@@ -40,4 +41,4 @@ blogRouter.put(
 
 blogRouter.delete('/:id', basicAuthMiddleware, blogsController.deleteBlogById);
 
-blogRouter.get('/:blogId/posts', blogsController.getPostsByBlogId);
+blogRouter.get('/:blogId/posts', accessTokenValidation, blogsController.getPostsByBlogId);

@@ -16,6 +16,8 @@ exports.accessTokenValidation = exports.jwtAuthMware = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 const jwt_service_1 = require("../application/jwt-service");
 const user_service_1 = require("../service/user-service");
+const db_1 = require("../repositories/db");
+const mongodb_1 = require("mongodb");
 dotenv_1.default.config();
 const jwtAuthMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const authorization = req.headers.authorization;
@@ -24,6 +26,11 @@ const jwtAuthMware = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
     const token = authorization.split(' ')[1];
     const userId = yield jwt_service_1.jwtService.getUserIdByToken(token);
+    const result = userId
+        ? yield db_1.userSessionCollection.findOne({ userId: new mongodb_1.ObjectId(userId) })
+        : null;
+    if (!result)
+        return res.sendStatus(401);
     if (userId) {
         req.user = yield user_service_1.usersService.findUserByIdService(userId);
         return next();

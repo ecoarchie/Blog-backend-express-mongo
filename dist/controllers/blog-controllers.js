@@ -86,13 +86,14 @@ class BlogsController {
             }
         });
         this.getPostsByBlogId = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const blog = yield this.blogsRepository.findBlogById(req.params.blogId.toString());
             if (!blog) {
                 res.sendStatus(404);
             }
             else {
                 const { pageNumber, pageSize, sortBy, sortDirection, skip } = (0, utils_1.setBlogQueryParams)(req.query);
-                const posts = yield this.blogsRepository.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection);
+                const posts = yield this.blogsRepository.findPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection, ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || '');
                 const totalCount = yield this.postsService.countPostsByBlogId(blog.id.toString());
                 const pagesCount = Math.ceil(totalCount / pageSize);
                 res.send({

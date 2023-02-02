@@ -101,7 +101,6 @@ export class BlogsController {
     const blog: BlogViewModel | null = await this.blogsRepository.findBlogById(
       req.params.blogId.toString()
     );
-
     if (!blog) {
       res.sendStatus(404);
     } else {
@@ -109,12 +108,13 @@ export class BlogsController {
         req.query
       );
 
-      const posts: Array<BlogViewModel> = await this.blogsRepository.findPostsByBlogId(
+      const posts = await this.blogsRepository.findPostsByBlogId(
         blog.id!.toString(),
         skip,
         pageSize,
         sortBy,
-        sortDirection
+        sortDirection,
+        req.user?.id || ''
       );
 
       const totalCount: number = await this.postsService.countPostsByBlogId(

@@ -28,7 +28,6 @@ const loginUserController = (req, res) => __awaiter(void 0, void 0, void 0, func
     const userPassword = req.body.password;
     const userLoginOrEmail = req.body.loginOrEmail;
     const userId = yield user_service_1.usersService.checkCredentials(userLoginOrEmail, userPassword);
-    // console.log('user id when login', userId);
     if (userId) {
         const token = yield jwt_service_1.jwtService.createJwt(userId);
         const lastActiveDate = new Date().toISOString();
@@ -140,7 +139,6 @@ const refreshTokenController = (req, res) => __awaiter(void 0, void 0, void 0, f
         const newActiveDate = new Date().toISOString();
         const newRefreshToken = yield jwt_service_1.jwtService.createJwtRefresh(validUserSession.userId.toString(), newActiveDate, validUserSession.deviceId);
         const tokenExpireDate = jsonwebtoken_1.default.verify(newRefreshToken, process.env.SECRET);
-        // console.log('token nn ', tokenExpireDate);
         const newSession = Object.assign(Object.assign({}, validUserSession), { ip: req.header('x-forwarded-for') || req.socket.remoteAddress, title: (_c = req.useragent) === null || _c === void 0 ? void 0 : _c.source, lastActiveDate: newActiveDate, tokenExpireDate: tokenExpireDate.exp });
         yield session_service_1.sessionService.updateSession(newSession);
         res.cookie('refreshToken', newRefreshToken, {

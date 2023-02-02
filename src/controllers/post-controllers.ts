@@ -147,7 +147,7 @@ export class PostsController {
   };
 
   likePostController = async (req: Request, res: Response) => {
-    const userId = req.user!.id;
+    const userId = req.user ? req.user.id : '';
     const postId = req.params.postId;
     const likeStatus = req.body.likeStatus;
 

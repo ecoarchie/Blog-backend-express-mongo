@@ -171,7 +171,6 @@ export const usersRepository = {
 
   async checkLikeStatus(userId: string, likeStatusObj: LikeStatusObject): Promise<LikeStatus> {
     if (!ObjectId.isValid(userId)) {
-      console.log('here');
       return 'None';
     }
     // const searchLikedField: any = {};
