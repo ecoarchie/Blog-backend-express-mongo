@@ -5,14 +5,15 @@ import { BlogsService } from '../service/blog-service';
 import { PostsService } from '../service/post-service';
 import { setBlogQueryParams } from './utils';
 import { BlogsRepository } from '../repositories/blogs-repository';
+import { inject, injectable } from 'inversify';
 
+@injectable()
 export class BlogsController {
-  private postsService: PostsService;
-  private blogsRepository: BlogsRepository;
-  constructor(protected blogsService: BlogsService) {
-    this.postsService = new PostsService();
-    this.blogsRepository = new BlogsRepository();
-  }
+  constructor(
+    protected blogsService: BlogsService,
+    protected postsService: PostsService,
+    protected blogsRepository: BlogsRepository
+  ) {}
 
   getAllBlogs = async (req: Request, res: Response) => {
     const options = setBlogQueryParams(req.query);

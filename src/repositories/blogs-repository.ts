@@ -3,7 +3,9 @@ import { BlogViewModel, BlogInputModel, BlogDBModel } from '../models/blogModel'
 import { BlogReqQueryModel } from '../models/reqQueryModel';
 import { blogsCollection, postLikesCollection, postsCollection } from './db';
 import { usersRepository } from './users-repository';
+import { injectable } from 'inversify';
 
+@injectable()
 export class BlogsRepository {
   async findBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
     const sort: any = {};

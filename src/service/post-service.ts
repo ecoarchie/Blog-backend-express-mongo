@@ -1,10 +1,9 @@
+import { injectable } from 'inversify';
 import { PostInputModel, PostViewModel } from '../models/postModel';
 import { PostsRepository } from '../repositories/posts-repository';
 
+@injectable()
 export class PostsService {
-  static deleteAllPostsLikes() {
-    throw new Error('Method not implemented.');
-  }
   postsRepository: PostsRepository;
   constructor() {
     this.postsRepository = new PostsRepository();

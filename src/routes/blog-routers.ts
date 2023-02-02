@@ -4,13 +4,14 @@ import {
   inputValidatiomMiddleware,
   postBodyValidation,
 } from '../middlewares/input-validation-middleware';
-import { BlogsController } from '../controllers/blog-controllers';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import { accessTokenValidation } from '../middlewares/jwt-auth-mware';
-import { blogsController } from '../composition-root';
+import { container } from '../composition-root';
+import { BlogsController } from '../controllers/blog-controllers';
+
+const blogsController = container.resolve(BlogsController);
 
 export const blogRouter = Router();
-// const blogsController = new BlogsController();
 
 blogRouter.get('/', blogsController.getAllBlogs);
 
