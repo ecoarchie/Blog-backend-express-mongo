@@ -7,11 +7,9 @@ import { setBlogQueryParams } from './utils';
 import { BlogsRepository } from '../repositories/blogs-repository';
 
 export class BlogsController {
-  private blogsService: BlogsService;
   private postsService: PostsService;
   private blogsRepository: BlogsRepository;
-  constructor() {
-    this.blogsService = new BlogsService();
+  constructor(protected blogsService: BlogsService) {
     this.postsService = new PostsService();
     this.blogsRepository = new BlogsRepository();
   }

@@ -7,9 +7,10 @@ import {
 import { BlogsController } from '../controllers/blog-controllers';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import { accessTokenValidation } from '../middlewares/jwt-auth-mware';
+import { blogsController } from '../composition-root';
 
 export const blogRouter = Router();
-const blogsController = new BlogsController();
+// const blogsController = new BlogsController();
 
 blogRouter.get('/', blogsController.getAllBlogs);
 

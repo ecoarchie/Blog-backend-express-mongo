@@ -2,11 +2,7 @@ import { BlogViewModel, BlogInputModel } from '../models/blogModel';
 import { BlogsRepository } from '../repositories/blogs-repository';
 
 export class BlogsService {
-  private blogsRepository: BlogsRepository;
-
-  constructor() {
-    this.blogsRepository = new BlogsRepository();
-  }
+  constructor(protected blogsRepository: BlogsRepository) {}
 
   async deleteAllBlogs() {
     return this.blogsRepository.deleteAllBlogs();

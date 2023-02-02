@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsController = void 0;
-const blog_service_1 = require("../service/blog-service");
 const post_service_1 = require("../service/post-service");
 const utils_1 = require("./utils");
 const blogs_repository_1 = require("../repositories/blogs-repository");
 class BlogsController {
-    constructor() {
+    constructor(blogsService) {
+        this.blogsService = blogsService;
         this.getAllBlogs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const options = (0, utils_1.setBlogQueryParams)(req.query);
             const foundBlogs = yield this.blogsRepository.findBlogs(options);
@@ -105,7 +105,6 @@ class BlogsController {
                 });
             }
         });
-        this.blogsService = new blog_service_1.BlogsService();
         this.postsService = new post_service_1.PostsService();
         this.blogsRepository = new blogs_repository_1.BlogsRepository();
     }
