@@ -10,9 +10,9 @@ import { inject, injectable } from 'inversify';
 @injectable()
 export class BlogsController {
   constructor(
-    protected blogsService: BlogsService,
-    protected postsService: PostsService,
-    protected blogsRepository: BlogsRepository
+    @inject(BlogsService) protected blogsService: BlogsService,
+    @inject(PostsService) protected postsService: PostsService,
+    @inject(BlogsRepository) protected blogsRepository: BlogsRepository
   ) {}
 
   getAllBlogs = async (req: Request, res: Response) => {
