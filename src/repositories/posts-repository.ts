@@ -1,4 +1,5 @@
 import { ObjectId, ObjectID } from 'bson';
+import { inject, injectable } from 'inversify';
 import { BlogViewModel } from '../models/blogModel';
 import {
   NewestLikesModel,
@@ -11,8 +12,10 @@ import { BlogsRepository } from './blogs-repository';
 import { postLikesCollection, postsCollection, userLikesCollection } from './db';
 import { usersRepository } from './users-repository';
 
-const blogsRepository = new BlogsRepository();
+@injectable()
 export class PostsRepository {
+  constructor(@inject(BlogsRepository) protected blogsRepository: BlogsRepository) {}
+
   async getAllPosts(options: PostReqQueryModel, userId: string): Promise<PostViewModel[]> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
@@ -67,7 +70,7 @@ export class PostsRepository {
 
   async createPost(data: PostInputModel): Promise<PostViewModel> {
     const { title, shortDescription, content, blogId } = data;
-    const blog = (await blogsRepository.findBlogById(blogId)) as BlogViewModel;
+    const blog = (await this.blogsRepository.findBlogById(blogId)) as BlogViewModel;
     const blogName = blog.name;
     const postToInsert: PostDBModel = {
       title,
@@ -284,4 +287,3 @@ export class PostsRepository {
     }
   }
 }
-export const postsRepository = new PostsRepository();

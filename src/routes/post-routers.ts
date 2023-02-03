@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { postsController } from '../controllers/post-controllers';
+import { container } from '../composition-root';
+import { PostsController } from '../controllers/post-controllers';
 import { basicAuthMiddleware } from '../middlewares/basic-auth-middleware';
 import { isValidBlogId } from '../middlewares/blog-id-custom-validator';
 import {
@@ -9,6 +10,8 @@ import {
   postBodyValidation,
 } from '../middlewares/input-validation-middleware';
 import { accessTokenValidation, jwtAuthMware } from '../middlewares/jwt-auth-mware';
+
+const postsController = container.resolve(PostsController);
 
 export const postRouter = Router();
 

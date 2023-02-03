@@ -191,6 +191,20 @@ export const commentRepository = {
       field: 'Comments',
       fieldId: commentId,
     });
+    console.log(
+      '🚀 ~ file: comments-repository.ts:194 ~ likeComment ~ likedStatusBefore',
+      likedStatusBefore
+    );
+
+    if (likedStatusBefore === likeStatus) {
+      return;
+      //below is method when double like/dislike cancels first like/dislike.
+      // await commentLikesCollection.updateOne(
+      //   { commentId: new Object(commentId) },
+      //   { $inc: { [likedField]: -1 } }
+      // );
+    }
+
     if (likeStatus === 'None') {
       if (likedStatusBefore === 'Like') {
         await commentLikesCollection.updateOne(
@@ -209,14 +223,6 @@ export const commentRepository = {
     }
     const likedField =
       likeStatus === 'Like' ? 'likesInfo.likesCount' : 'likesInfo.dislikesCount';
-    if (likedStatusBefore === likeStatus) {
-      return;
-      //below is method when double like/dislike cancels first like/dislike.
-      // await commentLikesCollection.updateOne(
-      //   { commentId: new Object(commentId) },
-      //   { $inc: { [likedField]: -1 } }
-      // );
-    }
 
     if (likedStatusBefore === 'None') {
       const likedUserField = likeStatus === 'Like' ? 'likedComments' : 'dislikedComments';

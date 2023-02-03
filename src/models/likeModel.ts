@@ -3,7 +3,7 @@ import { ObjectId, WithId, Document } from 'mongodb';
 export type LikeStatus = 'None' | 'Like' | 'Dislike';
 
 export type LikeStatusObject = {
-  field: string;
+  field: 'Comments' | 'Posts';
   fieldId: string;
 };
 

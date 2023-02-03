@@ -6,7 +6,7 @@ import { blogRouter } from './routes/blog-routers';
 import { postRouter } from './routes/post-routers';
 import { userRouter } from './routes/user-routes';
 import { BlogsRepository } from './repositories/blogs-repository';
-import { postsRepository } from './repositories/posts-repository';
+import { PostsRepository } from './repositories/posts-repository';
 import { usersRepository } from './repositories/users-repository';
 import * as dotenv from 'dotenv';
 import { commentRouter } from './routes/commets-routers';
@@ -15,9 +15,6 @@ import { commentRepository } from './repositories/comments-repository';
 import { sessionRouter } from './routes/session-routers';
 import useragent from 'express-useragent';
 import { sessionService } from './application/session-service';
-import { postBodyValidation } from './middlewares/input-validation-middleware';
-import { postLikesCollection } from './repositories/db';
-import { PostsService } from './service/post-service';
 
 dotenv.config();
 
@@ -41,6 +38,7 @@ app.get('/', async (req, res) => {
 });
 
 const blogsRepository = new BlogsRepository();
+const postsRepository = new PostsRepository(blogsRepository);
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
   await blogsRepository.deleteAllBlogs();
   await postsRepository.deleteAllPosts();

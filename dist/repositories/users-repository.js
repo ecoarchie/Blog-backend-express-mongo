@@ -169,23 +169,15 @@ exports.usersRepository = {
             if (!mongodb_1.ObjectId.isValid(userId)) {
                 return 'None';
             }
-            // const searchLikedField: any = {};
-            // const likedKey = 'liked'.concat(likeStatusObj.field);
-            // searchLikedField[likedKey] = likeStatusObj.fieldId;
-            const resLiked = yield db_1.userLikesCollection.findOne({
+            const likedEntity = 'liked'.concat(likeStatusObj.field);
+            const dislikedEntity = 'disliked'.concat(likeStatusObj.field);
+            const resLiked = (yield db_1.userLikesCollection.findOne({
                 userId: new mongodb_1.ObjectId(userId),
-            });
-            if (resLiked === null || resLiked === void 0 ? void 0 : resLiked.likedPosts.includes(likeStatusObj.fieldId))
+            }));
+            if (resLiked && resLiked[likedEntity].includes(likeStatusObj.fieldId))
                 return 'Like';
-            if (resLiked === null || resLiked === void 0 ? void 0 : resLiked.dislikedPosts.includes(likeStatusObj.fieldId))
+            if (resLiked && resLiked[dislikedEntity].includes(likeStatusObj.fieldId))
                 return 'Dislike';
-            // const searchDislikedField: any = {};
-            // const dislikedKey = 'disliked'.concat(likeStatusObj.field);
-            // searchDislikedField[dislikedKey] = likeStatusObj.fieldId;
-            // const resDisliked = await userLikesCollection.findOne({
-            //   $and: [{ userId: new ObjectId(userId) }, { [dislikedKey]: [likeStatusObj.fieldId] }],
-            // });
-            // if (resDisliked) return 'Dislike';
             return 'None';
         });
     },

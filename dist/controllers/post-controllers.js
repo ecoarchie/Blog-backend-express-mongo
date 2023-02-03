@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,7 +21,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsController = exports.PostsController = void 0;
+exports.PostsController = void 0;
 const comments_repository_1 = require("../repositories/comments-repository");
 const comments_service_1 = require("../service/comments-service");
 const post_service_1 = require("../service/post-service");
@@ -17,8 +29,11 @@ const utils_1 = require("./utils");
 const db_1 = require("../repositories/db");
 const mongodb_1 = require("mongodb");
 const posts_repository_1 = require("../repositories/posts-repository");
-class PostsController {
-    constructor() {
+const inversify_1 = require("inversify");
+let PostsController = class PostsController {
+    constructor(postsService, postsRepository) {
+        this.postsService = postsService;
+        this.postsRepository = postsRepository;
         this.getAllPostsController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const options = (0, utils_1.setPostQueryParams)(req.query);
@@ -81,7 +96,7 @@ class PostsController {
         //TODO refactor this
         this.getCommentsForPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _c;
-            const isValidPost = yield this.postsService.postsRepository.isPostExist(req.params.postId);
+            const isValidPost = yield this.postsRepository.isPostExist(req.params.postId);
             if (!isValidPost) {
                 res.sendStatus(404);
             }
@@ -123,7 +138,7 @@ class PostsController {
             }
         });
         this.createCommentForPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.postsService.postsRepository.isPostExist(req.params.postId.toString()))) {
+            if (!(yield this.postsRepository.isPostExist(req.params.postId.toString()))) {
                 res.sendStatus(404);
                 return;
             }
@@ -137,9 +152,13 @@ class PostsController {
             const resStatus = yield this.postsService.likePostService(userId, postId, likeStatus);
             res.sendStatus(resStatus);
         });
-        this.postsService = new post_service_1.PostsService();
-        this.postsRepository = new posts_repository_1.PostsRepository();
     }
-}
+};
+PostsController = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(post_service_1.PostsService)),
+    __param(1, (0, inversify_1.inject)(posts_repository_1.PostsRepository)),
+    __metadata("design:paramtypes", [post_service_1.PostsService,
+        posts_repository_1.PostsRepository])
+], PostsController);
 exports.PostsController = PostsController;
-exports.postsController = new PostsController();

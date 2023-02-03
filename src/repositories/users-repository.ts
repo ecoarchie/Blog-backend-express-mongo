@@ -173,22 +173,15 @@ export const usersRepository = {
     if (!ObjectId.isValid(userId)) {
       return 'None';
     }
-    // const searchLikedField: any = {};
-    // const likedKey = 'liked'.concat(likeStatusObj.field);
-    // searchLikedField[likedKey] = likeStatusObj.fieldId;
-    const resLiked = await userLikesCollection.findOne({
-      userId: new ObjectId(userId),
-    });
-    if (resLiked?.likedPosts.includes(likeStatusObj.fieldId)) return 'Like';
-    if (resLiked?.dislikedPosts.includes(likeStatusObj.fieldId)) return 'Dislike';
+    const likedEntity: any = 'liked'.concat(likeStatusObj.field);
+    const dislikedEntity = 'disliked'.concat(likeStatusObj.field);
 
-    // const searchDislikedField: any = {};
-    // const dislikedKey = 'disliked'.concat(likeStatusObj.field);
-    // searchDislikedField[dislikedKey] = likeStatusObj.fieldId;
-    // const resDisliked = await userLikesCollection.findOne({
-    //   $and: [{ userId: new ObjectId(userId) }, { [dislikedKey]: [likeStatusObj.fieldId] }],
-    // });
-    // if (resDisliked) return 'Dislike';
+    const resLiked = (await userLikesCollection.findOne({
+      userId: new ObjectId(userId),
+    })) as any;
+    if (resLiked && resLiked[likedEntity].includes(likeStatusObj.fieldId)) return 'Like';
+    if (resLiked && resLiked[dislikedEntity].includes(likeStatusObj.fieldId)) return 'Dislike';
+
     return 'None';
   },
 };

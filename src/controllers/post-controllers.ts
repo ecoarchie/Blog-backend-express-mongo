@@ -8,14 +8,14 @@ import { userLikesCollection } from '../repositories/db';
 import { ObjectId, WithId } from 'mongodb';
 import { UsersLikesDBModel } from '../models/likeModel';
 import { PostsRepository } from '../repositories/posts-repository';
+import { inject, injectable } from 'inversify';
 
+@injectable()
 export class PostsController {
-  postsService: PostsService;
-  postsRepository: PostsRepository;
-  constructor() {
-    this.postsService = new PostsService();
-    this.postsRepository = new PostsRepository();
-  }
+  constructor(
+    @inject(PostsService) protected postsService: PostsService,
+    @inject(PostsRepository) protected postsRepository: PostsRepository
+  ) {}
   getAllPostsController = async (req: Request, res: Response) => {
     const options = setPostQueryParams(req.query);
 
@@ -87,7 +87,7 @@ export class PostsController {
 
   //TODO refactor this
   getCommentsForPostController = async (req: Request, res: Response) => {
-    const isValidPost = await this.postsService.postsRepository.isPostExist(req.params.postId);
+    const isValidPost = await this.postsRepository.isPostExist(req.params.postId);
     if (!isValidPost) {
       res.sendStatus(404);
     } else {
@@ -132,7 +132,7 @@ export class PostsController {
   };
 
   createCommentForPostController = async (req: Request, res: Response) => {
-    if (!(await this.postsService.postsRepository.isPostExist(req.params.postId.toString()))) {
+    if (!(await this.postsRepository.isPostExist(req.params.postId.toString()))) {
       res.sendStatus(404);
       return;
     }
@@ -155,5 +155,3 @@ export class PostsController {
     res.sendStatus(resStatus);
   };
 }
-
-export const postsController = new PostsController();

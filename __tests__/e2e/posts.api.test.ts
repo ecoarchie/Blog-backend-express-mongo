@@ -1,7 +1,6 @@
 import request from 'supertest';
 import { app } from '../../src/app.config';
 
-//TODO fix posts tests according new postViewModel with extendedLikesInfo
 describe('posts routes', () => {
   beforeEach(async () => {
     await request(app).delete('/testing/all-data');

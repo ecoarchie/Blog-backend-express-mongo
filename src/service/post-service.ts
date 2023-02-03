@@ -1,13 +1,10 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { PostInputModel, PostViewModel } from '../models/postModel';
 import { PostsRepository } from '../repositories/posts-repository';
 
 @injectable()
 export class PostsService {
-  postsRepository: PostsRepository;
-  constructor() {
-    this.postsRepository = new PostsRepository();
-  }
+  constructor(@inject(PostsRepository) protected postsRepository: PostsRepository) {}
 
   async deleteAllPosts() {
     return this.postsRepository.deleteAllPosts();

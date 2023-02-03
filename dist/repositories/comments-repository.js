@@ -189,6 +189,15 @@ exports.commentRepository = {
                 field: 'Comments',
                 fieldId: commentId,
             });
+            console.log('🚀 ~ file: comments-repository.ts:194 ~ likeComment ~ likedStatusBefore', likedStatusBefore);
+            if (likedStatusBefore === likeStatus) {
+                return;
+                //below is method when double like/dislike cancels first like/dislike.
+                // await commentLikesCollection.updateOne(
+                //   { commentId: new Object(commentId) },
+                //   { $inc: { [likedField]: -1 } }
+                // );
+            }
             if (likeStatus === 'None') {
                 if (likedStatusBefore === 'Like') {
                     yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { 'likesInfo.likesCount': -1 } });
@@ -201,14 +210,6 @@ exports.commentRepository = {
                 return;
             }
             const likedField = likeStatus === 'Like' ? 'likesInfo.likesCount' : 'likesInfo.dislikesCount';
-            if (likedStatusBefore === likeStatus) {
-                return;
-                //below is method when double like/dislike cancels first like/dislike.
-                // await commentLikesCollection.updateOne(
-                //   { commentId: new Object(commentId) },
-                //   { $inc: { [likedField]: -1 } }
-                // );
-            }
             if (likedStatusBefore === 'None') {
                 const likedUserField = likeStatus === 'Like' ? 'likedComments' : 'dislikedComments';
                 yield db_1.commentLikesCollection.updateOne({ commentId: new mongodb_1.ObjectId(commentId) }, { $inc: { [likedField]: 1 } });
