@@ -85,7 +85,7 @@ describe('posts routes', () => {
         .expect(201);
       const createdPost = response.body;
 
-      expect(createdPost).toEqual({
+      expect(createdPost).toStrictEqual({
         id: expect.any(String),
         title: 'new post1',
         shortDescription: 'blog with created date field',
@@ -93,6 +93,12 @@ describe('posts routes', () => {
         blogId: `${createdBlog.id}`,
         blogName: `${createdBlog.name}`,
         createdAt: expect.any(String),
+        extendedLikesInfo: {
+          likesCount: 0,
+          dislikesCount: 0,
+          myStatus: 'None',
+          newestLikes: [],
+        },
       });
     });
   });

@@ -19,7 +19,7 @@ export class PostsController {
   getAllPostsController = async (req: Request, res: Response) => {
     const options = setPostQueryParams(req.query);
 
-    const foundPosts = await this.postsRepository.getAllPosts(options, req.user!.id || '');
+    const foundPosts = await this.postsRepository.getAllPosts(options, req.user?.id || '');
     const totalCount: number = options.searchNameTerm
       ? foundPosts.length
       : await this.postsService.countAllPosts();
