@@ -11,7 +11,7 @@ import { usersRepository } from './repositories/users-repository';
 import * as dotenv from 'dotenv';
 import { commentRouter } from './routes/commets-routers';
 import { authRouter } from './routes/auth-routers';
-import { commentRepository } from './repositories/comments-repository';
+import { CommentRepository } from './repositories/comments-repository';
 import { sessionRouter } from './routes/session-routers';
 import useragent from 'express-useragent';
 import { sessionService } from './application/session-service';
@@ -39,6 +39,7 @@ app.get('/', async (req, res) => {
 
 const blogsRepository = new BlogsRepository();
 const postsRepository = new PostsRepository(blogsRepository);
+const commentRepository = new CommentRepository();
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
   await blogsRepository.deleteAllBlogs();
   await postsRepository.deleteAllPosts();

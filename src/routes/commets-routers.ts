@@ -1,10 +1,6 @@
 import { Router } from 'express';
-import {
-  deleteCommentByIdController,
-  getCommentByIdController,
-  likeCommentController,
-  updateCommentByIdController,
-} from '../controllers/comments-controllers';
+import { container } from '../composition-root';
+import { CommentController } from '../controllers/comments-controllers';
 import {
   LikeBodyValidation,
   commentBodyValidation,
@@ -12,24 +8,30 @@ import {
 } from '../middlewares/input-validation-middleware';
 import { accessTokenValidation, jwtAuthMware } from '../middlewares/jwt-auth-mware';
 
+const commentController = container.resolve(CommentController);
+
 export const commentRouter = Router();
 
-commentRouter.get('/:id', accessTokenValidation, getCommentByIdController);
+commentRouter.get('/:id', accessTokenValidation, commentController.getCommentByIdController);
 
 commentRouter.put(
   '/:commentId',
   jwtAuthMware,
   commentBodyValidation(),
   inputValidatiomMiddleware,
-  updateCommentByIdController
+  commentController.updateCommentByIdController
 );
 
-commentRouter.delete('/:commentId', jwtAuthMware, deleteCommentByIdController);
+commentRouter.delete(
+  '/:commentId',
+  jwtAuthMware,
+  commentController.deleteCommentByIdController
+);
 
 commentRouter.put(
   '/:commentId/like-status',
   jwtAuthMware,
   LikeBodyValidation(),
   inputValidatiomMiddleware,
-  likeCommentController
+  commentController.likeCommentController
 );

@@ -1,45 +1,55 @@
 import { Request, Response } from 'express';
+import { inject, injectable } from 'inversify';
 import { CommentViewModel } from '../models/commentModel';
-import { commentService } from '../service/comments-service';
+import { CommentService } from '../service/comments-service';
 
-export const getCommentByIdController = async (req: Request, res: Response) => {
-  let currentUserId = req.user?.id || '';
-  const commentFound: CommentViewModel | null = await commentService.getCommentByIdService(
-    req.params.id.toString(),
-    currentUserId.toString()
-  );
-  if (commentFound) {
-    res.status(200).send(commentFound);
-  } else {
-    res.sendStatus(404);
-  }
-};
+@injectable()
+export class CommentController {
+  constructor(@inject(CommentService) protected commentService: CommentService) {}
+  getCommentByIdController = async (req: Request, res: Response) => {
+    let currentUserId = req.user?.id || '';
+    const commentFound: CommentViewModel | null =
+      await this.commentService.getCommentByIdService(
+        req.params.id.toString(),
+        currentUserId.toString()
+      );
+    if (commentFound) {
+      res.status(200).send(commentFound);
+    } else {
+      res.sendStatus(404);
+    }
+  };
 
-export const updateCommentByIdController = async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const content = req.body.content.toString();
-  const updateResult = await commentService.updateCommentByIdService(
-    req.params.commentId.toString(),
-    userId,
-    content
-  );
-  res.sendStatus(updateResult.status);
-};
+  updateCommentByIdController = async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const content = req.body.content.toString();
+    const updateResult = await this.commentService.updateCommentByIdService(
+      req.params.commentId.toString(),
+      userId,
+      content
+    );
+    res.sendStatus(updateResult.status);
+  };
 
-export const deleteCommentByIdController = async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const deleteResult = await commentService.deleteCommentByIdService(
-    userId,
-    req.params.commentId.toString()
-  );
-  res.sendStatus(deleteResult.status);
-};
+  deleteCommentByIdController = async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const deleteResult = await this.commentService.deleteCommentByIdService(
+      userId,
+      req.params.commentId.toString()
+    );
+    res.sendStatus(deleteResult.status);
+  };
 
-export const likeCommentController = async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const commentId = req.params.commentId;
-  const likeStatus = req.body.likeStatus;
+  likeCommentController = async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const commentId = req.params.commentId;
+    const likeStatus = req.body.likeStatus;
 
-  const resStatus = await commentService.likeCommentService(userId, commentId, likeStatus);
-  res.sendStatus(resStatus);
-};
+    const resStatus = await this.commentService.likeCommentService(
+      userId,
+      commentId,
+      likeStatus
+    );
+    res.sendStatus(resStatus);
+  };
+}

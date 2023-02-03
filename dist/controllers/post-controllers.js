@@ -31,9 +31,11 @@ const mongodb_1 = require("mongodb");
 const posts_repository_1 = require("../repositories/posts-repository");
 const inversify_1 = require("inversify");
 let PostsController = class PostsController {
-    constructor(postsService, postsRepository) {
+    constructor(postsService, postsRepository, commentRepository, commentService) {
         this.postsService = postsService;
         this.postsRepository = postsRepository;
+        this.commentRepository = commentRepository;
+        this.commentService = commentService;
         this.getAllPostsController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const options = (0, utils_1.setPostQueryParams)(req.query);
@@ -102,7 +104,7 @@ let PostsController = class PostsController {
             }
             else {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
-                let comments = yield comments_repository_1.commentRepository.getCommentsByPostId(req.params.postId, options);
+                let comments = yield this.commentRepository.getCommentsByPostId(req.params.postId, options);
                 let currentUserId = (_c = req.user) === null || _c === void 0 ? void 0 : _c.id;
                 let userLikesDislikes = null;
                 if (currentUserId) {
@@ -126,7 +128,7 @@ let PostsController = class PostsController {
                     }
                     return comment;
                 });
-                const totalCount = yield comments_repository_1.commentRepository.countAllCommentsByPostId(req.params.postId);
+                const totalCount = yield this.commentRepository.countAllCommentsByPostId(req.params.postId);
                 const pagesCount = Math.ceil(totalCount / options.pageSize);
                 res.send({
                     pagesCount,
@@ -142,7 +144,7 @@ let PostsController = class PostsController {
                 res.sendStatus(404);
                 return;
             }
-            const newComment = yield comments_service_1.commentService.createCommentService(req.params.postId, req.user.id, req.user.login, req.body.content);
+            const newComment = yield this.commentService.createCommentService(req.params.postId, req.user.id, req.user.login, req.body.content);
             res.status(201).send(newComment);
         });
         this.likePostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -158,7 +160,11 @@ PostsController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(post_service_1.PostsService)),
     __param(1, (0, inversify_1.inject)(posts_repository_1.PostsRepository)),
+    __param(2, (0, inversify_1.inject)(comments_repository_1.CommentRepository)),
+    __param(3, (0, inversify_1.inject)(comments_service_1.CommentService)),
     __metadata("design:paramtypes", [post_service_1.PostsService,
-        posts_repository_1.PostsRepository])
+        posts_repository_1.PostsRepository,
+        comments_repository_1.CommentRepository,
+        comments_service_1.CommentService])
 ], PostsController);
 exports.PostsController = PostsController;

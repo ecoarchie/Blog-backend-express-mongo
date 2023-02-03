@@ -1,13 +1,16 @@
+import { inject, injectable } from 'inversify';
 import { CommentViewModel } from '../models/commentModel';
-import { commentRepository } from '../repositories/comments-repository';
+import { CommentRepository } from '../repositories/comments-repository';
 
-export const commentService = {
+@injectable()
+export class CommentService {
+  constructor(@inject(CommentRepository) protected commentRepository: CommentRepository) {}
   async getCommentByIdService(
     commentId: string,
     userId: string
   ): Promise<CommentViewModel | null> {
-    return commentRepository.getCommentById(commentId, userId);
-  },
+    return this.commentRepository.getCommentById(commentId, userId);
+  }
 
   async updateCommentByIdService(
     commentId: string,
@@ -15,7 +18,7 @@ export const commentService = {
     content: string
   ): Promise<{ status: number }> {
     const updateResponse = { status: 0 };
-    const comment = await commentRepository.getCommentById(commentId, userId);
+    const comment = await this.commentRepository.getCommentById(commentId, userId);
     let commentOwner;
     if (comment) {
       commentOwner = comment.commentatorInfo.userId;
@@ -28,9 +31,9 @@ export const commentService = {
       return updateResponse;
     }
 
-    const result = await commentRepository.updateCommentById(commentId, content);
+    const result = await this.commentRepository.updateCommentById(commentId, content);
     return result ? { status: 204 } : { status: 404 };
-  },
+  }
 
   async deleteCommentByIdService(
     userId: string,
@@ -38,7 +41,7 @@ export const commentService = {
   ): Promise<{ status: number }> {
     const deleteResponse = { status: 0 };
 
-    const comment = await commentRepository.getCommentById(commentId, userId);
+    const comment = await this.commentRepository.getCommentById(commentId, userId);
     let commentOwner;
     if (comment) {
       commentOwner = comment.commentatorInfo.userId;
@@ -50,9 +53,9 @@ export const commentService = {
       deleteResponse.status = 403;
       return deleteResponse;
     }
-    const result = await commentRepository.deleteCommentById(commentId);
+    const result = await this.commentRepository.deleteCommentById(commentId);
     return result ? { status: 204 } : { status: 404 };
-  },
+  }
 
   async createCommentService(
     postId: string,
@@ -67,10 +70,10 @@ export const commentService = {
       createdAt: new Date().toISOString(),
     };
 
-    const createdComment = await commentRepository.createComment(commentToInsert);
+    const createdComment = await this.commentRepository.createComment(commentToInsert);
 
     return createdComment;
-  },
+  }
 
   async likeCommentService(
     userId: string,
@@ -80,11 +83,15 @@ export const commentService = {
     const foundComment = await this.getCommentByIdService(commentId, userId);
     if (!foundComment) return 404;
     try {
-      const likeComment = await commentRepository.likeComment(userId, commentId, likeStatus);
+      const likeComment = await this.commentRepository.likeComment(
+        userId,
+        commentId,
+        likeStatus
+      );
       return 204;
     } catch (error) {
       console.error(error);
       return 404;
     }
-  },
-};
+  }
+}

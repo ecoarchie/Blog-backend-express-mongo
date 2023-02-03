@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PostInputModel, PostViewModel } from '../models/postModel';
-import { commentRepository } from '../repositories/comments-repository';
-import { commentService } from '../service/comments-service';
+import { CommentRepository } from '../repositories/comments-repository';
+import { CommentService } from '../service/comments-service';
 import { PostsService } from '../service/post-service';
 import { setCommentsQueryParams, setPostQueryParams } from './utils';
 import { userLikesCollection } from '../repositories/db';
@@ -14,7 +14,9 @@ import { inject, injectable } from 'inversify';
 export class PostsController {
   constructor(
     @inject(PostsService) protected postsService: PostsService,
-    @inject(PostsRepository) protected postsRepository: PostsRepository
+    @inject(PostsRepository) protected postsRepository: PostsRepository,
+    @inject(CommentRepository) protected commentRepository: CommentRepository,
+    @inject(CommentService) protected commentService: CommentService
   ) {}
   getAllPostsController = async (req: Request, res: Response) => {
     const options = setPostQueryParams(req.query);
@@ -92,7 +94,10 @@ export class PostsController {
       res.sendStatus(404);
     } else {
       const options = setCommentsQueryParams(req.query);
-      let comments = await commentRepository.getCommentsByPostId(req.params.postId, options);
+      let comments = await this.commentRepository.getCommentsByPostId(
+        req.params.postId,
+        options
+      );
 
       let currentUserId = req.user?.id;
       let userLikesDislikes: WithId<UsersLikesDBModel> | null = null;
@@ -116,7 +121,7 @@ export class PostsController {
         }
         return comment;
       });
-      const totalCount: number = await commentRepository.countAllCommentsByPostId(
+      const totalCount: number = await this.commentRepository.countAllCommentsByPostId(
         req.params.postId
       );
       const pagesCount: number = Math.ceil(totalCount / options.pageSize);
@@ -137,7 +142,7 @@ export class PostsController {
       return;
     }
 
-    const newComment = await commentService.createCommentService(
+    const newComment = await this.commentService.createCommentService(
       req.params.postId,
       req.user!.id,
       req.user!.login,

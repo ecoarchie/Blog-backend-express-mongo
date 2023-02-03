@@ -1,4 +1,10 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,11 +15,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentRepository = void 0;
+exports.CommentRepository = void 0;
+const inversify_1 = require("inversify");
 const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
 const users_repository_1 = require("./users-repository");
-exports.commentRepository = {
+let CommentRepository = class CommentRepository {
     getCommentById(commentId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mongodb_1.ObjectId.isValid(commentId))
@@ -62,13 +69,13 @@ exports.commentRepository = {
             }
             return commentView;
         });
-    },
+    }
     updateCommentById(id, content) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.commentsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { content } });
             return result.matchedCount === 1;
         });
-    },
+    }
     deleteCommentById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.commentsCollection.deleteOne({ _id: new mongodb_1.ObjectId(id) });
@@ -77,7 +84,7 @@ exports.commentRepository = {
             */
             return result.deletedCount === 1;
         });
-    },
+    }
     getCommentsByPostId(postId, options) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
@@ -110,7 +117,7 @@ exports.commentRepository = {
             });
             return comments;
         });
-    },
+    }
     countAllCommentsByPostId(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             const commentsCount = yield db_1.commentsCollection.countDocuments({
@@ -118,7 +125,7 @@ exports.commentRepository = {
             });
             return commentsCount;
         });
-    },
+    }
     createComment(commentData) {
         return __awaiter(this, void 0, void 0, function* () {
             const comment = {
@@ -154,7 +161,7 @@ exports.commentRepository = {
             };
             return newComment;
         });
-    },
+    }
     deleteAllComments() {
         return __awaiter(this, void 0, void 0, function* () {
             yield db_1.commentLikesCollection.deleteMany({});
@@ -162,41 +169,35 @@ exports.commentRepository = {
             yield db_1.userLikesCollection.deleteMany({});
             return db_1.commentsCollection.deleteMany({});
         });
-    },
+    }
     _addToUsersLikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { likedComments: commentId } });
         });
-    },
+    }
     _removeFromUsersLikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { likedComments: commentId } });
         });
-    },
+    }
     _addToUsersDislikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $push: { dislikedComments: commentId } });
         });
-    },
+    }
     _removeFromUsersDislikeList(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield db_1.userLikesCollection.updateOne({ userId: new mongodb_1.ObjectId(userId) }, { $pull: { dislikedComments: commentId } });
         });
-    },
+    }
     likeComment(userId, commentId, likeStatus) {
         return __awaiter(this, void 0, void 0, function* () {
             const likedStatusBefore = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
                 field: 'Comments',
                 fieldId: commentId,
             });
-            console.log('🚀 ~ file: comments-repository.ts:194 ~ likeComment ~ likedStatusBefore', likedStatusBefore);
             if (likedStatusBefore === likeStatus) {
                 return;
-                //below is method when double like/dislike cancels first like/dislike.
-                // await commentLikesCollection.updateOne(
-                //   { commentId: new Object(commentId) },
-                //   { $inc: { [likedField]: -1 } }
-                // );
             }
             if (likeStatus === 'None') {
                 if (likedStatusBefore === 'Like') {
@@ -228,5 +229,9 @@ exports.commentRepository = {
                 yield this._removeFromUsersDislikeList(userId, commentId);
             }
         });
-    },
+    }
 };
+CommentRepository = __decorate([
+    (0, inversify_1.injectable)()
+], CommentRepository);
+exports.CommentRepository = CommentRepository;

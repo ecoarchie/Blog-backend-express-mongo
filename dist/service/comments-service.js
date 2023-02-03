@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,18 +21,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentService = void 0;
+exports.CommentService = void 0;
+const inversify_1 = require("inversify");
 const comments_repository_1 = require("../repositories/comments-repository");
-exports.commentService = {
+let CommentService = class CommentService {
+    constructor(commentRepository) {
+        this.commentRepository = commentRepository;
+    }
     getCommentByIdService(commentId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return comments_repository_1.commentRepository.getCommentById(commentId, userId);
+            return this.commentRepository.getCommentById(commentId, userId);
         });
-    },
+    }
     updateCommentByIdService(commentId, userId, content) {
         return __awaiter(this, void 0, void 0, function* () {
             const updateResponse = { status: 0 };
-            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId, userId);
+            const comment = yield this.commentRepository.getCommentById(commentId, userId);
             let commentOwner;
             if (comment) {
                 commentOwner = comment.commentatorInfo.userId;
@@ -33,14 +49,14 @@ exports.commentService = {
                 updateResponse.status = 403;
                 return updateResponse;
             }
-            const result = yield comments_repository_1.commentRepository.updateCommentById(commentId, content);
+            const result = yield this.commentRepository.updateCommentById(commentId, content);
             return result ? { status: 204 } : { status: 404 };
         });
-    },
+    }
     deleteCommentByIdService(userId, commentId) {
         return __awaiter(this, void 0, void 0, function* () {
             const deleteResponse = { status: 0 };
-            const comment = yield comments_repository_1.commentRepository.getCommentById(commentId, userId);
+            const comment = yield this.commentRepository.getCommentById(commentId, userId);
             let commentOwner;
             if (comment) {
                 commentOwner = comment.commentatorInfo.userId;
@@ -53,10 +69,10 @@ exports.commentService = {
                 deleteResponse.status = 403;
                 return deleteResponse;
             }
-            const result = yield comments_repository_1.commentRepository.deleteCommentById(commentId);
+            const result = yield this.commentRepository.deleteCommentById(commentId);
             return result ? { status: 204 } : { status: 404 };
         });
-    },
+    }
     createCommentService(postId, userId, userLogin, content) {
         return __awaiter(this, void 0, void 0, function* () {
             const commentToInsert = {
@@ -65,17 +81,17 @@ exports.commentService = {
                 commentatorInfo: { userId, userLogin },
                 createdAt: new Date().toISOString(),
             };
-            const createdComment = yield comments_repository_1.commentRepository.createComment(commentToInsert);
+            const createdComment = yield this.commentRepository.createComment(commentToInsert);
             return createdComment;
         });
-    },
+    }
     likeCommentService(userId, commentId, likeStatus) {
         return __awaiter(this, void 0, void 0, function* () {
             const foundComment = yield this.getCommentByIdService(commentId, userId);
             if (!foundComment)
                 return 404;
             try {
-                const likeComment = yield comments_repository_1.commentRepository.likeComment(userId, commentId, likeStatus);
+                const likeComment = yield this.commentRepository.likeComment(userId, commentId, likeStatus);
                 return 204;
             }
             catch (error) {
@@ -83,5 +99,11 @@ exports.commentService = {
                 return 404;
             }
         });
-    },
+    }
 };
+CommentService = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(comments_repository_1.CommentRepository)),
+    __metadata("design:paramtypes", [comments_repository_1.CommentRepository])
+], CommentService);
+exports.CommentService = CommentService;

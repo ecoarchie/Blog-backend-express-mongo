@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,38 +21,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.likeCommentController = exports.deleteCommentByIdController = exports.updateCommentByIdController = exports.getCommentByIdController = void 0;
+exports.CommentController = void 0;
+const inversify_1 = require("inversify");
 const comments_service_1 = require("../service/comments-service");
-const getCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    let currentUserId = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || '';
-    const commentFound = yield comments_service_1.commentService.getCommentByIdService(req.params.id.toString(), currentUserId.toString());
-    if (commentFound) {
-        res.status(200).send(commentFound);
+let CommentController = class CommentController {
+    constructor(commentService) {
+        this.commentService = commentService;
+        this.getCommentByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            let currentUserId = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || '';
+            const commentFound = yield this.commentService.getCommentByIdService(req.params.id.toString(), currentUserId.toString());
+            if (commentFound) {
+                res.status(200).send(commentFound);
+            }
+            else {
+                res.sendStatus(404);
+            }
+        });
+        this.updateCommentByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.id;
+            const content = req.body.content.toString();
+            const updateResult = yield this.commentService.updateCommentByIdService(req.params.commentId.toString(), userId, content);
+            res.sendStatus(updateResult.status);
+        });
+        this.deleteCommentByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.id;
+            const deleteResult = yield this.commentService.deleteCommentByIdService(userId, req.params.commentId.toString());
+            res.sendStatus(deleteResult.status);
+        });
+        this.likeCommentController = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.id;
+            const commentId = req.params.commentId;
+            const likeStatus = req.body.likeStatus;
+            const resStatus = yield this.commentService.likeCommentService(userId, commentId, likeStatus);
+            res.sendStatus(resStatus);
+        });
     }
-    else {
-        res.sendStatus(404);
-    }
-});
-exports.getCommentByIdController = getCommentByIdController;
-const updateCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.user.id;
-    const content = req.body.content.toString();
-    const updateResult = yield comments_service_1.commentService.updateCommentByIdService(req.params.commentId.toString(), userId, content);
-    res.sendStatus(updateResult.status);
-});
-exports.updateCommentByIdController = updateCommentByIdController;
-const deleteCommentByIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.user.id;
-    const deleteResult = yield comments_service_1.commentService.deleteCommentByIdService(userId, req.params.commentId.toString());
-    res.sendStatus(deleteResult.status);
-});
-exports.deleteCommentByIdController = deleteCommentByIdController;
-const likeCommentController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.user.id;
-    const commentId = req.params.commentId;
-    const likeStatus = req.body.likeStatus;
-    const resStatus = yield comments_service_1.commentService.likeCommentService(userId, commentId, likeStatus);
-    res.sendStatus(resStatus);
-});
-exports.likeCommentController = likeCommentController;
+};
+CommentController = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(comments_service_1.CommentService)),
+    __metadata("design:paramtypes", [comments_service_1.CommentService])
+], CommentController);
+exports.CommentController = CommentController;

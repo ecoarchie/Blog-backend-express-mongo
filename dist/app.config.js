@@ -72,11 +72,12 @@ exports.app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 }));
 const blogsRepository = new blogs_repository_1.BlogsRepository();
 const postsRepository = new posts_repository_1.PostsRepository(blogsRepository);
+const commentRepository = new comments_repository_1.CommentRepository();
 exports.app.delete('/testing/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield blogsRepository.deleteAllBlogs();
     yield postsRepository.deleteAllPosts();
     yield users_repository_1.usersRepository.deleteAllUsers();
-    yield comments_repository_1.commentRepository.deleteAllComments();
+    yield commentRepository.deleteAllComments();
     yield session_service_1.sessionService.deleteAllSessions();
     yield postsRepository.deleteAllPostsLikes();
     res.sendStatus(204);

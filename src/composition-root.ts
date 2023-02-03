@@ -6,16 +6,20 @@ import { BlogsService } from './service/blog-service';
 import { PostsService } from './service/post-service';
 import { PostsRepository } from './repositories/posts-repository';
 import { PostsController } from './controllers/post-controllers';
-
-// const blogsRepository = new BlogsRepository();
-// const blogsService = new BlogsService(blogsRepository);
-// export const blogsController = new BlogsController(blogsService);
+import { CommentController } from './controllers/comments-controllers';
+import { CommentService } from './service/comments-service';
+import { CommentRepository } from './repositories/comments-repository';
 
 export const container = new Container();
 
 container.bind<BlogsController>(BlogsController).to(BlogsController);
 container.bind<BlogsService>(BlogsService).to(BlogsService);
 container.bind<BlogsRepository>(BlogsRepository).to(BlogsRepository);
+
 container.bind<PostsController>(PostsController).to(PostsController);
 container.bind<PostsService>(PostsService).to(PostsService);
 container.bind<PostsRepository>(PostsRepository).to(PostsRepository);
+
+container.bind<CommentController>(CommentController).to(CommentController);
+container.bind<CommentService>(CommentService).to(CommentService);
+container.bind<CommentRepository>(CommentRepository).to(CommentRepository);

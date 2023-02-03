@@ -1,10 +1,12 @@
+import { inject, injectable } from 'inversify';
 import { ObjectId, Document } from 'mongodb';
 import { CommentDBModel, CommentViewModel } from '../models/commentModel';
 import { CommentReqQueryModel } from '../models/reqQueryModel';
 import { commentLikesCollection, commentsCollection, userLikesCollection } from './db';
 import { usersRepository } from './users-repository';
 
-export const commentRepository = {
+@injectable()
+export class CommentRepository {
   async getCommentById(commentId: string, userId: string): Promise<CommentViewModel | null> {
     if (!ObjectId.isValid(commentId)) return null;
 
@@ -50,7 +52,7 @@ export const commentRepository = {
       };
     }
     return commentView;
-  },
+  }
 
   async updateCommentById(id: string, content: string): Promise<boolean> {
     const result = await commentsCollection.updateOne(
@@ -58,7 +60,7 @@ export const commentRepository = {
       { $set: { content } }
     );
     return result.matchedCount === 1;
-  },
+  }
 
   async deleteCommentById(id: string) {
     const result = await commentsCollection.deleteOne({ _id: new ObjectId(id) });
@@ -67,7 +69,7 @@ export const commentRepository = {
     */
 
     return result.deletedCount === 1;
-  },
+  }
 
   async getCommentsByPostId(
     postId: string,
@@ -104,14 +106,14 @@ export const commentRepository = {
       }
     );
     return comments;
-  },
+  }
 
   async countAllCommentsByPostId(postId: string): Promise<number> {
     const commentsCount = await commentsCollection.countDocuments({
       postId: new ObjectId(postId),
     });
     return commentsCount;
-  },
+  }
 
   async createComment(commentData: CommentViewModel): Promise<CommentViewModel> {
     const comment: CommentDBModel = {
@@ -149,60 +151,51 @@ export const commentRepository = {
     };
 
     return newComment;
-  },
+  }
 
   async deleteAllComments() {
     await commentLikesCollection.deleteMany({});
     //TODO now it deletes whole userLikes collection, along with posts likes. Rewrite
     await userLikesCollection.deleteMany({});
     return commentsCollection.deleteMany({});
-  },
+  }
 
   async _addToUsersLikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
       { $push: { likedComments: commentId } }
     );
-  },
+  }
 
   async _removeFromUsersLikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
       { $pull: { likedComments: commentId } }
     );
-  },
+  }
 
   async _addToUsersDislikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
       { $push: { dislikedComments: commentId } }
     );
-  },
+  }
 
   async _removeFromUsersDislikeList(userId: string, commentId: string) {
     await userLikesCollection.updateOne(
       { userId: new ObjectId(userId) },
       { $pull: { dislikedComments: commentId } }
     );
-  },
+  }
 
   async likeComment(userId: string, commentId: string, likeStatus: string) {
     const likedStatusBefore = await usersRepository.checkLikeStatus(userId, {
       field: 'Comments',
       fieldId: commentId,
     });
-    console.log(
-      '🚀 ~ file: comments-repository.ts:194 ~ likeComment ~ likedStatusBefore',
-      likedStatusBefore
-    );
 
     if (likedStatusBefore === likeStatus) {
       return;
-      //below is method when double like/dislike cancels first like/dislike.
-      // await commentLikesCollection.updateOne(
-      //   { commentId: new Object(commentId) },
-      //   { $inc: { [likedField]: -1 } }
-      // );
     }
 
     if (likeStatus === 'None') {
@@ -251,5 +244,5 @@ export const commentRepository = {
       await this._addToUsersLikeList(userId, commentId);
       await this._removeFromUsersDislikeList(userId, commentId);
     }
-  },
-};
+  }
+}
