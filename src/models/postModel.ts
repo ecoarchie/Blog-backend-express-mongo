@@ -12,8 +12,12 @@ export type BlogPostInputModel = {
   shortDescription: string;
   content: string;
 };
-export type PostViewModel = PostInputModel & {
+export type PostViewModel = {
   id?: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
   blogName: string;
   createdAt: string;
   extendedLikesInfo?: {
@@ -22,6 +26,14 @@ export type PostViewModel = PostInputModel & {
     myStatus: string;
     newestLikes: NewestLikesModel[];
   };
+};
+
+export type PostsPaginationView = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: PostViewModel[];
 };
 
 export type PostDBModel = {

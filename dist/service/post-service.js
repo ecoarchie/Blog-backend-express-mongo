@@ -59,11 +59,9 @@ let PostsService = class PostsService {
             return this.postsRepository.deletePostById(postId);
         });
     }
-    countPostsByBlogId(blogId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.postsRepository.countPostsByBlogId(blogId);
-        });
-    }
+    // async countPostsByBlogId(blogId: string): Promise<number> {
+    //   return this.postsRepository.countPostsByBlogId(blogId);
+    // }
     countAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.postsRepository.countAllPosts();

@@ -24,7 +24,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsController = void 0;
 const blog_service_1 = require("../service/blog-service");
 const post_service_1 = require("../service/post-service");
-const utils_1 = require("./utils");
 const blogs_repository_1 = require("../repositories/blogs-repository");
 const inversify_1 = require("inversify");
 const blogs_queryRepository_1 = require("../repositories/queryRepositories/blogs.queryRepository");
@@ -105,24 +104,24 @@ let BlogsController = class BlogsController {
             }
         });
         this.getPostsByBlogId = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _b;
-            const blog = yield this.blogsQueryRepository.getBlogById(req.params.blogId.toString());
-            if (!blog) {
-                res.sendStatus(404);
-            }
-            else {
-                const { pageNumber, pageSize, sortBy, sortDirection, skip } = (0, utils_1.setBlogQueryParams)(req.query);
-                const posts = yield this.blogsQueryRepository.getAllPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
-                const totalCount = yield this.postsService.countPostsByBlogId(blog.id.toString());
-                const pagesCount = Math.ceil(totalCount / pageSize);
-                res.send({
-                    pagesCount,
-                    page: pageNumber,
-                    pageSize,
-                    totalCount,
-                    items: posts,
-                });
-            }
+            var _b, _c;
+            const blogId = req.params.blogId.toString();
+            const userId = ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '';
+            const pageNumber = Number(req.query.pageNumber) || 1;
+            const pageSize = Number(req.query.pageSize) || 10;
+            const skip = (pageNumber - 1) * pageSize;
+            const postsQueryParams = {
+                searchNameTerm: req.query.searchNameTerm || null,
+                pageNumber,
+                pageSize,
+                sortBy: ((_c = req.query.sortBy) === null || _c === void 0 ? void 0 : _c.toString()) || 'createdAt',
+                sortDirection: req.query.sortDirection || 'desc',
+                skip,
+            };
+            const posts = yield this.blogsQueryRepository.getAllPostsByBlogId(blogId, userId, postsQueryParams);
+            if (!posts)
+                return res.sendStatus(404);
+            res.send(posts);
         });
     }
 };

@@ -182,11 +182,9 @@ let PostsRepository = class PostsRepository {
             return result.deletedCount === 1;
         });
     }
-    countPostsByBlogId(blogId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return db_1.postsCollection.count({ blogId: new bson_1.ObjectId(blogId) });
-        });
-    }
+    // async countPostsByBlogId(blogId: string): Promise<number> {
+    //   return postsCollection.count({ blogId: new ObjectId(blogId) });
+    // }
     countAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return db_1.postsCollection.countDocuments();

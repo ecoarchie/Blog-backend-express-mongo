@@ -44,7 +44,6 @@ describe('blogs routes', () => {
 
       const result = await request(app).get('/blogs').expect(200);
 
-      console.log(result.body);
       expect(result.body.pagesCount).toEqual(2);
       expect(result.body.page).toEqual(1);
       expect(result.body.pageSize).toEqual(10);
@@ -204,6 +203,55 @@ describe('blogs routes', () => {
           newestLikes: [],
         },
       });
+    });
+  });
+
+  describe('GET /blogs/{blogId}/posts - get all posts for specified blog', () => {
+    const blogToCreate = {
+      name: 'blog with posts',
+      description: 'some description',
+      websiteUrl: 'https://yandex.com',
+    };
+    const postsArr: any[] = [];
+
+    for (let i = 1; i <= 12; i++) {
+      postsArr.push({
+        title: `post ${i}`,
+        shortDescription: `post ${i} description`,
+        content: `post ${i} content`,
+      });
+    }
+
+    it('Should create 12 posts and return 10 of them with default search params', async () => {
+      const newBlog = await request(app)
+        .post('/blogs')
+        .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+        .send(blogToCreate)
+        .expect(201);
+
+      await Promise.all(
+        postsArr.map(async (post) => {
+          await request(app)
+            .post(`/blogs/${newBlog.body.id}/posts`)
+            .auth('admin', 'qwerty')
+            .send(post)
+            .expect(201);
+        })
+      ).then(async () => {
+        const result = await request(app).get(`/blogs/${newBlog.body.id}/posts`).expect(200);
+        expect(result.body).toStrictEqual({
+          pagesCount: 2,
+          page: 1,
+          pageSize: 10,
+          totalCount: 12,
+          items: expect.any(Array),
+        });
+        expect(result.body.items).toHaveLength(10);
+      });
+    });
+
+    it('should return 404 code if blog ID doesnt exist', async () => {
+      const res = await request(app).get(`/blogs/989/posts`).expect(404);
     });
   });
 

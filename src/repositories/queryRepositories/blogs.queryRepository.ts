@@ -1,14 +1,10 @@
 import { ObjectId } from 'mongodb';
-import {
-  BlogViewModel,
-  BlogInputModel,
-  BlogDBModel,
-  BlogsPaginationView,
-} from '../../models/blogModel';
-import { BlogReqQueryModel } from '../../models/reqQueryModel';
+import { BlogViewModel, BlogsPaginationView } from '../../models/blogModel';
+import { BlogReqQueryModel, PostReqQueryModel } from '../../models/reqQueryModel';
 import { blogsCollection, postLikesCollection, postsCollection } from '.././db';
 import { usersRepository } from '.././users-repository';
 import { injectable } from 'inversify';
+import { PostsPaginationView, PostViewModel } from '../../models/postModel';
 
 @injectable()
 export class BlogsQueryRepository {
@@ -62,22 +58,27 @@ export class BlogsQueryRepository {
     return blogToReturn;
   }
 
+  async countPostsByBlogId(blogId: string): Promise<number> {
+    return postsCollection.count({ blogId: new ObjectId(blogId) });
+  }
+
   async getAllPostsByBlogId(
     blogId: string,
-    skip: number,
-    limit: number,
-    sortBy: string,
-    sortDirection: 'asc' | 'desc',
-    userId: string
-  ) {
+    userId: string,
+    postsQueryParams: PostReqQueryModel
+  ): Promise<PostsPaginationView | null> {
+    if (!ObjectId.isValid(blogId)) return null;
+    const totalCount: number = await this.countPostsByBlogId(blogId);
+    const pagesCount: number = Math.ceil(totalCount / postsQueryParams.pageSize!);
+
     const sort: any = {};
-    sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
+    sort[postsQueryParams.sortBy!] = postsQueryParams.sortDirection === 'asc' ? 1 : -1;
     const pipeline = [
       { $match: { blogId: new ObjectId(blogId) } },
       { $addFields: { id: '$_id' } },
       { $sort: sort },
-      { $skip: skip },
-      { $limit: limit },
+      { $skip: postsQueryParams.skip },
+      { $limit: postsQueryParams.pageSize },
       { $project: { _id: 0 } },
     ];
 
@@ -103,7 +104,15 @@ export class BlogsQueryRepository {
       };
       return post;
     });
-    return posts;
+    return posts.length > 0
+      ? {
+          pagesCount,
+          page: postsQueryParams.pageNumber!,
+          pageSize: postsQueryParams.pageSize!,
+          totalCount,
+          items: posts as PostViewModel[],
+        }
+      : null;
   }
 
   async countAllBlogs(): Promise<number> {

@@ -68,16 +68,25 @@ let BlogsQueryRepository = class BlogsQueryRepository {
             return blogToReturn;
         });
     }
-    getAllPostsByBlogId(blogId, skip, limit, sortBy, sortDirection, userId) {
+    countPostsByBlogId(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
+            return db_1.postsCollection.count({ blogId: new mongodb_1.ObjectId(blogId) });
+        });
+    }
+    getAllPostsByBlogId(blogId, userId, postsQueryParams) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!mongodb_1.ObjectId.isValid(blogId))
+                return null;
+            const totalCount = yield this.countPostsByBlogId(blogId);
+            const pagesCount = Math.ceil(totalCount / postsQueryParams.pageSize);
             const sort = {};
-            sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
+            sort[postsQueryParams.sortBy] = postsQueryParams.sortDirection === 'asc' ? 1 : -1;
             const pipeline = [
                 { $match: { blogId: new mongodb_1.ObjectId(blogId) } },
                 { $addFields: { id: '$_id' } },
                 { $sort: sort },
-                { $skip: skip },
-                { $limit: limit },
+                { $skip: postsQueryParams.skip },
+                { $limit: postsQueryParams.pageSize },
                 { $project: { _id: 0 } },
             ];
             const postsLikesInfo = yield db_1.postLikesCollection.find().toArray();
@@ -100,7 +109,15 @@ let BlogsQueryRepository = class BlogsQueryRepository {
                 };
                 return post;
             });
-            return posts;
+            return posts.length > 0
+                ? {
+                    pagesCount,
+                    page: postsQueryParams.pageNumber,
+                    pageSize: postsQueryParams.pageSize,
+                    totalCount,
+                    items: posts,
+                }
+                : null;
         });
     }
     countAllBlogs() {

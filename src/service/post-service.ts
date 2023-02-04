@@ -31,9 +31,9 @@ export class PostsService {
     return this.postsRepository.deletePostById(postId);
   }
 
-  async countPostsByBlogId(blogId: string): Promise<number> {
-    return this.postsRepository.countPostsByBlogId(blogId);
-  }
+  // async countPostsByBlogId(blogId: string): Promise<number> {
+  //   return this.postsRepository.countPostsByBlogId(blogId);
+  // }
 
   async countAllPosts(): Promise<number> {
     return this.postsRepository.countAllPosts();
