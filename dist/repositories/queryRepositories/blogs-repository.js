@@ -18,8 +18,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("./db");
+const users_repository_1 = require("./users-repository");
 const inversify_1 = require("inversify");
 let BlogsRepository = class BlogsRepository {
+    findBlogs(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sort = {};
+            sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
+            const searchTerm = !options.searchNameTerm
+                ? {}
+                : { name: { $regex: options.searchNameTerm, $options: 'i' } };
+            const pipeline = [
+                { $match: searchTerm },
+                { $addFields: { id: '$_id' } },
+                { $sort: sort },
+                { $skip: options.skip },
+                { $limit: options.pageSize },
+                { $project: { _id: 0 } },
+            ];
+            const blogs = (yield db_1.blogsCollection.aggregate(pipeline).toArray()).map((blog) => {
+                blog.id = blog.id.toString();
+                return blog;
+            });
+            return blogs;
+        });
+    }
     deleteAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield db_1.blogsCollection.deleteMany({});
@@ -38,6 +61,21 @@ let BlogsRepository = class BlogsRepository {
             return newBlog;
         });
     }
+    findBlogById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!mongodb_1.ObjectId.isValid(id))
+                return null;
+            const blogById = yield db_1.blogsCollection.findOne({
+                _id: new mongodb_1.ObjectId(id),
+            });
+            let blogToReturn = null;
+            if (blogById) {
+                const { _id, name, description, websiteUrl, createdAt } = blogById;
+                blogToReturn = { id: _id.toString(), name, description, websiteUrl, createdAt };
+            }
+            return blogToReturn;
+        });
+    }
     updateBlogById(id, newDatajson) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mongodb_1.ObjectId.isValid(id))
@@ -53,6 +91,41 @@ let BlogsRepository = class BlogsRepository {
                     }
                 });
             }
+        });
+    }
+    findPostsByBlogId(blogId, skip, limit, sortBy, sortDirection, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sort = {};
+            sort[sortBy] = sortDirection === 'asc' ? 1 : -1;
+            const pipeline = [
+                { $match: { blogId: new mongodb_1.ObjectId(blogId) } },
+                { $addFields: { id: '$_id' } },
+                { $sort: sort },
+                { $skip: skip },
+                { $limit: limit },
+                { $project: { _id: 0 } },
+            ];
+            const postsLikesInfo = yield db_1.postLikesCollection.find().toArray();
+            yield Promise.all(postsLikesInfo.map((p) => __awaiter(this, void 0, void 0, function* () {
+                p.myStatus = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                    field: 'Posts',
+                    fieldId: p.postId.toString(),
+                });
+                return p;
+            })));
+            const posts = (yield db_1.postsCollection.aggregate(pipeline).toArray()).map((post) => {
+                post.id = post.id.toString();
+                post.blogId = post.blogId.toString();
+                let extendedLikesInfo = postsLikesInfo.find((p) => p.postId.toString() === post.id);
+                post.extendedLikesInfo = {
+                    likesCount: extendedLikesInfo.likesCount,
+                    dislikesCount: extendedLikesInfo.dislikesCount,
+                    myStatus: extendedLikesInfo.myStatus,
+                    newestLikes: extendedLikesInfo.newestLikes.slice(0, 3),
+                };
+                return post;
+            });
+            return posts;
         });
     }
     deleteBlogById(id) {

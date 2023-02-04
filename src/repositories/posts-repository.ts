@@ -10,11 +10,15 @@ import {
 import { PostReqQueryModel } from '../models/reqQueryModel';
 import { BlogsRepository } from './blogs-repository';
 import { postLikesCollection, postsCollection, userLikesCollection } from './db';
+import { BlogsQueryRepository } from './queryRepositories/blogs.queryRepository';
 import { usersRepository } from './users-repository';
 
 @injectable()
 export class PostsRepository {
-  constructor(@inject(BlogsRepository) protected blogsRepository: BlogsRepository) {}
+  constructor(
+    @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+    @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository
+  ) {}
 
   async getAllPosts(options: PostReqQueryModel, userId: string): Promise<PostViewModel[]> {
     const sort: any = {};
@@ -70,7 +74,7 @@ export class PostsRepository {
 
   async createPost(data: PostInputModel): Promise<PostViewModel> {
     const { title, shortDescription, content, blogId } = data;
-    const blog = (await this.blogsRepository.findBlogById(blogId)) as BlogViewModel;
+    const blog = (await this.blogsQueryRepository.getBlogById(blogId)) as BlogViewModel;
     const blogName = blog.name;
     const postToInsert: PostDBModel = {
       title,

@@ -6,22 +6,24 @@ import { PostsService } from '../service/post-service';
 import { setBlogQueryParams } from './utils';
 import { BlogsRepository } from '../repositories/blogs-repository';
 import { inject, injectable } from 'inversify';
+import { BlogsQueryRepository } from '../repositories/queryRepositories/blogs.queryRepository';
 
 @injectable()
 export class BlogsController {
   constructor(
     @inject(BlogsService) protected blogsService: BlogsService,
     @inject(PostsService) protected postsService: PostsService,
-    @inject(BlogsRepository) protected blogsRepository: BlogsRepository
+    @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+    @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository
   ) {}
 
   getAllBlogs = async (req: Request, res: Response) => {
     const options = setBlogQueryParams(req.query);
 
-    const foundBlogs = await this.blogsRepository.findBlogs(options);
+    const foundBlogs = await this.blogsQueryRepository.getAllBlogs(options);
     const totalCount: number = options.searchNameTerm
       ? foundBlogs.length
-      : await this.blogsRepository.countAllBlogs();
+      : await this.blogsQueryRepository.countAllBlogs();
     const pagesCount: number = Math.ceil(totalCount / options.pageSize);
 
     res.send({
@@ -43,7 +45,7 @@ export class BlogsController {
   };
 
   createBlogPost = async (req: Request, res: Response) => {
-    const blog = await this.blogsRepository.findBlogById(req.params.blogId.toString());
+    const blog = await this.blogsQueryRepository.getBlogById(req.params.blogId.toString());
     if (!blog) {
       res.sendStatus(404);
     } else {
@@ -58,7 +60,7 @@ export class BlogsController {
   };
 
   getBlogById = async (req: Request, res: Response) => {
-    const blogFound: BlogViewModel | null = await this.blogsRepository.findBlogById(
+    const blogFound: BlogViewModel | null = await this.blogsQueryRepository.getBlogById(
       req.params.id.toString()
     );
 
@@ -97,7 +99,7 @@ export class BlogsController {
   };
 
   getPostsByBlogId = async (req: Request, res: Response) => {
-    const blog: BlogViewModel | null = await this.blogsRepository.findBlogById(
+    const blog: BlogViewModel | null = await this.blogsQueryRepository.getBlogById(
       req.params.blogId.toString()
     );
     if (!blog) {
@@ -107,7 +109,7 @@ export class BlogsController {
         req.query
       );
 
-      const posts = await this.blogsRepository.findPostsByBlogId(
+      const posts = await this.blogsQueryRepository.getAllPostsByBlogId(
         blog.id!.toString(),
         skip,
         pageSize,

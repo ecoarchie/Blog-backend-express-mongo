@@ -53,6 +53,7 @@ const comments_repository_1 = require("./repositories/comments-repository");
 const session_routers_1 = require("./routes/session-routers");
 const express_useragent_1 = __importDefault(require("express-useragent"));
 const session_service_1 = require("./application/session-service");
+const blogs_queryRepository_1 = require("./repositories/queryRepositories/blogs.queryRepository");
 dotenv.config();
 exports.app = (0, express_1.default)();
 exports.port = process.env.PORT;
@@ -71,7 +72,8 @@ exports.app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* (
     res.send('Hello World!');
 }));
 const blogsRepository = new blogs_repository_1.BlogsRepository();
-const postsRepository = new posts_repository_1.PostsRepository(blogsRepository);
+const blogsQueryRepository = new blogs_queryRepository_1.BlogsQueryRepository();
+const postsRepository = new posts_repository_1.PostsRepository(blogsRepository, blogsQueryRepository);
 const commentRepository = new comments_repository_1.CommentRepository();
 exports.app.delete('/testing/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield blogsRepository.deleteAllBlogs();

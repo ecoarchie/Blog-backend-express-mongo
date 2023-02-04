@@ -37,10 +37,12 @@ const bson_1 = require("bson");
 const inversify_1 = require("inversify");
 const blogs_repository_1 = require("./blogs-repository");
 const db_1 = require("./db");
+const blogs_queryRepository_1 = require("./queryRepositories/blogs.queryRepository");
 const users_repository_1 = require("./users-repository");
 let PostsRepository = class PostsRepository {
-    constructor(blogsRepository) {
+    constructor(blogsRepository, blogsQueryRepository) {
         this.blogsRepository = blogsRepository;
+        this.blogsQueryRepository = blogsQueryRepository;
     }
     getAllPosts(options, userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -94,7 +96,7 @@ let PostsRepository = class PostsRepository {
     createPost(data) {
         return __awaiter(this, void 0, void 0, function* () {
             const { title, shortDescription, content, blogId } = data;
-            const blog = (yield this.blogsRepository.findBlogById(blogId));
+            const blog = (yield this.blogsQueryRepository.getBlogById(blogId));
             const blogName = blog.name;
             const postToInsert = {
                 title,
@@ -291,6 +293,8 @@ let PostsRepository = class PostsRepository {
 PostsRepository = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(blogs_repository_1.BlogsRepository)),
-    __metadata("design:paramtypes", [blogs_repository_1.BlogsRepository])
+    __param(1, (0, inversify_1.inject)(blogs_queryRepository_1.BlogsQueryRepository)),
+    __metadata("design:paramtypes", [blogs_repository_1.BlogsRepository,
+        blogs_queryRepository_1.BlogsQueryRepository])
 ], PostsRepository);
 exports.PostsRepository = PostsRepository;

@@ -11,13 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValidBlogId = void 0;
 const express_validator_1 = require("express-validator");
-const blogs_repository_1 = require("../repositories/blogs-repository");
-const blogsRepository = new blogs_repository_1.BlogsRepository();
+const blogs_queryRepository_1 = require("../repositories/queryRepositories/blogs.queryRepository");
+const blogsQueryRepository = new blogs_queryRepository_1.BlogsQueryRepository();
 exports.isValidBlogId = (0, express_validator_1.body)('blogId')
     .exists()
     .withMessage('Post ID is required')
     .custom((id) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!(yield blogsRepository.findBlogById(id))) {
+    if (!(yield blogsQueryRepository.getBlogById(id))) {
         throw new Error("Blog with this ID doesn't exist");
     }
     return true;

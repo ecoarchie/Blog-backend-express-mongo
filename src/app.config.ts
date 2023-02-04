@@ -15,6 +15,7 @@ import { CommentRepository } from './repositories/comments-repository';
 import { sessionRouter } from './routes/session-routers';
 import useragent from 'express-useragent';
 import { sessionService } from './application/session-service';
+import { BlogsQueryRepository } from './repositories/queryRepositories/blogs.queryRepository';
 
 dotenv.config();
 
@@ -38,7 +39,8 @@ app.get('/', async (req, res) => {
 });
 
 const blogsRepository = new BlogsRepository();
-const postsRepository = new PostsRepository(blogsRepository);
+const blogsQueryRepository = new BlogsQueryRepository();
+const postsRepository = new PostsRepository(blogsRepository, blogsQueryRepository);
 const commentRepository = new CommentRepository();
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
   await blogsRepository.deleteAllBlogs();
