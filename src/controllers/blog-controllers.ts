@@ -7,6 +7,7 @@ import { setBlogQueryParams } from './utils';
 import { BlogsRepository } from '../repositories/blogs-repository';
 import { inject, injectable } from 'inversify';
 import { BlogsQueryRepository } from '../repositories/queryRepositories/blogs.queryRepository';
+import { BlogReqQueryModel } from '../models/reqQueryModel';
 
 @injectable()
 export class BlogsController {
@@ -18,21 +19,21 @@ export class BlogsController {
   ) {}
 
   getAllBlogs = async (req: Request, res: Response) => {
-    const options = setBlogQueryParams(req.query);
+    const pageNumber = Number(req.query.pageNumber) || 1;
+    const pageSize = Number(req.query.pageSize) || 10;
+    const skip = (pageNumber - 1) * pageSize;
 
-    const foundBlogs = await this.blogsQueryRepository.getAllBlogs(options);
-    const totalCount: number = options.searchNameTerm
-      ? foundBlogs.length
-      : await this.blogsQueryRepository.countAllBlogs();
-    const pagesCount: number = Math.ceil(totalCount / options.pageSize);
+    const blogsQueryParams = {
+      searchNameTerm: req.query.searchNameTerm || null,
+      pageNumber,
+      pageSize,
+      sortBy: req.query.sortBy?.toString() || 'createdAt',
+      sortDirection: req.query.sortDirection || 'desc',
+      skip,
+    } as BlogReqQueryModel;
 
-    res.send({
-      pagesCount,
-      page: options.pageNumber,
-      pageSize: options.pageSize,
-      totalCount,
-      items: foundBlogs,
-    });
+    const foundBlogs = await this.blogsQueryRepository.getAllBlogs(blogsQueryParams);
+    res.send(foundBlogs);
   };
 
   createBlog = async (req: Request, res: Response) => {
@@ -111,17 +112,17 @@ export class BlogsController {
 
       const posts = await this.blogsQueryRepository.getAllPostsByBlogId(
         blog.id!.toString(),
-        skip,
-        pageSize,
-        sortBy,
-        sortDirection,
+        skip!,
+        pageSize!,
+        sortBy!,
+        sortDirection!,
         req.user?.id || ''
       );
 
       const totalCount: number = await this.postsService.countPostsByBlogId(
         blog.id!.toString()
       );
-      const pagesCount: number = Math.ceil(totalCount / pageSize);
+      const pagesCount: number = Math.ceil(totalCount / pageSize!);
 
       res.send({
         pagesCount,

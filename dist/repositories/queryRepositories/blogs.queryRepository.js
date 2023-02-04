@@ -21,26 +21,36 @@ const db_1 = require(".././db");
 const users_repository_1 = require(".././users-repository");
 const inversify_1 = require("inversify");
 let BlogsQueryRepository = class BlogsQueryRepository {
-    getAllBlogs(options) {
+    getAllBlogs(blogsQueryParams) {
         return __awaiter(this, void 0, void 0, function* () {
             const sort = {};
-            sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
-            const searchTerm = !options.searchNameTerm
+            sort[blogsQueryParams.sortBy] = blogsQueryParams.sortDirection === 'asc' ? 1 : -1;
+            const searchTerm = !blogsQueryParams.searchNameTerm
                 ? {}
-                : { name: { $regex: options.searchNameTerm, $options: 'i' } };
+                : { name: { $regex: blogsQueryParams.searchNameTerm, $options: 'i' } };
             const pipeline = [
                 { $match: searchTerm },
                 { $addFields: { id: '$_id' } },
                 { $sort: sort },
-                { $skip: options.skip },
-                { $limit: options.pageSize },
+                { $skip: blogsQueryParams.skip },
+                { $limit: blogsQueryParams.pageSize },
                 { $project: { _id: 0 } },
             ];
             const blogs = (yield db_1.blogsCollection.aggregate(pipeline).toArray()).map((blog) => {
                 blog.id = blog.id.toString();
                 return blog;
             });
-            return blogs;
+            const totalCount = blogsQueryParams.searchNameTerm
+                ? blogs.length
+                : yield this.countAllBlogs();
+            const pagesCount = Math.ceil(totalCount / blogsQueryParams.pageSize);
+            return {
+                pagesCount,
+                page: blogsQueryParams.pageNumber,
+                pageSize: blogsQueryParams.pageSize,
+                totalCount,
+                items: blogs,
+            };
         });
     }
     getBlogById(id) {

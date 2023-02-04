@@ -1,5 +1,10 @@
 import { ObjectId } from 'mongodb';
-import { BlogViewModel, BlogInputModel, BlogDBModel } from '../../models/blogModel';
+import {
+  BlogViewModel,
+  BlogInputModel,
+  BlogDBModel,
+  BlogsPaginationView,
+} from '../../models/blogModel';
 import { BlogReqQueryModel } from '../../models/reqQueryModel';
 import { blogsCollection, postLikesCollection, postsCollection } from '.././db';
 import { usersRepository } from '.././users-repository';
@@ -7,20 +12,20 @@ import { injectable } from 'inversify';
 
 @injectable()
 export class BlogsQueryRepository {
-  async getAllBlogs(options: BlogReqQueryModel): Promise<BlogViewModel[]> {
+  async getAllBlogs(blogsQueryParams: BlogReqQueryModel): Promise<BlogsPaginationView> {
     const sort: any = {};
-    sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
+    sort[blogsQueryParams.sortBy!] = blogsQueryParams.sortDirection === 'asc' ? 1 : -1;
 
-    const searchTerm = !options.searchNameTerm
+    const searchTerm = !blogsQueryParams.searchNameTerm
       ? {}
-      : { name: { $regex: options.searchNameTerm, $options: 'i' } };
+      : { name: { $regex: blogsQueryParams.searchNameTerm, $options: 'i' } };
 
     const pipeline = [
       { $match: searchTerm },
       { $addFields: { id: '$_id' } },
       { $sort: sort },
-      { $skip: options.skip },
-      { $limit: options.pageSize },
+      { $skip: blogsQueryParams.skip },
+      { $limit: blogsQueryParams.pageSize },
       { $project: { _id: 0 } },
     ];
 
@@ -30,7 +35,18 @@ export class BlogsQueryRepository {
       blog.id = blog.id.toString();
       return blog;
     }) as Array<BlogViewModel>;
-    return blogs;
+
+    const totalCount: number = blogsQueryParams.searchNameTerm
+      ? blogs.length
+      : await this.countAllBlogs();
+    const pagesCount: number = Math.ceil(totalCount / blogsQueryParams.pageSize!);
+    return {
+      pagesCount,
+      page: blogsQueryParams.pageNumber!,
+      pageSize: blogsQueryParams.pageSize!,
+      totalCount,
+      items: blogs,
+    };
   }
 
   async getBlogById(id: string): Promise<BlogViewModel | null> {

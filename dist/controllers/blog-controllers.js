@@ -35,19 +35,20 @@ let BlogsController = class BlogsController {
         this.blogsRepository = blogsRepository;
         this.blogsQueryRepository = blogsQueryRepository;
         this.getAllBlogs = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const options = (0, utils_1.setBlogQueryParams)(req.query);
-            const foundBlogs = yield this.blogsQueryRepository.getAllBlogs(options);
-            const totalCount = options.searchNameTerm
-                ? foundBlogs.length
-                : yield this.blogsQueryRepository.countAllBlogs();
-            const pagesCount = Math.ceil(totalCount / options.pageSize);
-            res.send({
-                pagesCount,
-                page: options.pageNumber,
-                pageSize: options.pageSize,
-                totalCount,
-                items: foundBlogs,
-            });
+            var _a;
+            const pageNumber = Number(req.query.pageNumber) || 1;
+            const pageSize = Number(req.query.pageSize) || 10;
+            const skip = (pageNumber - 1) * pageSize;
+            const blogsQueryParams = {
+                searchNameTerm: req.query.searchNameTerm || null,
+                pageNumber,
+                pageSize,
+                sortBy: ((_a = req.query.sortBy) === null || _a === void 0 ? void 0 : _a.toString()) || 'createdAt',
+                sortDirection: req.query.sortDirection || 'desc',
+                skip,
+            };
+            const foundBlogs = yield this.blogsQueryRepository.getAllBlogs(blogsQueryParams);
+            res.send(foundBlogs);
         });
         this.createBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const newBlog = yield this.blogsService.createBlog({
@@ -104,14 +105,14 @@ let BlogsController = class BlogsController {
             }
         });
         this.getPostsByBlogId = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _b;
             const blog = yield this.blogsQueryRepository.getBlogById(req.params.blogId.toString());
             if (!blog) {
                 res.sendStatus(404);
             }
             else {
                 const { pageNumber, pageSize, sortBy, sortDirection, skip } = (0, utils_1.setBlogQueryParams)(req.query);
-                const posts = yield this.blogsQueryRepository.getAllPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection, ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || '');
+                const posts = yield this.blogsQueryRepository.getAllPostsByBlogId(blog.id.toString(), skip, pageSize, sortBy, sortDirection, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
                 const totalCount = yield this.postsService.countPostsByBlogId(blog.id.toString());
                 const pagesCount = Math.ceil(totalCount / pageSize);
                 res.send({

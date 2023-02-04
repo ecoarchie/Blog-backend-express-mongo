@@ -32,7 +32,15 @@ const setUserQueryOptions = (query) => {
     const sortBy = ((_a = query.sortBy) === null || _a === void 0 ? void 0 : _a.toString()) || 'createdAt';
     const sortDirection = query.sortDirection || 'desc';
     const skip = (pageNumber - 1) * pageSize;
-    return { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection, skip };
+    return {
+        searchEmailTerm,
+        searchLoginTerm,
+        pageNumber,
+        pageSize,
+        sortBy,
+        sortDirection,
+        skip,
+    };
 };
 exports.setUserQueryOptions = setUserQueryOptions;
 const setCommentsQueryParams = (query) => {

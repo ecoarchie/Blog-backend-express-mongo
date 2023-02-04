@@ -44,6 +44,7 @@ describe('blogs routes', () => {
 
       const result = await request(app).get('/blogs').expect(200);
 
+      console.log(result.body);
       expect(result.body.pagesCount).toEqual(2);
       expect(result.body.page).toEqual(1);
       expect(result.body.pageSize).toEqual(10);

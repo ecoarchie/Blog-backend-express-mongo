@@ -5,7 +5,7 @@ import {
   UserReqQueryModel,
 } from '../models/reqQueryModel';
 
-export const setBlogQueryParams = (query: BlogReqQueryModel) => {
+export const setBlogQueryParams = (query: BlogReqQueryModel): BlogReqQueryModel => {
   const searchNameTerm: string | null = query.searchNameTerm || null;
   const pageNumber: number = Number(query.pageNumber) || 1;
   const pageSize: number = Number(query.pageSize) || 10;
@@ -36,7 +36,15 @@ export const setUserQueryOptions = (query: UserReqQueryModel) => {
   const sortDirection: 'asc' | 'desc' = (query.sortDirection as 'asc' | 'desc') || 'desc';
   const skip: number = (pageNumber - 1) * pageSize;
 
-  return { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection, skip };
+  return {
+    searchEmailTerm,
+    searchLoginTerm,
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
+    skip,
+  };
 };
 
 export const setCommentsQueryParams = (query: CommentReqQueryModel) => {

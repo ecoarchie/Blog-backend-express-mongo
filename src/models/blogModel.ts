@@ -15,3 +15,11 @@ export type BlogDBModel = BlogInputModel & {
   _id?: ObjectId | null;
   createdAt: string;
 };
+
+export type BlogsPaginationView = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BlogViewModel[];
+};
