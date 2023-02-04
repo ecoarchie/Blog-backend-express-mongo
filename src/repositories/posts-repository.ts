@@ -162,9 +162,9 @@ export class PostsRepository {
     return result.deletedCount === 1;
   }
 
-  async countPostsByBlogId(blogId: string): Promise<number> {
-    return postsCollection.count({ blogId: new ObjectId(blogId) });
-  }
+  // async countPostsByBlogId(blogId: string): Promise<number> {
+  //   return postsCollection.count({ blogId: new ObjectId(blogId) });
+  // }
 
   async countAllPosts(): Promise<number> {
     return postsCollection.countDocuments();
