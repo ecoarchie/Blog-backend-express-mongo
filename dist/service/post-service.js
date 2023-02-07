@@ -24,9 +24,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsService = void 0;
 const inversify_1 = require("inversify");
 const posts_repository_1 = require("../repositories/posts-repository");
+const posts_queryRepository_1 = require("../repositories/queryRepositories/posts.queryRepository");
 let PostsService = class PostsService {
-    constructor(postsRepository) {
+    constructor(postsRepository, postsQueryRepository) {
         this.postsRepository = postsRepository;
+        this.postsQueryRepository = postsQueryRepository;
     }
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -59,17 +61,12 @@ let PostsService = class PostsService {
             return this.postsRepository.deletePostById(postId);
         });
     }
-    // async countPostsByBlogId(blogId: string): Promise<number> {
-    //   return this.postsRepository.countPostsByBlogId(blogId);
+    // async countAllPosts(): Promise<number> {
+    //   return this.postsQueryRepository.countAllPosts();
     // }
-    countAllPosts() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.postsRepository.countAllPosts();
-        });
-    }
     likePostService(userId, postId, likeStatus) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundPost = yield this.postsRepository.getPostById(postId, userId);
+            const foundPost = yield this.postsQueryRepository.getPostById(postId, userId);
             if (!foundPost)
                 return 404;
             try {
@@ -86,6 +83,8 @@ let PostsService = class PostsService {
 PostsService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(posts_repository_1.PostsRepository)),
-    __metadata("design:paramtypes", [posts_repository_1.PostsRepository])
+    __param(1, (0, inversify_1.inject)(posts_queryRepository_1.PostsQueryRepository)),
+    __metadata("design:paramtypes", [posts_repository_1.PostsRepository,
+        posts_queryRepository_1.PostsQueryRepository])
 ], PostsService);
 exports.PostsService = PostsService;

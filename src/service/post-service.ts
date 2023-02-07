@@ -1,10 +1,14 @@
 import { inject, injectable } from 'inversify';
 import { PostInputModel, PostViewModel } from '../models/postModel';
 import { PostsRepository } from '../repositories/posts-repository';
+import { PostsQueryRepository } from '../repositories/queryRepositories/posts.queryRepository';
 
 @injectable()
 export class PostsService {
-  constructor(@inject(PostsRepository) protected postsRepository: PostsRepository) {}
+  constructor(
+    @inject(PostsRepository) protected postsRepository: PostsRepository,
+    @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository
+  ) {}
 
   async deleteAllPosts() {
     return this.postsRepository.deleteAllPosts();
@@ -31,16 +35,12 @@ export class PostsService {
     return this.postsRepository.deletePostById(postId);
   }
 
-  // async countPostsByBlogId(blogId: string): Promise<number> {
-  //   return this.postsRepository.countPostsByBlogId(blogId);
+  // async countAllPosts(): Promise<number> {
+  //   return this.postsQueryRepository.countAllPosts();
   // }
 
-  async countAllPosts(): Promise<number> {
-    return this.postsRepository.countAllPosts();
-  }
-
   async likePostService(userId: string, postId: string, likeStatus: string): Promise<number> {
-    const foundPost = await this.postsRepository.getPostById(postId, userId);
+    const foundPost = await this.postsQueryRepository.getPostById(postId, userId);
     if (!foundPost) return 404;
     try {
       const likePost = await this.postsRepository.likePost(userId, postId, likeStatus);

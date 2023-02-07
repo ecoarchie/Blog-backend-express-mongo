@@ -8,6 +8,7 @@ import { inject, injectable } from 'inversify';
 import { BlogsQueryRepository } from '../repositories/queryRepositories/blogs.queryRepository';
 import { BlogReqQueryModel, PostReqQueryModel } from '../models/reqQueryModel';
 import { PostsRepository } from '../repositories/posts-repository';
+import { PostsQueryRepository } from '../repositories/queryRepositories/posts.queryRepository';
 
 @injectable()
 export class BlogsController {
@@ -16,7 +17,8 @@ export class BlogsController {
     @inject(PostsService) protected postsService: PostsService,
     @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
     @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
-    @inject(PostsRepository) protected postsRepository: PostsRepository
+    @inject(PostsRepository) protected postsRepository: PostsRepository,
+    @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository
   ) {}
 
   getAllBlogs = async (req: Request, res: Response) => {
@@ -59,7 +61,10 @@ export class BlogsController {
       shortDescription: req.body.shortDescription,
       content: req.body.content,
     });
-    const newPost = await this.postsRepository.getPostById(postCreatedId!, req.user?.id || '');
+    const newPost = await this.postsQueryRepository.getPostById(
+      postCreatedId!,
+      req.user?.id || ''
+    );
     res.status(201).send(newPost);
   };
 

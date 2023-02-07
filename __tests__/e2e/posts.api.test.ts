@@ -41,6 +41,7 @@ describe('posts routes', () => {
           blogId: `${createdBlog.id}`,
         });
       }
+      let result;
       await Promise.all(
         posts.map(async (post) => {
           await request(app)
@@ -49,15 +50,22 @@ describe('posts routes', () => {
             .send(post)
             .expect(201);
         })
-      );
+      ).then(async () => {
+        result = await request(app).get('/posts').expect(200);
+        expect(result.body.pagesCount).toEqual(2);
+        expect(result.body.page).toEqual(1);
+        expect(result.body.pageSize).toEqual(10);
+        expect(result.body.totalCount).toEqual(12);
+        expect(result.body.items.length).toEqual(10);
+      });
 
-      const result = await request(app).get('/posts').expect(200);
+      // const result = await request(app).get('/posts').expect(200);
 
-      expect(result.body.pagesCount).toEqual(2);
-      expect(result.body.page).toEqual(1);
-      expect(result.body.pageSize).toEqual(10);
-      expect(result.body.totalCount).toEqual(12);
-      expect(result.body.items.length).toEqual(10);
+      // expect(result.body.pagesCount).toEqual(2);
+      // expect(result.body.page).toEqual(1);
+      // expect(result.body.pageSize).toEqual(10);
+      // expect(result.body.totalCount).toEqual(12);
+      // expect(result.body.items.length).toEqual(10);
     });
   });
 

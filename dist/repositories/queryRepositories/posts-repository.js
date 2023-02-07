@@ -31,6 +31,7 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsRepository = void 0;
 const bson_1 = require("bson");
@@ -44,59 +45,51 @@ let PostsRepository = class PostsRepository {
         this.blogsRepository = blogsRepository;
         this.blogsQueryRepository = blogsQueryRepository;
     }
-    // async getAllPosts(options: PostReqQueryModel, userId: string): Promise<PostsPaginationView> {
-    //   const sort: any = {};
-    //   sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
-    //   const searchTerm = !options.searchNameTerm
-    //     ? {}
-    //     : { name: { $regex: options.searchNameTerm } };
-    //   const pipeline = [
-    //     { $match: searchTerm },
-    //     { $addFields: { id: '$_id' } },
-    //     { $sort: sort },
-    //     { $skip: options.skip },
-    //     { $limit: options.pageSize },
-    //     { $project: { _id: 0 } },
-    //   ];
-    //   const posts: Array<PostViewModel> = (await postsCollection
-    //     .aggregate(pipeline)
-    //     .toArray()) as Array<PostViewModel>;
-    //   const postsLikesInfo = await postLikesCollection.find().toArray();
-    //   await Promise.all(
-    //     postsLikesInfo.map(async (p) => {
-    //       p.myStatus = await usersRepository.checkLikeStatus(userId, {
-    //         field: 'Posts',
-    //         fieldId: p.postId.toString(),
-    //       });
-    //       return p;
-    //     })
-    //   );
-    //   await Promise.all(
-    //     posts.map(async (post) => {
-    //       let extendedLikesInfo = postsLikesInfo.find(
-    //         (p) => p.postId.toString() === post.id!.toString()
-    //       );
-    //       post.extendedLikesInfo = {
-    //         likesCount: extendedLikesInfo!.likesCount,
-    //         dislikesCount: extendedLikesInfo!.dislikesCount,
-    //         myStatus: extendedLikesInfo!.myStatus!,
-    //         newestLikes: extendedLikesInfo!.newestLikes.slice(0, 3),
-    //       };
-    //       return post;
-    //     })
-    //   );
-    //   const totalCount: number = options.searchNameTerm
-    //     ? posts.length
-    //     : await this.countAllPosts();
-    //   const pagesCount: number = Math.ceil(totalCount / options.pageSize!);
-    //   return {
-    //     pagesCount,
-    //     page: options.pageNumber!,
-    //     pageSize: options.pageSize!,
-    //     totalCount,
-    //     items: posts,
-    //   };
-    // }
+    getAllPosts(options, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sort = {};
+            sort[options.sortBy] = options.sortDirection === 'asc' ? 1 : -1;
+            const searchTerm = !options.searchNameTerm
+                ? {}
+                : { name: { $regex: options.searchNameTerm } };
+            const pipeline = [
+                { $match: searchTerm },
+                { $addFields: { id: '$_id' } },
+                { $sort: sort },
+                { $skip: options.skip },
+                { $limit: options.pageSize },
+                { $project: { _id: 0 } },
+            ];
+            const posts = (yield db_1.postsCollection
+                .aggregate(pipeline)
+                .toArray());
+            const postsLikesInfo = yield db_1.postLikesCollection.find().toArray();
+            yield Promise.all(posts.map((post) => __awaiter(this, void 0, void 0, function* () {
+                let extendedLikesInfo = postsLikesInfo.find((p) => p.postId.toString() === post.id.toString());
+                post.extendedLikesInfo = {
+                    likesCount: extendedLikesInfo.likesCount,
+                    dislikesCount: extendedLikesInfo.dislikesCount,
+                    myStatus: yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                        field: 'Posts',
+                        fieldId: post.id.toString(),
+                    }),
+                    newestLikes: extendedLikesInfo.newestLikes.slice(0, 3),
+                };
+                return post;
+            })));
+            const totalCount = options.searchNameTerm
+                ? posts.length
+                : yield this.countAllPosts();
+            const pagesCount = Math.ceil(totalCount / options.pageSize);
+            return {
+                pagesCount,
+                page: options.pageNumber,
+                pageSize: options.pageSize,
+                totalCount,
+                items: posts,
+            };
+        });
+    }
     deleteAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield db_1.postsCollection.deleteMany({});
@@ -130,41 +123,56 @@ let PostsRepository = class PostsRepository {
                     newestLikes: [],
                 });
             }
+            const newPost = {
+                id: result.insertedId.toString(),
+                title: postToInsert.title,
+                shortDescription: postToInsert.shortDescription,
+                content: postToInsert.content,
+                blogId: blogId,
+                blogName: postToInsert.blogName,
+                createdAt: postToInsert.createdAt,
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    myStatus: 'None',
+                    newestLikes: [],
+                },
+            };
             return (_a = result.insertedId) === null || _a === void 0 ? void 0 : _a.toString();
         });
     }
-    // async getPostById(postId: string, userId: string): Promise<PostViewModel | null> {
-    //   if (!ObjectId.isValid(postId)) return null;
-    //   const postById = await postsCollection.findOne({ _id: new ObjectId(postId) });
-    //   let postToReturn: PostViewModel | null = null;
-    //   if (postById) {
-    //     const { _id, title, shortDescription, content, blogId, blogName, createdAt } = postById;
-    //     const postLikesInfo = await postLikesCollection.findOne(
-    //       { postId: new ObjectId(postId) },
-    //       { projection: { _id: 0 } }
-    //     );
-    //     const myStatus = await usersRepository.checkLikeStatus(userId, {
-    //       field: 'Posts',
-    //       fieldId: postId,
-    //     });
-    //     postToReturn = {
-    //       id: _id!.toString(),
-    //       title,
-    //       shortDescription,
-    //       content,
-    //       blogId: blogId.toString(),
-    //       blogName,
-    //       createdAt,
-    //       extendedLikesInfo: {
-    //         likesCount: postLikesInfo!.likesCount,
-    //         dislikesCount: postLikesInfo!.dislikesCount,
-    //         newestLikes: postLikesInfo!.newestLikes.slice(0, 3),
-    //         myStatus,
-    //       },
-    //     };
-    //   }
-    //   return postToReturn;
-    // }
+    getPostById(postId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!bson_1.ObjectId.isValid(postId))
+                return null;
+            const postById = yield db_1.postsCollection.findOne({ _id: new bson_1.ObjectId(postId) });
+            let postToReturn = null;
+            if (postById) {
+                const { _id, title, shortDescription, content, blogId, blogName, createdAt } = postById;
+                const postLikesInfo = yield db_1.postLikesCollection.findOne({ postId: new bson_1.ObjectId(postId) }, { projection: { _id: 0 } });
+                const myStatus = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                    field: 'Posts',
+                    fieldId: postId,
+                });
+                postToReturn = {
+                    id: _id.toString(),
+                    title,
+                    shortDescription,
+                    content,
+                    blogId: blogId.toString(),
+                    blogName,
+                    createdAt,
+                    extendedLikesInfo: {
+                        likesCount: postLikesInfo.likesCount,
+                        dislikesCount: postLikesInfo.dislikesCount,
+                        newestLikes: postLikesInfo.newestLikes.slice(0, 3),
+                        myStatus,
+                    },
+                };
+            }
+            return postToReturn;
+        });
+    }
     updatePostById(postId, updateParams) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bson_1.ObjectId.isValid(postId))
@@ -182,13 +190,18 @@ let PostsRepository = class PostsRepository {
             return result.deletedCount === 1;
         });
     }
-    // async countAllPosts(): Promise<number> {
-    //   return postsCollection.countDocuments();
-    // }
-    // async isPostExist(postId: string): Promise<boolean> {
-    //   if (!ObjectId.isValid(postId)) return false;
-    //   return (await postsCollection.countDocuments({ _id: new ObjectId(postId) })) > 0;
-    // }
+    countAllPosts() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return db_1.postsCollection.countDocuments();
+        });
+    }
+    isPostExist(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!bson_1.ObjectId.isValid(postId))
+                return false;
+            return (yield db_1.postsCollection.countDocuments({ _id: new bson_1.ObjectId(postId) })) > 0;
+        });
+    }
     _addToUsersLikeList(userId, postId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield db_1.userLikesCollection.updateOne({ userId: new bson_1.ObjectId(userId) }, { $push: { likedPosts: postId } });
@@ -284,7 +297,6 @@ PostsRepository = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(blogs_repository_1.BlogsRepository)),
     __param(1, (0, inversify_1.inject)(blogs_queryRepository_1.BlogsQueryRepository)),
-    __metadata("design:paramtypes", [blogs_repository_1.BlogsRepository,
-        blogs_queryRepository_1.BlogsQueryRepository])
+    __metadata("design:paramtypes", [typeof (_a = typeof blogs_repository_1.BlogsRepository !== "undefined" && blogs_repository_1.BlogsRepository) === "function" ? _a : Object, typeof (_b = typeof blogs_queryRepository_1.BlogsQueryRepository !== "undefined" && blogs_queryRepository_1.BlogsQueryRepository) === "function" ? _b : Object])
 ], PostsRepository);
 exports.PostsRepository = PostsRepository;

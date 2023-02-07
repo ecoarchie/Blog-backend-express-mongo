@@ -10,12 +10,14 @@ import { UsersLikesDBModel } from '../models/likeModel';
 import { PostsRepository } from '../repositories/posts-repository';
 import { inject, injectable } from 'inversify';
 import { PostReqQueryModel } from '../models/reqQueryModel';
+import { PostsQueryRepository } from '../repositories/queryRepositories/posts.queryRepository';
 
 @injectable()
 export class PostsController {
   constructor(
     @inject(PostsService) protected postsService: PostsService,
     @inject(PostsRepository) protected postsRepository: PostsRepository,
+    @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
     @inject(CommentRepository) protected commentRepository: CommentRepository,
     @inject(CommentService) protected commentService: CommentService
   ) {}
@@ -33,7 +35,7 @@ export class PostsController {
       skip,
     } as PostReqQueryModel;
 
-    const foundPosts = await this.postsRepository.getAllPosts(
+    const foundPosts = await this.postsQueryRepository.getAllPosts(
       postsQueryParams,
       req.user?.id || ''
     );
@@ -47,12 +49,15 @@ export class PostsController {
       content: req.body.content,
       blogId: req.body.blogId,
     });
-    const newPost = await this.postsRepository.getPostById(newPostId!, req.user?.id || '');
+    const newPost = await this.postsQueryRepository.getPostById(
+      newPostId!,
+      req.user?.id || ''
+    );
     res.status(201).send(newPost);
   };
 
   getPostByIdController = async (req: Request, res: Response) => {
-    const postFound: PostViewModel | null = await this.postsRepository.getPostById(
+    const postFound: PostViewModel | null = await this.postsQueryRepository.getPostById(
       req.params.id.toString(),
       req.user?.id || ''
     );
@@ -94,7 +99,7 @@ export class PostsController {
 
   //TODO refactor this
   getCommentsForPostController = async (req: Request, res: Response) => {
-    const isValidPost = await this.postsRepository.isPostExist(req.params.postId);
+    const isValidPost = await this.postsQueryRepository.isPostExist(req.params.postId);
     if (!isValidPost) {
       res.sendStatus(404);
     } else {
@@ -142,7 +147,7 @@ export class PostsController {
   };
 
   createCommentForPostController = async (req: Request, res: Response) => {
-    if (!(await this.postsRepository.isPostExist(req.params.postId.toString()))) {
+    if (!(await this.postsQueryRepository.isPostExist(req.params.postId.toString()))) {
       res.sendStatus(404);
       return;
     }

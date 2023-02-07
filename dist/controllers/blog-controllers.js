@@ -28,13 +28,15 @@ const blogs_repository_1 = require("../repositories/blogs-repository");
 const inversify_1 = require("inversify");
 const blogs_queryRepository_1 = require("../repositories/queryRepositories/blogs.queryRepository");
 const posts_repository_1 = require("../repositories/posts-repository");
+const posts_queryRepository_1 = require("../repositories/queryRepositories/posts.queryRepository");
 let BlogsController = class BlogsController {
-    constructor(blogsService, postsService, blogsRepository, blogsQueryRepository, postsRepository) {
+    constructor(blogsService, postsService, blogsRepository, blogsQueryRepository, postsRepository, postsQueryRepository) {
         this.blogsService = blogsService;
         this.postsService = postsService;
         this.blogsRepository = blogsRepository;
         this.blogsQueryRepository = blogsQueryRepository;
         this.postsRepository = postsRepository;
+        this.postsQueryRepository = postsQueryRepository;
         this.getAllBlogs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const pageNumber = Number(req.query.pageNumber) || 1;
@@ -73,7 +75,7 @@ let BlogsController = class BlogsController {
                 shortDescription: req.body.shortDescription,
                 content: req.body.content,
             });
-            const newPost = yield this.postsRepository.getPostById(postCreatedId, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
+            const newPost = yield this.postsQueryRepository.getPostById(postCreatedId, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
             res.status(201).send(newPost);
         });
         this.getBlogById = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -136,10 +138,12 @@ BlogsController = __decorate([
     __param(2, (0, inversify_1.inject)(blogs_repository_1.BlogsRepository)),
     __param(3, (0, inversify_1.inject)(blogs_queryRepository_1.BlogsQueryRepository)),
     __param(4, (0, inversify_1.inject)(posts_repository_1.PostsRepository)),
+    __param(5, (0, inversify_1.inject)(posts_queryRepository_1.PostsQueryRepository)),
     __metadata("design:paramtypes", [blog_service_1.BlogsService,
         post_service_1.PostsService,
         blogs_repository_1.BlogsRepository,
         blogs_queryRepository_1.BlogsQueryRepository,
-        posts_repository_1.PostsRepository])
+        posts_repository_1.PostsRepository,
+        posts_queryRepository_1.PostsQueryRepository])
 ], BlogsController);
 exports.BlogsController = BlogsController;

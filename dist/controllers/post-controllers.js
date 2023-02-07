@@ -30,10 +30,12 @@ const db_1 = require("../repositories/db");
 const mongodb_1 = require("mongodb");
 const posts_repository_1 = require("../repositories/posts-repository");
 const inversify_1 = require("inversify");
+const posts_queryRepository_1 = require("../repositories/queryRepositories/posts.queryRepository");
 let PostsController = class PostsController {
-    constructor(postsService, postsRepository, commentRepository, commentService) {
+    constructor(postsService, postsRepository, postsQueryRepository, commentRepository, commentService) {
         this.postsService = postsService;
         this.postsRepository = postsRepository;
+        this.postsQueryRepository = postsQueryRepository;
         this.commentRepository = commentRepository;
         this.commentService = commentService;
         this.getAllPostsController = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -49,7 +51,7 @@ let PostsController = class PostsController {
                 sortDirection: req.query.sortDirection || 'desc',
                 skip,
             };
-            const foundPosts = yield this.postsRepository.getAllPosts(postsQueryParams, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
+            const foundPosts = yield this.postsQueryRepository.getAllPosts(postsQueryParams, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
             res.send(foundPosts);
         });
         this.createPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -60,12 +62,12 @@ let PostsController = class PostsController {
                 content: req.body.content,
                 blogId: req.body.blogId,
             });
-            const newPost = yield this.postsRepository.getPostById(newPostId, ((_c = req.user) === null || _c === void 0 ? void 0 : _c.id) || '');
+            const newPost = yield this.postsQueryRepository.getPostById(newPostId, ((_c = req.user) === null || _c === void 0 ? void 0 : _c.id) || '');
             res.status(201).send(newPost);
         });
         this.getPostByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _d;
-            const postFound = yield this.postsRepository.getPostById(req.params.id.toString(), ((_d = req.user) === null || _d === void 0 ? void 0 : _d.id) || '');
+            const postFound = yield this.postsQueryRepository.getPostById(req.params.id.toString(), ((_d = req.user) === null || _d === void 0 ? void 0 : _d.id) || '');
             if (postFound) {
                 res.send(postFound);
             }
@@ -100,7 +102,7 @@ let PostsController = class PostsController {
         //TODO refactor this
         this.getCommentsForPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _e;
-            const isValidPost = yield this.postsRepository.isPostExist(req.params.postId);
+            const isValidPost = yield this.postsQueryRepository.isPostExist(req.params.postId);
             if (!isValidPost) {
                 res.sendStatus(404);
             }
@@ -142,7 +144,7 @@ let PostsController = class PostsController {
             }
         });
         this.createCommentForPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.postsRepository.isPostExist(req.params.postId.toString()))) {
+            if (!(yield this.postsQueryRepository.isPostExist(req.params.postId.toString()))) {
                 res.sendStatus(404);
                 return;
             }
@@ -162,10 +164,12 @@ PostsController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(post_service_1.PostsService)),
     __param(1, (0, inversify_1.inject)(posts_repository_1.PostsRepository)),
-    __param(2, (0, inversify_1.inject)(comments_repository_1.CommentRepository)),
-    __param(3, (0, inversify_1.inject)(comments_service_1.CommentService)),
+    __param(2, (0, inversify_1.inject)(posts_queryRepository_1.PostsQueryRepository)),
+    __param(3, (0, inversify_1.inject)(comments_repository_1.CommentRepository)),
+    __param(4, (0, inversify_1.inject)(comments_service_1.CommentService)),
     __metadata("design:paramtypes", [post_service_1.PostsService,
         posts_repository_1.PostsRepository,
+        posts_queryRepository_1.PostsQueryRepository,
         comments_repository_1.CommentRepository,
         comments_service_1.CommentService])
 ], PostsController);
