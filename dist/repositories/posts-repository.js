@@ -63,24 +63,30 @@ let PostsRepository = class PostsRepository {
                 .aggregate(pipeline)
                 .toArray());
             const postsLikesInfo = yield db_1.postLikesCollection.find().toArray();
-            yield Promise.all(postsLikesInfo.map((p) => __awaiter(this, void 0, void 0, function* () {
-                p.myStatus = yield users_repository_1.usersRepository.checkLikeStatus(userId, {
-                    field: 'Posts',
-                    fieldId: p.postId.toString(),
-                });
-                return p;
-            })));
-            posts.map((post) => {
+            yield Promise.all(posts.map((post) => __awaiter(this, void 0, void 0, function* () {
                 let extendedLikesInfo = postsLikesInfo.find((p) => p.postId.toString() === post.id.toString());
                 post.extendedLikesInfo = {
                     likesCount: extendedLikesInfo.likesCount,
                     dislikesCount: extendedLikesInfo.dislikesCount,
-                    myStatus: extendedLikesInfo.myStatus,
+                    myStatus: yield users_repository_1.usersRepository.checkLikeStatus(userId, {
+                        field: 'Posts',
+                        fieldId: post.id.toString(),
+                    }),
                     newestLikes: extendedLikesInfo.newestLikes.slice(0, 3),
                 };
                 return post;
-            });
-            return posts;
+            })));
+            const totalCount = options.searchNameTerm
+                ? posts.length
+                : yield this.countAllPosts();
+            const pagesCount = Math.ceil(totalCount / options.pageSize);
+            return {
+                pagesCount,
+                page: options.pageNumber,
+                pageSize: options.pageSize,
+                totalCount,
+                items: posts,
+            };
         });
     }
     deleteAllPosts() {

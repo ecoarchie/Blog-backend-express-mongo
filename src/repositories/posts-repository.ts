@@ -6,6 +6,7 @@ import {
   PostDBModel,
   PostInputModel,
   PostViewModel,
+  PostsPaginationView,
 } from '../models/postModel';
 import { PostReqQueryModel } from '../models/reqQueryModel';
 import { BlogsRepository } from './blogs-repository';
@@ -20,7 +21,7 @@ export class PostsRepository {
     @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository
   ) {}
 
-  async getAllPosts(options: PostReqQueryModel, userId: string): Promise<PostViewModel[]> {
+  async getAllPosts(options: PostReqQueryModel, userId: string): Promise<PostsPaginationView> {
     const sort: any = {};
     sort[options.sortBy!] = options.sortDirection === 'asc' ? 1 : -1;
     const searchTerm = !options.searchNameTerm
@@ -41,27 +42,33 @@ export class PostsRepository {
       .toArray()) as Array<PostViewModel>;
     const postsLikesInfo = await postLikesCollection.find().toArray();
     await Promise.all(
-      postsLikesInfo.map(async (p) => {
-        p.myStatus = await usersRepository.checkLikeStatus(userId, {
-          field: 'Posts',
-          fieldId: p.postId.toString(),
-        });
-        return p;
+      posts.map(async (post) => {
+        let extendedLikesInfo = postsLikesInfo.find(
+          (p) => p.postId.toString() === post.id!.toString()
+        );
+        post.extendedLikesInfo = {
+          likesCount: extendedLikesInfo!.likesCount,
+          dislikesCount: extendedLikesInfo!.dislikesCount,
+          myStatus: await usersRepository.checkLikeStatus(userId, {
+            field: 'Posts',
+            fieldId: post.id!.toString(),
+          }),
+          newestLikes: extendedLikesInfo!.newestLikes.slice(0, 3),
+        };
+        return post;
       })
     );
-    posts.map((post) => {
-      let extendedLikesInfo = postsLikesInfo.find(
-        (p) => p.postId.toString() === post.id!.toString()
-      );
-      post.extendedLikesInfo = {
-        likesCount: extendedLikesInfo!.likesCount,
-        dislikesCount: extendedLikesInfo!.dislikesCount,
-        myStatus: extendedLikesInfo!.myStatus!,
-        newestLikes: extendedLikesInfo!.newestLikes.slice(0, 3),
-      };
-      return post;
-    });
-    return posts;
+    const totalCount: number = options.searchNameTerm
+      ? posts.length
+      : await this.countAllPosts();
+    const pagesCount: number = Math.ceil(totalCount / options.pageSize!);
+    return {
+      pagesCount,
+      page: options.pageNumber!,
+      pageSize: options.pageSize!,
+      totalCount,
+      items: posts,
+    };
   }
 
   async deleteAllPosts() {

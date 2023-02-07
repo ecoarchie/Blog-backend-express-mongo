@@ -22,8 +22,8 @@ export class BlogsService {
     return createdBlogId;
   }
 
-  async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
-    return this.blogsRepository.updateBlogById(id, newDatajson);
+  async updateBlogById(id: string, blogUpdateData: BlogInputModel): Promise<boolean> {
+    return this.blogsRepository.updateBlogById(id, blogUpdateData);
   }
 
   async deleteBlogById(id: string): Promise<boolean> {

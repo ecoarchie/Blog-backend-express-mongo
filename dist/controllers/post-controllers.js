@@ -37,20 +37,20 @@ let PostsController = class PostsController {
         this.commentRepository = commentRepository;
         this.commentService = commentService;
         this.getAllPostsController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            const options = (0, utils_1.setPostQueryParams)(req.query);
-            const foundPosts = yield this.postsRepository.getAllPosts(options, ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || '');
-            const totalCount = options.searchNameTerm
-                ? foundPosts.length
-                : yield this.postsService.countAllPosts();
-            const pagesCount = Math.ceil(totalCount / options.pageSize);
-            res.send({
-                pagesCount,
-                page: options.pageNumber,
-                pageSize: options.pageSize,
-                totalCount,
-                items: foundPosts,
-            });
+            var _a, _b;
+            const pageNumber = Number(req.query.pageNumber) || 1;
+            const pageSize = Number(req.query.pageSize) || 10;
+            const skip = (pageNumber - 1) * pageSize;
+            const postsQueryParams = {
+                searchNameTerm: req.query.searchNameTerm || null,
+                pageNumber,
+                pageSize,
+                sortBy: ((_a = req.query.sortBy) === null || _a === void 0 ? void 0 : _a.toString()) || 'createdAt',
+                sortDirection: req.query.sortDirection || 'desc',
+                skip,
+            };
+            const foundPosts = yield this.postsRepository.getAllPosts(postsQueryParams, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
+            res.send(foundPosts);
         });
         this.createPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const newPost = yield this.postsService.createPost({
@@ -62,8 +62,8 @@ let PostsController = class PostsController {
             res.status(201).send(newPost);
         });
         this.getPostByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _b;
-            const postFound = yield this.postsRepository.getPostById(req.params.id.toString(), ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
+            var _c;
+            const postFound = yield this.postsRepository.getPostById(req.params.id.toString(), ((_c = req.user) === null || _c === void 0 ? void 0 : _c.id) || '');
             if (postFound) {
                 res.send(postFound);
             }
@@ -97,7 +97,7 @@ let PostsController = class PostsController {
         });
         //TODO refactor this
         this.getCommentsForPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _c;
+            var _d;
             const isValidPost = yield this.postsRepository.isPostExist(req.params.postId);
             if (!isValidPost) {
                 res.sendStatus(404);
@@ -105,7 +105,7 @@ let PostsController = class PostsController {
             else {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
                 let comments = yield this.commentRepository.getCommentsByPostId(req.params.postId, options);
-                let currentUserId = (_c = req.user) === null || _c === void 0 ? void 0 : _c.id;
+                let currentUserId = (_d = req.user) === null || _d === void 0 ? void 0 : _d.id;
                 let userLikesDislikes = null;
                 if (currentUserId) {
                     userLikesDislikes = yield db_1.userLikesCollection.findOne({

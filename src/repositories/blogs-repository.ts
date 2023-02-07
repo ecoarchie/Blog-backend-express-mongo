@@ -16,18 +16,18 @@ export class BlogsRepository {
     return result.insertedId!.toString();
   }
 
-  async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {
+  async updateBlogById(id: string, blogUpdateData: BlogInputModel): Promise<boolean> {
     if (!ObjectId.isValid(id)) return false;
     const result = await blogsCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { ...newDatajson } }
+      { $set: { ...blogUpdateData } }
     );
-    await updatePostsForUpdatedBlog();
+    await updateBlogNameInRelatedPosts();
 
     return result.matchedCount === 1;
 
-    async function updatePostsForUpdatedBlog() {
-      const { name } = newDatajson;
+    async function updateBlogNameInRelatedPosts() {
+      const { name } = blogUpdateData;
       if (name) {
         await postsCollection.updateMany(
           { blogId: new ObjectId(id) },

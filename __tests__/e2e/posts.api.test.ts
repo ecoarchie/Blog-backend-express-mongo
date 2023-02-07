@@ -16,6 +16,49 @@ describe('posts routes', () => {
         .get('/posts')
         .expect(200, { pagesCount: 0, page: 1, pageSize: 10, totalCount: 0, items: [] });
     });
+
+    it('given default search params should return 12 posts, pagesCount = 2, total count = 12, items = 10 items', async () => {
+      const blogToCreate = {
+        name: 'new blog',
+        description: 'desc',
+        websiteUrl: 'https://google.com',
+      };
+
+      const createBlogResponse = await request(app)
+        .post('/blogs')
+        .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+        .send(blogToCreate)
+        .expect(201);
+      const createdBlog = createBlogResponse.body;
+
+      const posts: any[] = [];
+
+      for (let i = 1; i < 13; i++) {
+        posts.push({
+          title: `new post ${i}`,
+          shortDescription: `desc ${i}`,
+          content: `https://google.com`,
+          blogId: `${createdBlog.id}`,
+        });
+      }
+      await Promise.all(
+        posts.map(async (post) => {
+          await request(app)
+            .post('/posts')
+            .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+            .send(post)
+            .expect(201);
+        })
+      );
+
+      const result = await request(app).get('/posts').expect(200);
+
+      expect(result.body.pagesCount).toEqual(2);
+      expect(result.body.page).toEqual(1);
+      expect(result.body.pageSize).toEqual(10);
+      expect(result.body.totalCount).toEqual(12);
+      expect(result.body.items.length).toEqual(10);
+    });
   });
 
   describe('POST "/" - create post', () => {

@@ -46,9 +46,9 @@ let BlogsService = class BlogsService {
             return createdBlogId;
         });
     }
-    updateBlogById(id, newDatajson) {
+    updateBlogById(id, blogUpdateData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.blogsRepository.updateBlogById(id, newDatajson);
+            return this.blogsRepository.updateBlogById(id, blogUpdateData);
         });
     }
     deleteBlogById(id) {

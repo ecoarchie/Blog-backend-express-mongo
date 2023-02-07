@@ -9,6 +9,7 @@ import { ObjectId, WithId } from 'mongodb';
 import { UsersLikesDBModel } from '../models/likeModel';
 import { PostsRepository } from '../repositories/posts-repository';
 import { inject, injectable } from 'inversify';
+import { PostReqQueryModel } from '../models/reqQueryModel';
 
 @injectable()
 export class PostsController {
@@ -19,21 +20,24 @@ export class PostsController {
     @inject(CommentService) protected commentService: CommentService
   ) {}
   getAllPostsController = async (req: Request, res: Response) => {
-    const options = setPostQueryParams(req.query);
+    const pageNumber = Number(req.query.pageNumber) || 1;
+    const pageSize = Number(req.query.pageSize) || 10;
+    const skip = (pageNumber - 1) * pageSize;
 
-    const foundPosts = await this.postsRepository.getAllPosts(options, req.user?.id || '');
-    const totalCount: number = options.searchNameTerm
-      ? foundPosts.length
-      : await this.postsService.countAllPosts();
-    const pagesCount: number = Math.ceil(totalCount / options.pageSize);
+    const postsQueryParams = {
+      searchNameTerm: req.query.searchNameTerm || null,
+      pageNumber,
+      pageSize,
+      sortBy: req.query.sortBy?.toString() || 'createdAt',
+      sortDirection: req.query.sortDirection || 'desc',
+      skip,
+    } as PostReqQueryModel;
 
-    res.send({
-      pagesCount,
-      page: options.pageNumber,
-      pageSize: options.pageSize,
-      totalCount,
-      items: foundPosts,
-    });
+    const foundPosts = await this.postsRepository.getAllPosts(
+      postsQueryParams,
+      req.user?.id || ''
+    );
+    res.send(foundPosts);
   };
 
   createPostController = async (req: Request, res: Response) => {

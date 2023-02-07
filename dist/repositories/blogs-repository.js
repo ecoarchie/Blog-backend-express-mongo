@@ -31,16 +31,16 @@ let BlogsRepository = class BlogsRepository {
             return result.insertedId.toString();
         });
     }
-    updateBlogById(id, newDatajson) {
+    updateBlogById(id, blogUpdateData) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mongodb_1.ObjectId.isValid(id))
                 return false;
-            const result = yield db_1.blogsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: Object.assign({}, newDatajson) });
-            yield updatePostsForUpdatedBlog();
+            const result = yield db_1.blogsCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: Object.assign({}, blogUpdateData) });
+            yield updateBlogNameInRelatedPosts();
             return result.matchedCount === 1;
-            function updatePostsForUpdatedBlog() {
+            function updateBlogNameInRelatedPosts() {
                 return __awaiter(this, void 0, void 0, function* () {
-                    const { name } = newDatajson;
+                    const { name } = blogUpdateData;
                     if (name) {
                         yield db_1.postsCollection.updateMany({ blogId: new mongodb_1.ObjectId(id) }, { $set: { blogName: name } });
                     }
