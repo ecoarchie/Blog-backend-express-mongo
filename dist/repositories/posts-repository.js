@@ -100,6 +100,7 @@ let PostsRepository = class PostsRepository {
         });
     }
     createPost(data) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const { title, shortDescription, content, blogId } = data;
             const blog = (yield this.blogsQueryRepository.getBlogById(blogId));
@@ -136,7 +137,7 @@ let PostsRepository = class PostsRepository {
                     newestLikes: [],
                 },
             };
-            return newPost;
+            return (_a = result.insertedId) === null || _a === void 0 ? void 0 : _a.toString();
         });
     }
     getPostById(postId, userId) {

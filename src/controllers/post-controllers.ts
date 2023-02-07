@@ -41,12 +41,13 @@ export class PostsController {
   };
 
   createPostController = async (req: Request, res: Response) => {
-    const newPost = await this.postsService.createPost({
+    const newPostId = await this.postsService.createPost({
       title: req.body.title,
       shortDescription: req.body.shortDescription,
       content: req.body.content,
       blogId: req.body.blogId,
     });
+    const newPost = await this.postsRepository.getPostById(newPostId!, req.user?.id || '');
     res.status(201).send(newPost);
   };
 

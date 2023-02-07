@@ -79,7 +79,7 @@ export class PostsRepository {
     return await postLikesCollection.deleteMany({});
   }
 
-  async createPost(data: PostInputModel): Promise<PostViewModel> {
+  async createPost(data: PostInputModel): Promise<PostViewModel['id']> {
     const { title, shortDescription, content, blogId } = data;
     const blog = (await this.blogsQueryRepository.getBlogById(blogId)) as BlogViewModel;
     const blogName = blog.name;
@@ -116,7 +116,7 @@ export class PostsRepository {
         newestLikes: [],
       },
     };
-    return newPost;
+    return result.insertedId?.toString();
   }
 
   async getPostById(postId: string, userId: string): Promise<PostViewModel | null> {

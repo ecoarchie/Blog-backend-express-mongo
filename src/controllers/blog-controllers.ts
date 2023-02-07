@@ -7,6 +7,7 @@ import { BlogsRepository } from '../repositories/blogs-repository';
 import { inject, injectable } from 'inversify';
 import { BlogsQueryRepository } from '../repositories/queryRepositories/blogs.queryRepository';
 import { BlogReqQueryModel, PostReqQueryModel } from '../models/reqQueryModel';
+import { PostsRepository } from '../repositories/posts-repository';
 
 @injectable()
 export class BlogsController {
@@ -14,7 +15,8 @@ export class BlogsController {
     @inject(BlogsService) protected blogsService: BlogsService,
     @inject(PostsService) protected postsService: PostsService,
     @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
-    @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository
+    @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
+    @inject(PostsRepository) protected postsRepository: PostsRepository
   ) {}
 
   getAllBlogs = async (req: Request, res: Response) => {
@@ -51,13 +53,14 @@ export class BlogsController {
       res.sendStatus(404);
       return;
     }
-    const postCreated: PostViewModel = await this.postsService.createBlogPost({
+    const postCreatedId = await this.postsService.createBlogPost({
       blogId: blog.id!,
       title: req.body.title,
       shortDescription: req.body.shortDescription,
       content: req.body.content,
     });
-    res.status(201).send(postCreated);
+    const newPost = await this.postsRepository.getPostById(postCreatedId!, req.user?.id || '');
+    res.status(201).send(newPost);
   };
 
   getBlogById = async (req: Request, res: Response) => {

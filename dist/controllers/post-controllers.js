@@ -53,17 +53,19 @@ let PostsController = class PostsController {
             res.send(foundPosts);
         });
         this.createPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const newPost = yield this.postsService.createPost({
+            var _c;
+            const newPostId = yield this.postsService.createPost({
                 title: req.body.title,
                 shortDescription: req.body.shortDescription,
                 content: req.body.content,
                 blogId: req.body.blogId,
             });
+            const newPost = yield this.postsRepository.getPostById(newPostId, ((_c = req.user) === null || _c === void 0 ? void 0 : _c.id) || '');
             res.status(201).send(newPost);
         });
         this.getPostByIdController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _c;
-            const postFound = yield this.postsRepository.getPostById(req.params.id.toString(), ((_c = req.user) === null || _c === void 0 ? void 0 : _c.id) || '');
+            var _d;
+            const postFound = yield this.postsRepository.getPostById(req.params.id.toString(), ((_d = req.user) === null || _d === void 0 ? void 0 : _d.id) || '');
             if (postFound) {
                 res.send(postFound);
             }
@@ -97,7 +99,7 @@ let PostsController = class PostsController {
         });
         //TODO refactor this
         this.getCommentsForPostController = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _d;
+            var _e;
             const isValidPost = yield this.postsRepository.isPostExist(req.params.postId);
             if (!isValidPost) {
                 res.sendStatus(404);
@@ -105,7 +107,7 @@ let PostsController = class PostsController {
             else {
                 const options = (0, utils_1.setCommentsQueryParams)(req.query);
                 let comments = yield this.commentRepository.getCommentsByPostId(req.params.postId, options);
-                let currentUserId = (_d = req.user) === null || _d === void 0 ? void 0 : _d.id;
+                let currentUserId = (_e = req.user) === null || _e === void 0 ? void 0 : _e.id;
                 let userLikesDislikes = null;
                 if (currentUserId) {
                     userLikesDislikes = yield db_1.userLikesCollection.findOne({

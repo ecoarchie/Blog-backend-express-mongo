@@ -14,11 +14,11 @@ export class PostsService {
     return this.postsRepository.deleteAllPostsLikes();
   }
 
-  async createPost(data: PostInputModel): Promise<PostViewModel> {
+  async createPost(data: PostInputModel): Promise<PostViewModel['id']> {
     return this.postsRepository.createPost(data);
   }
 
-  async createBlogPost(postData: PostInputModel): Promise<PostViewModel> {
+  async createBlogPost(postData: PostInputModel): Promise<PostViewModel['id']> {
     const blogPost = await this.createPost({ ...postData });
     return blogPost;
   }

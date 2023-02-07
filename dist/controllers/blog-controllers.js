@@ -27,12 +27,14 @@ const post_service_1 = require("../service/post-service");
 const blogs_repository_1 = require("../repositories/blogs-repository");
 const inversify_1 = require("inversify");
 const blogs_queryRepository_1 = require("../repositories/queryRepositories/blogs.queryRepository");
+const posts_repository_1 = require("../repositories/posts-repository");
 let BlogsController = class BlogsController {
-    constructor(blogsService, postsService, blogsRepository, blogsQueryRepository) {
+    constructor(blogsService, postsService, blogsRepository, blogsQueryRepository, postsRepository) {
         this.blogsService = blogsService;
         this.postsService = postsService;
         this.blogsRepository = blogsRepository;
         this.blogsQueryRepository = blogsQueryRepository;
+        this.postsRepository = postsRepository;
         this.getAllBlogs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const pageNumber = Number(req.query.pageNumber) || 1;
@@ -59,18 +61,20 @@ let BlogsController = class BlogsController {
             res.status(201).send(newBlog);
         });
         this.createBlogPost = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _b;
             const blog = yield this.blogsQueryRepository.getBlogById(req.params.blogId.toString());
             if (!blog) {
                 res.sendStatus(404);
                 return;
             }
-            const postCreated = yield this.postsService.createBlogPost({
+            const postCreatedId = yield this.postsService.createBlogPost({
                 blogId: blog.id,
                 title: req.body.title,
                 shortDescription: req.body.shortDescription,
                 content: req.body.content,
             });
-            res.status(201).send(postCreated);
+            const newPost = yield this.postsRepository.getPostById(postCreatedId, ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '');
+            res.status(201).send(newPost);
         });
         this.getBlogById = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const blogFound = yield this.blogsQueryRepository.getBlogById(req.params.id.toString());
@@ -104,9 +108,9 @@ let BlogsController = class BlogsController {
             }
         });
         this.getPostsByBlogId = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _b, _c;
+            var _c, _d;
             const blogId = req.params.blogId.toString();
-            const userId = ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) || '';
+            const userId = ((_c = req.user) === null || _c === void 0 ? void 0 : _c.id) || '';
             const pageNumber = Number(req.query.pageNumber) || 1;
             const pageSize = Number(req.query.pageSize) || 10;
             const skip = (pageNumber - 1) * pageSize;
@@ -114,7 +118,7 @@ let BlogsController = class BlogsController {
                 searchNameTerm: req.query.searchNameTerm || null,
                 pageNumber,
                 pageSize,
-                sortBy: ((_c = req.query.sortBy) === null || _c === void 0 ? void 0 : _c.toString()) || 'createdAt',
+                sortBy: ((_d = req.query.sortBy) === null || _d === void 0 ? void 0 : _d.toString()) || 'createdAt',
                 sortDirection: req.query.sortDirection || 'desc',
                 skip,
             };
@@ -131,9 +135,11 @@ BlogsController = __decorate([
     __param(1, (0, inversify_1.inject)(post_service_1.PostsService)),
     __param(2, (0, inversify_1.inject)(blogs_repository_1.BlogsRepository)),
     __param(3, (0, inversify_1.inject)(blogs_queryRepository_1.BlogsQueryRepository)),
+    __param(4, (0, inversify_1.inject)(posts_repository_1.PostsRepository)),
     __metadata("design:paramtypes", [blog_service_1.BlogsService,
         post_service_1.PostsService,
         blogs_repository_1.BlogsRepository,
-        blogs_queryRepository_1.BlogsQueryRepository])
+        blogs_queryRepository_1.BlogsQueryRepository,
+        posts_repository_1.PostsRepository])
 ], BlogsController);
 exports.BlogsController = BlogsController;
