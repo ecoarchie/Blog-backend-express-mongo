@@ -6,13 +6,19 @@ export type BlogInputModel = {
   websiteUrl: string;
 };
 
-export type BlogViewModel = BlogInputModel & {
+export type BlogViewModel = {
   id?: string;
+  name: string;
+  description: string;
+  websiteUrl: string;
   createdAt: string;
 };
 
-export type BlogDBModel = BlogInputModel & {
+export type BlogDBModel = {
   _id?: ObjectId | null;
+  name: string;
+  description: string;
+  websiteUrl: string;
   createdAt: string;
 };
 

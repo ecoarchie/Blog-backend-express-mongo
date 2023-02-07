@@ -28,14 +28,7 @@ let BlogsRepository = class BlogsRepository {
     createBlog(blogToInsert) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.blogsCollection.insertOne(blogToInsert);
-            const newBlog = {
-                id: result.insertedId.toString(),
-                name: blogToInsert.name,
-                description: blogToInsert.description,
-                websiteUrl: blogToInsert.websiteUrl,
-                createdAt: blogToInsert.createdAt,
-            };
-            return newBlog;
+            return result.insertedId.toString();
         });
     }
     updateBlogById(id, newDatajson) {

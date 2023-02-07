@@ -10,16 +10,16 @@ export class BlogsService {
     return this.blogsRepository.deleteAllBlogs();
   }
 
-  async createBlog(bodyJson: BlogInputModel): Promise<BlogViewModel> {
-    const { name, description, websiteUrl } = bodyJson;
+  async createBlog(blogInputData: BlogInputModel): Promise<BlogViewModel['id']> {
+    const { name, description, websiteUrl } = blogInputData;
     const blogToInsert = {
       name,
       description,
       websiteUrl,
       createdAt: new Date().toISOString(),
     };
-    const createdBlog = await this.blogsRepository.createBlog(blogToInsert);
-    return createdBlog;
+    const createdBlogId = await this.blogsRepository.createBlog(blogToInsert);
+    return createdBlogId;
   }
 
   async updateBlogById(id: string, newDatajson: BlogInputModel): Promise<boolean> {

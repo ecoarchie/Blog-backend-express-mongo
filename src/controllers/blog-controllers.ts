@@ -36,11 +36,12 @@ export class BlogsController {
   };
 
   createBlog = async (req: Request, res: Response) => {
-    const newBlog = await this.blogsService.createBlog({
+    const newBlogId = await this.blogsService.createBlog({
       name: req.body.name,
       description: req.body.description,
       websiteUrl: req.body.websiteUrl,
     });
+    const newBlog = await this.blogsQueryRepository.getBlogById(newBlogId!);
     res.status(201).send(newBlog);
   };
 
@@ -48,15 +49,15 @@ export class BlogsController {
     const blog = await this.blogsQueryRepository.getBlogById(req.params.blogId.toString());
     if (!blog) {
       res.sendStatus(404);
-    } else {
-      const postCreated: PostViewModel = await this.postsService.createBlogPost({
-        blogId: blog.id!,
-        title: req.body.title,
-        shortDescription: req.body.shortDescription,
-        content: req.body.content,
-      });
-      res.status(201).send(postCreated);
+      return;
     }
+    const postCreated: PostViewModel = await this.postsService.createBlogPost({
+      blogId: blog.id!,
+      title: req.body.title,
+      shortDescription: req.body.shortDescription,
+      content: req.body.content,
+    });
+    res.status(201).send(postCreated);
   };
 
   getBlogById = async (req: Request, res: Response) => {

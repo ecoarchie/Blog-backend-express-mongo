@@ -50,27 +50,27 @@ let BlogsController = class BlogsController {
             res.send(foundBlogs);
         });
         this.createBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const newBlog = yield this.blogsService.createBlog({
+            const newBlogId = yield this.blogsService.createBlog({
                 name: req.body.name,
                 description: req.body.description,
                 websiteUrl: req.body.websiteUrl,
             });
+            const newBlog = yield this.blogsQueryRepository.getBlogById(newBlogId);
             res.status(201).send(newBlog);
         });
         this.createBlogPost = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const blog = yield this.blogsQueryRepository.getBlogById(req.params.blogId.toString());
             if (!blog) {
                 res.sendStatus(404);
+                return;
             }
-            else {
-                const postCreated = yield this.postsService.createBlogPost({
-                    blogId: blog.id,
-                    title: req.body.title,
-                    shortDescription: req.body.shortDescription,
-                    content: req.body.content,
-                });
-                res.status(201).send(postCreated);
-            }
+            const postCreated = yield this.postsService.createBlogPost({
+                blogId: blog.id,
+                title: req.body.title,
+                shortDescription: req.body.shortDescription,
+                content: req.body.content,
+            });
+            res.status(201).send(postCreated);
         });
         this.getBlogById = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const blogFound = yield this.blogsQueryRepository.getBlogById(req.params.id.toString());
